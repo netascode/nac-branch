@@ -1,0 +1,202 @@
+meraki:
+  template:
+    networks:
+       - name: hub
+         devices:
+          - name: ${appliance-01}
+            serial: ${appliance-01-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Appliance
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic
+                wan2:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic
+       - name: sb122
+         devices:
+          - name: ${appliance-01}
+            serial: ${appliance-01-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Appliance
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic
+                wan2:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic
+          - name: ${switch-01}
+            serial: ${switch-01-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Switch
+            switch:
+              ports:
+              - port_ids: 1-2
+                name: trunk port to router and AP
+                type: trunk
+                allowed_vlans: 1-100
+                port_schedule_name: "Weekend Only Port Schedule"
+              - port_ids: 3-4
+                name: trunk port to VM
+                type: trunk
+                allowed_vlans: 1-100
+                vlan: 344
+                port_schedule_name: "Weekend Only Port Schedule" 
+              - port_ids: 5-13
+                name: trunk port to router and AP
+                type: trunk
+                allowed_vlans: 1-100
+                port_schedule_name: "Weekend Only Port Schedule"   
+              - port_ids: 14-24
+                name: User Port
+                tags:
+                  - tag1
+                enabled: true
+                type: access
+                vlan: 1
+                voice_vlan: 30
+                isolation: true
+                stp_guard: bpdu guard
+                link_negotiation: Auto negotiate
+                port_schedule_name: "Weekend Only Port Schedule"
+                storm_control: true
+          - name: ${switch-02}
+            serial: ${switch-02-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Switch
+            switch:
+              ports:
+              - port_ids: 1-2
+                name: trunk port to router and AP
+                type: trunk
+                allowed_vlans: 1-100
+                port_schedule_name: "Weekend Only Port Schedule"
+              - port_ids: 3-4
+                name: trunk port to VM
+                type: trunk
+                allowed_vlans: 1-100
+                vlan: 344
+                port_schedule_name: "Weekend Only Port Schedule" 
+              - port_ids: 5-13
+                name: trunk port to router and AP
+                type: trunk
+                allowed_vlans: 1-100
+                port_schedule_name: "Weekend Only Port Schedule"   
+              - port_ids: 14-24
+                name: User Port
+                tags:
+                  - tag1
+                enabled: true
+                type: access
+                vlan: 1
+                voice_vlan: 30
+                isolation: true
+                stp_guard: bpdu guard
+                link_negotiation: Auto negotiate
+                port_schedule_name: "Weekend Only Port Schedule"
+                storm_control: true    
+          - name: ${ap-01}
+            serial: ${ap-01-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Access Point
+          - name: ${ap-02}
+            serial: ${ap-02-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Appliance
+       - name: sb11
+         devices:
+          - name: ${appliance-01}
+            serial: ${appliance-01-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Appliance
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic
+                wan2:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic
+          - name: ${switch-01}
+            serial: ${switch-01-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Switch
+            switch:
+              ports:
+              - port_ids: 1-2
+                name: trunk port to router and AP
+                type: trunk
+                allowed_vlans: 1-100
+                port_schedule_name: "Weekend Only Port Schedule"
+              - port_ids: 3-4
+                name: trunk port to VM
+                type: trunk
+                allowed_vlans: 1-100
+                vlan: 344
+                port_schedule_name: "Weekend Only Port Schedule" 
+              - port_ids: 5-13
+                name: trunk port to router and AP
+                type: trunk
+                allowed_vlans: 1-100
+                port_schedule_name: "Weekend Only Port Schedule"   
+              - port_ids: 14-24
+                name: User Port
+                tags:
+                  - tag1
+                enabled: true
+                type: access
+                vlan: 1
+                voice_vlan: 30
+                isolation: true
+                stp_guard: bpdu guard
+                link_negotiation: Auto negotiate
+                port_schedule_name: "Weekend Only Port Schedule"
+                storm_control: true

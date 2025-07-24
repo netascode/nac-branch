@@ -1,0 +1,412 @@
+meraki:
+  template:
+    networks:
+      - name: app_settings
+        appliance:
+                settings:
+                  client_tracking_method: "MAC address"
+                  deployment_mode: routed
+                  dynamic_dns:
+                    prefix: "my-network"
+                    enabled: true
+      - name: app_spoke
+        appliance:              
+                vpn_site_to_site_vpn:
+                  mode: spoke
+                  hubs:
+                    - hub_network_name: Unified Hub
+                      use_default_route: true
+                  subnets:
+                    - local_subnet: ${vlan10_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan20_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan344_subnet}
+                      use_vpn: true  
+      - name: app_hub
+        appliance:
+                vpn_site_to_site_vpn:
+                  mode: hub
+                  subnets:
+                    - local_subnet: ${vlan10_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan20_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan344_subnet}
+                      use_vpn: true
+      - name: app_ports
+        appliance:
+          ports:
+            - port_id: 5
+              enabled: true
+              type: trunk
+              allowed_vlans: "1,10,20,30,344"
+              vlan: 1              
+            - port_id: 6
+              enabled: true
+              type: trunk
+              allowed_vlans: "1,10,20,30,344"
+              vlan: 1
+            - port_id: 13
+              enabled: true
+              type: trunk
+              allowed_vlans: "1,10,20,30,344"          
+            - port_id: 14
+              enabled: true
+              type: trunk
+              allowed_vlans: "1,10,20,30,344"         
+      - name: app_vlans
+        appliance:
+          vlans_settings: true
+          vlans:
+            - vlan_id: 10
+              name: "Data"
+              subnet:  ${vlan10_subnet}
+              appliance_ip: ${vlan10_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: upstream_dns  
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              dhcp_options:
+                - code: "66"
+                  type: "text"
+                  value: "tftp.example.com"
+                - code: "67"
+                  type: "text"
+                  value: "bootfile"
+              reserved_ip_ranges:
+                - start: ${vlan10_dhcp_start}
+                  end: ${vlan10_dhcp_end}
+                  comment: "Reserved"
+              mandatory_dhcp: true
+            - vlan_id: 20
+              name: "Voice"
+              subnet: ${vlan20_subnet}
+              appliance_ip: ${vlan20_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: upstream_dns  
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              dhcp_options:
+                - code: "66"
+                  type: "text"
+                  value: "tftp.example.com"
+                - code: "67"
+                  type: "text"
+                  value: "bootfile"
+              reserved_ip_ranges:
+                - start: ${vlan20_dhcp_start}
+                  end: ${vlan20_dhcp_end}
+                  comment: "Reserved"
+              mandatory_dhcp: true
+            - vlan_id: 30
+              name: "Guest"
+              subnet: ${vlan30_subnet}
+              appliance_ip: ${vlan30_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: upstream_dns
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              dhcp_options:
+                - code: "66"
+                  type: "text"
+                  value: "tftp.example.com"
+                - code: "67"
+                  type: "text"
+                  value: "bootfile"
+              reserved_ip_ranges:
+                - start: ${vlan30_dhcp_start}
+                  end:  ${vlan30_dhcp_end}
+                  comment: "Reserved"
+              mandatory_dhcp: true
+            - vlan_id: 344
+              name: "clamer"
+              subnet: ${vlan344_subnet}
+              appliance_ip: ${vlan344_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: upstream_dns
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              dhcp_options:
+                - code: "66"
+                  type: "text"
+                  value: "tftp.example.com"
+                - code: "67"
+                  type: "text"
+                  value: "bootfile"
+              reserved_ip_ranges:
+                - start: ${vlan344_dhcp_start}
+                  end:  ${vlan344_dhcp_end}
+                  comment: "Reserved"
+              mandatory_dhcp: true   
+      - name: app_fw
+        appliance:
+          firewall:
+                  l3_firewall_rules:
+                      rules:
+                      - comment: "Block Bad Traffic"
+                        policy: deny
+                        protocol: udp
+                        source_port: 1433
+                        source_cidr: Any
+                        destination_port: 1433
+                        destination_cidr: Any
+                      - comment: "Block SSH"
+                        policy: deny
+                        protocol: tcp
+                        source_port: 22
+                        source_cidr: Any
+                        destination_port: 22
+                        destination_cidr: Any
+                  firewalled_services:
+                      - service_name: "ICMP"
+                        access: "blocked"
+                      - service_name: "web"
+                        access: "restricted"
+                        allowed_ips:
+                          - "2.2.2.2"
+                          - "3.3.3.3"
+                      - service_name: "SNMP"
+                        access: "unrestricted"
+                  l7_firewall_rules:
+                      - policy: deny
+                        type: applicationCategory
+                        value: "meraki:layer7/category/27"
+                      - policy: deny
+                        type: application
+                        value: "meraki:layer7/application/106"
+                      - policy: deny
+                        type: host
+                        value: "abc.com"
+                      - policy: deny
+                        type: port
+                        value: "161"
+                      - policy: deny
+                        type: ipRange
+                        value: "192.168.0.1"
+                      - policy: deny
+                        type: ipRange
+                        value: "192.168.0.2:80"
+      - name: app_ts
+        appliance:
+            traffic_shaping:
+                    global_bandwidth_limits:
+                        limit_up: 10000
+                        limit_down: 10000
+                    custom_performance_classes:
+                      - name: Radius
+                        max_latency: 30
+                        max_jitter: 30
+                        max_loss_percentage: 5
+                    rules:
+                        rules:
+                          - name: Rule 01
+                            definitions:
+                              - type: applicationCategory
+                                value: "meraki:layer7/category/24"
+                              - type: application
+                                value: meraki:layer7/application/332
+                              - type: application
+                                value: meraki:layer7/application/2249
+                              - type: application
+                                value: meraki:layer7/application/351
+                              - type: application
+                                value: meraki:layer7/application/2248
+                              - type: application
+                                value: meraki:layer7/application/2542
+                            per_client_bandwidth_limits:
+                                settings: custom
+                                bandwidth_limits:
+                                  limit_up: 1000
+                                  limit_down: 1000
+                            dscp_tag_value: 18
+                            priority: high
+                          - name: Rule 02
+                            definitions:
+                              - type: applicationCategory
+                                value: "meraki:layer7/category/24"
+                              - type: application
+                                value: meraki:layer7/application/332
+                            per_client_bandwidth_limits:
+                                settings: ignore
+                            dscp_tag_value: 18
+                            priority: high
+                        default_rules: false   
+                    uplink_bandwidth_limits:
+                        wan1:
+                            limit_up: 700000
+                            limit_down: 700000
+                        wan2:
+                            limit_up: 700000
+                            limit_down: 700000
+                        # cellular:
+                        #     limit_up: 0
+                        #     limit_down: 0
+                    uplink_selection:
+                        default_uplink: wan1
+                        active_active_auto_vpn: true
+                        load_balancing: true
+                        failover_and_failback_immediate: true
+                        wan_traffic_uplink_preferences:
+                        - name: policy 1
+                          preferred_uplink: "wan1"
+                          traffic_filters:
+                            - type: custom
+                              value:
+                                protocol: tcp
+                                source:
+                                    port: "1-1024"
+                                    cidr: any
+                                destination:
+                                    cidr: any
+                                    port: any
+                        - name: policy 2
+                          preferred_uplink: "wan1"
+                          traffic_filters:
+                            - type: custom
+                              value:
+                                protocol: tcp
+                                source:
+                                    port: any
+                                    cidr: ${vlan10_subnet}
+                                destination:
+                                    cidr: any
+                                    port: "443"
+                        vpn_traffic_uplink_preferences:
+                        - name: policy 1
+                          preferred_uplink: wan1
+                          traffic_filters:
+                            - type: application
+                              value:
+                                id: meraki:layer7/application/375
+                            # - type: "custom"
+                            #   value:
+                            #     protocol: any
+                            #     source:
+                            #         port: any
+                            #         cidr: any
+                            #     destination:
+                            #         port: any
+                            #         cidr: any
+                          fail_over_criterion: poorPerformance
+                          performance_class:
+                            type: builtin
+                            builtin_performance_class_name: VoIP
+                        - name: policy 2
+                          preferred_uplink: wan1
+                          traffic_filters:
+                            - type: application
+                              value:
+                                id: meraki:layer7/application/4
+                            # - type: "custom"
+                            #   value:
+                            #     protocol: any
+                            #     source:
+                            #         port: any
+                            #         cidr: any
+                            #     destination:
+                            #         port: any
+                            #         cidr: any
+                          fail_over_criterion: poorPerformance
+                          performance_class:
+                            type: builtin
+                            builtin_performance_class_name: VoIP
+      - name: app_content
+        appliance:
+            content_filtering:
+                allowed_url_patterns:
+                      - "www.cisco.com"
+                      - "*.meraki.com"
+                blocked_url_patterns:
+                      - www.porn.com
+                      - www.socialmedia.net
+                      - www.example.badsitehere.com
+                blocked_url_categories:
+                      - "meraki:contentFiltering/category/C6"
+                      - "meraki:contentFiltering/category/C69"
+                      - "meraki:contentFiltering/category/C55"
+                      - "meraki:contentFiltering/category/C47"
+                      - "meraki:contentFiltering/category/C84"
+                      - "meraki:contentFiltering/category/C22"
+                      - "meraki:contentFiltering/category/T01"
+                      - "meraki:contentFiltering/category/T03"
+                      - "meraki:contentFiltering/category/T14"
+                      - "meraki:contentFiltering/category/T05"
+                      - "meraki:contentFiltering/category/T02"
+                      - "meraki:contentFiltering/category/C36"
+                url_category_list_size: fullList
+      - name: app_intrusion
+        appliance:
+          security_intrusion:
+            mode: prevention
+            ids_rulesets: balanced
+      - name: app_mal
+        appliance:
+          security_malware:
+                    mode: enabled
+                    allowed_urls:
+                      - url: "www.cisco.com"
+                        comment: "Cisco"
+                      - url: "*.meraki.com"
+                        comment: "Meraki"
+                    allowed_files:
+                      - sha256: "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                        comment: "Test File 1"
+                      - sha256: "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+                        comment: "Test File 2"
+      - name: tfsteering 
+        appliance:
+          sdwan_internet_policies:
+            - name: policy 1
+              traffic_filters:
+                - type: custom
+                  value:
+                    protocol: "tcp"
+                    source:
+                      port: "1-1024"
+                      cidr: "any"
+                    destination:
+                      port: "any"
+                      cidr: "any"
+              preferred_uplink: "wan1"
+              fail_over_criterion: "poorPerformance"
+              performance_class:
+                type: builtin
+                builtin_performance_class_name: VoIP
+                custom_performance_class_id: "123456"
+            - name: policy 2
+              traffic_filters:
+                - type: majorApplication
+                  value:
+                    protocol: "udp"
+                    source:
+                      port: "1-1024"
+                      cidr: "any"
+                    destination:
+                      applications:
+                        - id: "meraki:layer7/application/1"
+                          name: "Office 365 Suite"
+                          type: "major"
+              preferred_uplink: "wan1"
+              fail_over_criterion: "poorPerformance"
+              performance_class:
+                type: builtin
+                builtin_performance_class_name: VoIP
+                custom_performance_class_id: "123456"
+      - name: app_static_routes
+        appliance:
+          static_routes:
+            - name: Static Route 01
+              subnet: ${static_route1_subnet}
+              gateway_ip: ${static_route1_gw}
+            - name: Static Route 02
+              subnet: ${static_route2_subnet}
+              gateway_ip: ${static_route2_gw}
