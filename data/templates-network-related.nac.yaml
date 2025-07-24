@@ -1,6 +1,35 @@
+# The below code does the following:
+#
+# This YAML file defines the following network related templates: 
+#
+# - product_types
+# - network_settings
+# - snmp
+# - syslog
+# - nw_switch
+# - nw_switch1
+# - wireless
+#
+# Each template defines services configuration which is
+# applicable to devices within the network / site to which 
+# the template is applied.
+#
+# Note that these templates are not related to templates
+# configured within the Cisco (formerly Meraki) dashboard.
+#
 meraki:
   template:
     networks:
+      # 
+      # The below code does the following:
+      #
+      # product_types configuration template.
+      #
+      # The product_types configuration template defines the 
+      # devices (appliance, switch, wireless, camera, sensor,
+      # cellularGateway) within the network / site to  which
+      # the template is applied.
+      #
       - name: product_types
         product_types:
                 - appliance
@@ -8,7 +37,22 @@ meraki:
                 - wireless
                 - camera
                 - sensor
-                - cellularGateway      
+                - cellularGateway
+      # 
+      # The below code does the following:
+      #
+      # network_settings configuration template.
+      #
+      # The network_settings template enables both
+      # the local and remote status pages for devices within
+      # network / site to which the template is applied. 
+      # Additionally, it sets the credentials for access
+      # to the local status page of the devices.  Note: this
+      # configuration is for example only.  As a general 
+      # recommendation - DO NOT hardcode sensitive
+      # information such as credentials within any file which 
+      # is checked into a version control system. 
+      #  
       - name: network_settings
         settings:
           local_status_page_enabled: true
@@ -17,13 +61,40 @@ meraki:
           local_status_page_authentication:
             username: ${local_status_page_username}
             password: "mEraki123%"
-          named_vlans: true   
+          named_vlans: true  
+      # 
+      # The below code does the following:
+      #
+      # snmp configuration template.
+      #
+      # The snmp template configures SNMPv3 access (username
+      # and password) to devices within the site / netwwork 
+      # to which the template is applied.  This does not 
+      # configure any firewall settings restricting SNMP access,
+      # which may be required based on the security policy of 
+      # the organization.  Note: this configuraiton is for example
+      # only.  As a general recommendation - DO NOT hardcode
+      # sensitive information such as credentials within any file
+      # which is checked into a version control system. 
+      #      
       - name: snmp
         snmp:
           access: users
           users:
             - username: ${snmp_username}
               passphrase: Cisco123
+      # 
+      # The below code does the following:
+      #
+      # syslog configuration template.
+      #
+      # The syslog template configures a single remote
+      # syslog server, defined as a variable.  UDP port 514
+      # is configured as port on which syslog traffic is 
+      # sent.  The configuration enables sending of all 
+      # message categories / roles for all types of devices
+      # in the site / network to which the template is applied.
+      #     
       - name: syslog
         syslog_servers:
           - host: ${syslog_server}
@@ -35,6 +106,44 @@ meraki:
               - URLs
               - Wireless event log
               - Appliance event log
+      # 
+      # The below code does the following:
+      #
+      # nw_switch configuration template.
+      #
+      # The nw_switch template configures the following
+      # for the switch within the network to which the
+      # template is applied:
+      #
+      # - Sets the management VLAN to VLAN 1.
+      #
+      # - Sets any secondary power supply to be redundant
+      #   power for the switch only.
+      #
+      # - Enables sampling of clients and traffic on the 
+      #   detected uplink interface.
+      #
+      # - Sets the default MTU size of switch ports to 
+      #   9100 bytes.
+      #
+      # - Sets the DHCP server policy of the switch to
+      #   allow DHCP traffic. 
+      #
+      # - Defines the DSCP to CoS queue mapping assuming
+      #   a 12-class QoS model, using all 8 CoS queues.
+      #
+      # - Defines an example set of QoS classification
+      #   and marking rules for different VLANs on the switch.
+      # 
+      # - Restricts broadcast, multicast, and unknown unicast
+      #   traffic to 30% of the available bandwidth of the 
+      #   switch ports (storm control).
+      #
+      # - Defines an esample port schedule named "Weekend Only
+      #   Port Schedule". Configures ports to which the schedule
+      #   is applied to be available at all hours for all days
+      #   of the week.
+      #   
       - name: nw_switch
         switch:
           settings:
@@ -167,6 +276,133 @@ meraki:
                             active: true
                             from: 00:00
                             to: '24:00'
+      # 
+      # The below code does the following:
+      #
+      # wireless configuration template.
+      #
+      # The wireless template configures various parameters
+      # under three main categories - settings, rf_profiles,
+      # and ssids for the access points within the network to 
+      # which the template is applied.  Note that the parameters
+      # defined within this section are examples only.  They are 
+      # not intended to be used directly in production networks, 
+      # and are not considered to be any form of best-practice
+      # configuration. 
+      #
+      # settings:  The settings sections configures various 
+      # network-wide wireless device (AP) settings.
+      #
+      # rf-profiles:  The rf_profiles section configures a
+      # single profile named "Corp wireless rf profile".  
+      # 
+      # - Clients are steered to the best available
+      #   AP during association (client balancing).
+      #
+      # - Minimum bit rate supported is specified per
+      #   RF band - 2.4, 5 GHz (6 GHz not enabled).
+      #
+      # - Selection of RF bands is configured on a 
+      #   per-SSID level, rather than across all SSIDs
+      #   to which the RF profile is applied.
+      #
+      # - For the 2.4 GHz RF band:
+      #    - Minimum transmit power configured for 10 dBm
+      #    - Maximum transmit power configured for 30 dBm
+      #    - Minimum supported bit rate is 11 Mbps
+      #    - Auto channel selection is left at the default of
+      #      channels 1, 3, & 11.
+      #    - Keeps 802.11ax enabled
+      #    - Enables and sets the Receiver Start of Packet
+      #      (RX-SOP) to -80 dBm
+      #
+      # - For the 5 GHz RF band: 
+      #    - Minimum transmit power configured for 10 dBm
+      #    - Maximum transmit power configured for 30 dBm
+      #    - Minimum supported bit rate is 9 Mbps
+      #    - Auto channel selection is configured to non-DFS
+      #      channels 36, 40, 44 48, 157, and 161.
+      #    - Channel width is set to 80 MHz
+      #    - Keeps 802.11ax enabled
+      #    - Enables and sets the Receiver Start of Packet
+      #      (RX-SOP) to -80 dBm
+      #
+      # - Enables radio transmission.
+      #
+      # - Specific configuration for the "Guest" SSID for a minimum 
+      #   bit rate of 11 Mbps, operating in the 5 GHz band.
+      #
+      # - Sets the RF profile as the default indoor and outdoor
+      #   profile.
+      #
+      # ssid:  The SSIDs section hardcodes three SSIDs  - Data (SSID 0),
+      # Voice (SSID 1), and Guest (SSID 3).
+      #
+      # - For the Data SSID:
+      #     - Authentication mode is set to open (no encryption).
+      #
+      #     - Per-client and per-SSID rate limits are set to unlimited 
+      #       (no rate-limiting).
+      #
+      #     - The 4 default traffic shaping rules are disabled.  Instead 
+      #       a per-application traffic shaping rule identifies and classifies 
+      #       5 different applications, then sets the DSCP marking of the traffic
+      #       to CS2 (DSCP 16) and defines custom per bandwidth limits of 1 Mbps 
+      #       upstream and downstream. (Note that applications must be specified 
+      #       by ID currently.  Work to translate the IDs into user-friendly names 
+      #       is ongoing). A second traffic shaping rule identifies traffic based 
+      #       on host, IP subnet, and IP subnet with port, then sets the DSCP marking 
+      #       of the traffic to CS3 (DSCP 24) with rate limiting set to the network
+      #       default (unlimited).
+      #
+      #     - IP address assignment for wireless clients is via the DHCP server within 
+      #       the security appliance (briged_mode).
+      #
+      #     - VLAN tagging is enabled with the assignment of the VLAN to which 
+      #       the Data SSID is assigned defined as a variable.
+      # 
+      #     - An example SSID availability schedule for the weekend is defined.
+      #
+      # - For the Voice SSID:
+      #     - Authentication mode is set to open (no encryption).
+      #
+      #     - Per-client and per-SSID rate limits are set to unlimited 
+      #       (no rate-limiting).
+      #
+      #     - The 4 default traffic shaping rules are disabled.  Instead 
+      #       a per-application traffic shaping rule identifies and classifies 
+      #       one voice application, then sets the DSCP marking of the traffic
+      #       to EF (DSCP 46) & CoS to 7; and allows the application to ignore any
+      #       bandwidth limits. (Note that applications must be specified by ID
+      #       currently. Work to translate the IDs into user-friendly names is ongoing). 
+      #
+      #     - IP address assignment for wireless clients is via the DHCP server within 
+      #       the security appliance (briged_mode).
+      #
+      #     - VLAN tagging is enabled with the assignment of the VLAN to which 
+      #       the Data SSID is assigned defined as a variable.
+      # 
+      #     - An example SSID availability schedule for the weekend is defined.
+      #
+      # - For the Guest SSID:
+      #     - Authentication mode is set to open (no encryption).
+      #
+      #     - Per-client rate limits are set to 10 Mbps upstream and downstream.
+      #
+      #     - Per-SSID rate limits are set 100 Mbps upstream and downstream. 
+      #
+      #     - The 4 default traffic shaping rules are enabled.
+      # 
+      #     - IP address assignment for wireless clients is via the DHCP server within 
+      #       the security appliance (briged_mode).
+      #
+      #     - VLAN tagging is enabled with the assignment of the VLAN to which 
+      #       the Data SSID is assigned defined as a variable.
+      #
+      #     - A click-through splash-page is enabled for guest traffic. 
+      # 
+      #     - An example SSID availability schedule for the weekend is defined.
+      #
       - name: wireless
         wireless:
                   settings:
@@ -366,6 +602,44 @@ meraki:
                             start_time: 00:00:00
                             end_time: 06:00:00
                             end_day: Saturday
+      # 
+      # The below code does the following:
+      #
+      # nw_switch1 configuration template.
+      #
+      # The nw_switch1 template configures the following
+      # for the switch within the network to which the
+      # template is applied:
+      #
+      # - Sets the management VLAN to VLAN 1.
+      #
+      # - Sets any secondary power supply to be redundant
+      #   power for the switch only.
+      #
+      # - Enables sampling of clients and traffic on the 
+      #   detected uplink interface.
+      #
+      # - Sets the default MTU size of switch ports to 
+      #   9100 bytes.
+      #
+      # - Sets the DHCP server policy of the switch to
+      #   allow DHCP traffic. 
+      #
+      # - Defines the DSCP to CoS queue mapping assuming
+      #   a 12-class QoS model, using all 8 CoS queues.
+      #
+      # - Defines an example set of QoS classification
+      #   and marking rules for different VLANs on the switch.
+      # 
+      # - Restricts broadcast, multicast, and unknown unicast
+      #   traffic to 30% of the available bandwidth of the 
+      #   switch ports (storm control).
+      #
+      # - Defines an esample port schedule named "Weekend Only
+      #   Port Schedule". Configures ports to which the schedule
+      #   is applied to be available at all hours for all days
+      #   of the week.
+      #   
       - name: nw_switch1
         switch:
           settings:
