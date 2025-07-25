@@ -1,11 +1,11 @@
 # Unified Branch - Branch as Code Design Guide: Release 1 - Early Availability #
 
-## Overview
+## Overview ##
 This intial release of Unified Branch - Branch as Code (referred to as Release 1, Early Availability), is intended to introduce the provisioning of branch network infrastructure (security appliances, switches, and Wi-Fi access points) wholistically using Network as Code (NAC) concepts, practices, and procedures.  In order to ease the amount of learning involved in adopting Network as Code as a means of configuring branch network infrastructure, a very basic and highly prescriptive branch network design has been developed, tested, and documented for this initial release.    
 
 The intent of Release 1 - Early Availability is allow Cisco customers and partners to utilize this repository to rapidly become familiar with the concepts, practices, and procedures necessary to adopt Network as Code - in a non-production test environment - and to provide feedback to Cisco. 
 
-## Network Design
+## Network Design ##
 Release 1 - Early Availability supports a single network design for small branch sites only. The small branch network design consists of the following components: 
 
 - 1 x MX-85 security appliance
@@ -18,7 +18,7 @@ The physical layout of the small branch design is shown below.
 
 ![Small Branch](images/small-branch.png)
 
-### Small Branch Security Appliance
+### Small Branch Security Appliance ###
 For Release 1 - Early Availability, the small branch network supports a single MX-85 security appliance for WAN connectivity.  The physical connectivity of the MX-85 ports is shown in the following table.
 
 **Table 1. MX-85 Security Appliance Physical Ports**
@@ -43,7 +43,7 @@ VLAN 1 on the MX security appliance can only be deleted if support for multiple 
 
 Due to the need to smoothly onboard and maintain connectivity of downstream switches and APs to the Cisco Cloud, for Release 1 - Early Availability, the MX-85 security appliance uses the default configuration of VLAN 1 for handing out IPv4 addresses to the downstream C9300L-24P-4X or C9300L-48P-4X switch and CW9176I APs.  VLAN 1 is used solely as an Infrastructure VLAN to allow the switch and APs downstream of the MX security appliance to receive IP addresses and connect to the Meraki Cloud, so these devices can be configured and managed.  
 
-Note that since VLAN 1 is automatically configured within the MX security appliance, it will not appear within the YAML configuration files within the /data folder.  Work is ongoing to import the VLAN 1 configuration for visibility in the YAML configuration files.  
+Note that since VLAN 1 is automatically configured within the MX security appliance, it will not appear within the YAML configuration files within the *data* folder.  Work is ongoing to import the VLAN 1 configuration for visibility in the YAML configuration files.  
 
 Note also that with this configuration, since all sites (networks) use the same default IPv4 subnet range of 192.168.1.0/24 for the Infrastructure VLAN, VLAN 1 cannot be distributed across the VPN fabric.  Hence, the 192.168.1.0/24 IPv4 subnet range is local to each site / network only.
 
@@ -65,7 +65,7 @@ A single 1 Gigabit Ethernet RJ45 connection provides only 1 Gbps of bandwidth an
 
 - Multiple pairs of redundant 1 Gbps Ethernet RJ45 or SFP (optical) connections configured as trunk ports, each supporting a subset of the overall VLANs.  STP on the switch will put one of the connections of each pair into blocking mode, ensuring there are no loops between the switch and the MX security appliance.  This potential option addresses both redundancy and aggregate bandwidth across all VLANs (not per individual VLAN) between the MX security appliance and the switch or switch stack.
 
-The use of SFP (optical) connectivity may also be needed in situations where the MX security appliance and the switch are physically separated from each other.  Distances greater than 100 meters, or facilities where only fiber optic cabling exists between wiring closets may result in the use of the SFP ports.  For Release 1 - Early Availability it is assumed that the MX-85 security appliance and switch are physically adjacent to each other, requiring only RJ45 wired connectivity.  Hence, the physical port on the MX-85 security appliance is hard-coded in the YAML configuration files found within the /data directory of this repository to port 1, rather than being assigned a variable which can be assigned by the end-user. 
+The use of SFP (optical) connectivity may also be needed in situations where the MX security appliance and the switch are physically separated from each other.  Distances greater than 100 meters, or facilities where only fiber optic cabling exists between wiring closets may result in the use of the SFP ports.  For Release 1 - Early Availability it is assumed that the MX-85 security appliance and switch are physically adjacent to each other, requiring only RJ45 wired connectivity.  Hence, the physical port on the MX-85 security appliance is hard-coded in the YAML configuration files found within the *data* directory of this repository to port 1, rather than being assigned a variable which can be assigned by the end-user. 
 
 ### Small Branch Switch ###
 For Release 1 - Early Availability, a single C9300L-24P-4X or C9300L-48P-4X Layer 2 switch provides LAN connectivity to devices within the small branch.  Physical port media and speeds, as well as Power over Ethernet (PoE) support for these models are shown in the table below.  Both models support fixed 4 x 1/10Gbps SFP+ uplink ports.
@@ -76,7 +76,7 @@ For Release 1 - Early Availability, a single C9300L-24P-4X or C9300L-48P-4X Laye
 
 Support for PoE on switch ports may be needed when connecting wireless LAN (WLAN) APs, IP phones, surveillance cameras, and other devices to the switch.  Both models support 802.3at / PoE+ (Type 2) which can supply up to 30W per port up to the total power budget for PoE devices of the switch. The total power budget for PoE devices depends on the number of power supplies installed within the switch, as well as the power rating of the individual power supplies (715 Watts AC vs. 1100 Watts AC), as shown in the table above. 
 
-When a C9300L Series switch is managed by the Cisco Cloud (formerly known as the Meraki Cloud), the switch ports (or port_ids as they are referred to in the YAML configuration files within this repository) on the switch begin with port/port_id 1, and proceed up to the last port/port_id of the switch, including the uplinks which are typically the highest port/port_id numbers (25-29, 49-52, etc.).  This is unlike switch configurations in traditional IOS-XE platforms, where the port numbering reflects the position of the switch in the switch stack, the module within the switch, and the port position on the switch.  For instance, the first switch uplink port of a standalone IOS-XE switch would be referred to as port GigabitEthernet 1/1/1.
+When a C9300L Series switch is managed by the Cisco Cloud (formerly known as the Meraki Cloud), the switch ports (or port_ids as they are referred to in the YAML configuration files within this repository) on the switch begin with port / port_id 1, and proceed up to the last port/port_id of the switch, including the uplinks which are typically the highest port / port_id numbers (25-29, 49-52, etc.).  This is unlike switch configurations in traditional IOS-XE platforms, where the port numbering reflects the position of the switch in the switch stack, the module within the switch, and the port position on the switch.  For instance, the first switch uplink port of a standalone IOS-XE switch would be referred to as port GigabitEthernet 1/1/1.
 
 The link speed (10 Mbps, 100 Mbps, 1 Gbps, and/or 10 Gbps) and duplex (full or half) of the Ethernet ports on the MX security appliance and the C9300L Series switch must match for the uplink to come up active.  A best practice is to leave the link speed for auto-negotiation of speed and duplex.
 
@@ -92,7 +92,7 @@ This configuration allowed the switch to automatically acquire an IPv4 address i
 
 ### Small Branch WLAN Access Points ###
 
-For Release 1 - Early Availability, two CW9176I cloud managed APs provided wireless LAN (WLAN) connectivity wtihin the branch.  The CW9176I supports an omni-directional internal antenna.  Physical port media and speeds, as well as PoE requirements for the CW9176I are shown in the table below. 
+For Release 1 - Early Availability, two CW9176I cloud managed APs provided wireless LAN (WLAN) connectivity wtihin the branch.  The CW-9176I supports an omni-directional internal antenna.  Physical port media and speeds, as well as PoE requirements for the CW-9176I are shown in the table below. 
 
 **Table 3. CW9176I Physical Ports and PoE Requirements**
 
@@ -100,7 +100,7 @@ For Release 1 - Early Availability, two CW9176I cloud managed APs provided wirel
 
 #### Uplink Connectivity to the Switch #### 
 
-The CW9176I AP support only a single uplink port for connectivity to the switch.  As mentioned previously for Release 1 - Early Availability, VLAN 1 is used as an Infrastructure VLAN to ensure downstream switches and APs are able to connect to the Cisco Cloud to get onboarded.  All VLANs with customer traffic (Data, Voice, and Guest) are configured as additional VLANs.  This means that the connections between switches and APs must be configured as trunk ports.  The native VLAN of the trunk ports should be configured for VLAN 1.
+The CW-9176I AP support only a single uplink port for connectivity to the switch.  As mentioned previously for Release 1 - Early Availability, VLAN 1 is used as an Infrastructure VLAN to ensure downstream switches and APs are able to connect to the Cisco Cloud to get onboarded.  All VLANs with customer traffic (Data, Voice, and Guest) are configured as additional VLANs.  This means that the connections between switches and APs must be configured as trunk ports.  The native VLAN of the trunk ports should be configured for VLAN 1.
 
 #### PoE Requirements for the Access Points ####
 When configuring the uplink between the switch and APs, the network administrator needs to consider how power is to be supplied to the APs.  Power can be supplied via one of the following: 
@@ -111,16 +111,16 @@ When configuring the uplink between the switch and APs, the network administrato
 
 - External power supply which converts AC to DC connected directly to the AP.  This is typically done via an AC outlet installed in proximity to the AP. 
 
-For Release 1 - Early Availability, the C9300L-24P-4X and C9300L-48P-4X switches support a maximum of 30W power per switch port.  This is the method of providing power to the APs, since the power levels provided per switch port are sufficient for the CW9176I AP when not using the USB port.
+For Release 1 - Early Availability, the C9300L-24P-4X and C9300L-48P-4X switches support a maximum of 30W power per switch port.  This is the method of providing power to the APs, since the power levels provided per switch port are sufficient for the CW-9176I AP when not using the USB port.
 
 #### Throughput Requirements for the Access Points ####
 Aggregate 802.11 Wi-Fi throughput has exceeded 1 Gbps since 802.11ac came out years ago.  However, this does not mean that the aggregate throughput requirements of each AP within a small branch site will exceed 1 Gbps.  That depends on various factors such as the number of clients per AP, and each client’s particular application requirements. 
 
 If AP uplink speeds greater than 1 Gbps are required, then the network administrator must also consider whether the APs should be connected to switch ports which support Multi-Gigabit Ethernet (mGig) speeds of 2.5, 5, or 10 Gbps, or alternatively whether the APs support multiple uplink ports and/or link aggregation for higher throughput.  Both depend upon the model of AP deployed.  High speed optical connections (SFP+) to Wi-Fi APs are typically not an option because such connections do not address providing power to the APs.  
 
-For Release 1 - Early Availability, the CW9176I APs support mGig at speeds up to 10 Gbps. However the C9300L-24P-4X and C9300-48P-4X switches only support access port speeds up to 1 Gbps.  The uplink ports on the switch do support speeds up to 10 Gbps.  However, those ports require optical SFP+ modules which do not support PoE.  Hence, for Release 1 - Early Availability, the CW9176I Access Points were connected to access ports (ports 5 & 6) on the switches with a maximum speed of 1 Gbps.
+For Release 1 - Early Availability, the CW-9176I APs support mGig at speeds up to 10 Gbps. However the C9300L-24P-4X and C9300-48P-4X switches only support access port speeds up to 1 Gbps.  The uplink ports on the switch do support speeds up to 10 Gbps.  However, those ports require optical SFP+ modules which do not support PoE.  Hence, for Release 1 - Early Availability, the CW9176I Access Points were connected to access ports (ports 5 & 6) on the switches with a maximum speed of 1 Gbps.
  
-As with the uplink between the MX-85 security appliance and the C9300L Series switch port, link speed and duplex (full or half) of the Ethernet ports on the switch and the AP must match for the uplink to come up active.  Again, a best practice is to typically leave the link speed for auto-negotiation of speed and duplex. 
+As with the uplink between the MX-85 security appliance and the C9300L-24P-4X or C9300L-48P-4X switch port, link speed and duplex (full or half) of the Ethernet ports on the switch and the AP must match for the uplink to come up active.  Again, a best practice is to typically leave the link speed for auto-negotiation of speed and duplex. 
 
 #### Authentication of the AP to the Switch ####
 
@@ -129,6 +129,8 @@ For Release 1 - Early Availability, no authentication of the Access Point to the
 ### WLAN SSIDs ####
 
 For Release 1 - Early Availability, the following three SSIDs (Data - SSID 0, Voice - SSID 1, and Guest - SSDI 2) are hardcoded in the YAML configuration files for example purposes only.  The SSIDs are all configured for open access (no authentication or encryption), with traffic mapped to the three VLANs (Data - VLAN 10, Voice - VLAN 20, and Guest - VLAN 30) defined as variables.
+
+Again, this is shown as an example only, not intended to be implemented in a production network, and not representative of any best practices. In an production network best practices would recommend implementing secure SSIDs using methods such as enterprise WPA2 and/or WPA3 authentication.  The exact method of securing SSIDs would depend on the security policy of the organization.
 
 ## Unified Branch Services ##
 
@@ -143,15 +145,17 @@ WAN services for the small branch for Release 1 - Early Availability consist of 
 
 #### WAN Connectivity ####
 
-WAN connectivity services for the small branch are implemented by the MX security appliance. The sb122 template within the /data/templates-inventory-related.yaml file provides an example of the configuration of WAN connectivity services via YAML.  It specifies dual WAN connectivity with IPv4 dynamic (DHCP) IP addressing.  (Note:  Only 1 WAN uplink was tested for Release 1 - Early Availability).
+WAN connectivity services for the small branch are implemented by the MX security appliance. The *sb122* template within the *data/templates-inventory-related.yaml* file provides an example of the configuration of WAN connectivity services via YAML.  It specifies both WAN 1 and WAN 2 connectivity with IPv4 dynamic (DHCP) IP addressing.  (Note: Only 1 WAN uplink (WAN 1) was tested for Release 1 - Early Availability).  A general best practice for the small branch design would be to provision dual WAN uplink connectivity for resiliency purposes.
 
 #### WAN Traffic Shaping & Traffic Steering ####
 
-WAN traffic shapping & traffic steering services are implemented by the MX security appliance.  The app_ts and tfsteering templates within the /data/appliance-related.nac.yaml file provides examples of the configuration of the following:
+WAN traffic shapping & traffic steering services are implemented by the MX security appliance.  The *app_ts* and *tfsteering* templates within the *data/appliance-related.nac.yaml* file provides examples of the configuration of the following:
 
 - Overall and per-client rate limiting of and each of the WAN uplinks
 - Definition of performance classes which are then used within traffic steering policy to determine which WAN uplink to use for VPN and/or Internet traffic.
 - Rule definitions for classifying traffic based on L3 characteristics (source and/or destination IP address and/or port) or L7 characteristics (application and/or application category) which is then matched to a performance class to determine the WAN uplink for the traffic.  (Note:  Applications and application categories must currently be specified via ID within YAML configuration files.  Work is ongoing to translate these IDs into user-friendly names.)
+
+The examples shown in the templates are meant to provide guidance for the network administrator as to how to configure such services within the context of a YAML file.  They are not meant to be deployed in a production network, nor do they represent any form of best practices. Such configuration would require knowledge of the specific applications and business requirements of the organization. 
 
 ### LAN Services ###
 
@@ -161,38 +165,47 @@ LAN services for the small branch for Release 1 - Early Availability consist of 
 - LAN QoS (Ingress Classification & Marking)
 - Power over Ethernet (PoE)
 - Rapid Spanning-Tree Protocol (RSTP)
-- Multiple VLAN Support
+- Multiple VLANs
 - LAN Port Schedules
 
 #### LAN Connectivity ####
 
-For Release 1 - Early Availability, LAN connectivity is implemented by a single C9300L-24P-4X or C9300L-48P-4X switch within the small branch. LAN connectivity consists of 1 Gbps RJ-45 wired LAN ports for connectivity as uplinks to the MX security appliance, uplinks to the CW9176I access points, and all wired LAN clients.  Ports were set to auto-negotiate port speed and duplex.  The sb122 template within the /data/templates-inventory-related.yaml file provides an example of the configuration of switch ports.
+For Release 1 - Early Availability, LAN connectivity is implemented by a single C9300L-24P-4X or C9300L-48P-4X switch within the small branch. LAN connectivity consists of 1 Gbps RJ-45 wired LAN ports for connectivity as uplinks to the MX security appliance, uplinks to the CW9176I access points, and all wired LAN clients.  The device *$(switch-01) section of the *sb122* template within the *data/templates-inventory-related.yaml* file provides an example of the configuration of switch ports.  Ports are set to auto-negotiate port speed and duplex via the *link_negotiation* setting.  A general best practice is to allow switch ports to negotiate speed and duplex unless there is a specific reason otherwise. 
 
-#### QoS (Ingress Classification & Marking)
+#### QoS (Ingress Classification & Marking) ####
 
-LAN QoS (ingress classification & marking) consist of DSCP to CoS queue mapping configuration as well as rules which classify and set the DSCP marking of traffic.  The nw_switch template within the /data/templates-network-related.nac.yaml file provides an example DSCP to CoS queue mapping assuming a 12 traffic-class QoS model, using all 8 CoS queues, as well as an example set of QoS classification and marking rules for different VLANs on the switch.
+LAN QoS (ingress classification & marking) consist of DSCP to CoS queue mapping configuration as well as rules which classify and set the DSCP marking of traffic.  The *nw_switch* template within the *data/templates-network-related.nac.yaml* file provides an example DSCP to CoS queue mapping assuming a 12 traffic-class QoS model, using all 8 CoS queues, as well as an example set of QoS classification & marking rules for different VLANs on the switch.  Both are applied at the switch level, meaning the DSCP to CoS queue mapping and the QoS classification & marking rules apply to all ports of the switch to which the template is applied.
+
+The QoS classification & marking rules shown in the template are meant to provide guidance for the network administrator as to how to configure such services within the context of a YAML file.  They are not meant to be deployed in a production network, nor do they represent any form of best practices. Such configuration would require knowledge of the specific applications and business requirements of the organization.
 
 #### Power over Ethernet (PoE) ####
 
-For Release 1 - Early Availability, the  C9300L-24P-4X or C9300L-48P-4X switch within the small branch supplies up to 30 Watts 802.3at / PoE+ power per switch port (ports 1-24 for the C9300L-24P-4X or ports 1-48 for the C9300L-48P-4X).  This is sufficient to power to the CW-9176I access points within the small branch design, without the use of the USB port. PoE is enabled by default on the switch ports and therefore does not appear within the sb122 template within the data/templates-inventory-related.nac.yaml file.
+For Release 1 - Early Availability, the  C9300L-24P-4X or C9300L-48P-4X switch within the small branch supplies up to 30 Watts 802.3at / PoE+ power per switch port (ports 1-24 for the C9300L-24P-4X or ports 1-48 for the C9300L-48P-4X).  This is sufficient to power to the CW-9176I access points within the small branch design, without the use of the USB port. PoE is enabled by default on the switch ports.  Therefore, the port level *PoE* setting (boolean - true or false) does not appear within the *sb122* template within the *data/templates-inventory-related.nac.yaml* file.  A general best practice is to leave PoE enabled on switch ports and allow the switch port to negotiate whether power is to be supplied to the device connected to the switch port. 
 
 #### Rapid Spanning Tree Protocol (RSTP) ####
 
-RTSP is enabled by default on the switch ports of the C9300L-24P-4X or C9300L-48P-4X small branch switch and therefore does not appear within the sb122 template within the data/templates-inventory-related.nac.yaml file. In addition, BPDU guard and storm control are hardcoded within the sb122 template to be enabled for the access ports (ports not configured as trunk ports.  The storm control configuration is hardcoded within the nw_switch template within the data/templates-network-related.nac.yaml file to restrict broadcast, multicast, and unknown unicast traffic to 30% of the available bandwidth of the switch ports.
+RSTP is enabled by default on the switch ports of the C9300L-24P-4X or C9300L-48P-4X small branch switch.  Therefore, the port level *rstp* setting (boolean - true or false) does not appear within the *sb122* template within the *data/templates-inventory-related.nac.yaml* file. In addition, BPDU guard (configured via the *stp_guard* setting) and storm control (configured via the boolean *storm_control* setting) are hardcoded within the *sb122* template to be enabled for the access ports (ports not configured as trunk ports).  The storm control configuration itself is hardcoded within the *nw_switch* template within the *data/templates-network-related.nac.yaml* file to restrict broadcast, multicast, and unknown unicast traffic to 30% of the available bandwidth of the switch ports.
 
-#### Multiple VLAN Support ####
+A general best practice is to leave RSTP protocol enabled on all switch ports within a small branch to minimize the chance of an outage or degradation of service resulting from an inadvertent loop in the network.  Given the small branch design consists of only a single switch, the chance of this happening is probably low.  However, the benefits from enabling RSTP generally outweigh the minor time delay necessary for a switch port to move from a blocking to a forwarding state.  
 
-For Release 1 - Early Availability the small branch design YAML files are hardcoded to support four VLANs - Data (VLAN 10), Voice (VLAN 20), Guest (VLAN 30), and Infrastructure (VLAN 1).  Layer 3 (SVI) interface definitions for the VLANs are configured on the MX-85 security appliance.  These are defined within the app_vlans template within the data/templates-appliance-related.nac.yaml file.  The template allow for the subnet of each VLAN as well as the IP address of the MX-85 Layer 3 (SVI) interface corresponding to the VLAN to be defined by the network administrator through variable definitions.
+#### Multiple VLANs ####
 
-VLAN trunking is supported on the links between the MX-85 security appliance and the C9300L-24P-4X or C9300L-48P-4X switch. On the MX-85 security appliance, this is configured within the app_ports template within the data/templates-appliance-related.nac.yaml file. On the switch (ports 1-2), this is configured within the sb122 template within the data/templates-inventory-related.nac.yaml file.
+For Release 1 - Early Availability the small branch design YAML files are hardcoded to support four VLANs - Data (VLAN 10), Voice (VLAN 20), Guest (VLAN 30), and Infrastructure (VLAN 1).  
 
-VLAN trunking is also supported on the links between the C9300L-24P-4X or C9300L-48P-4X switch and the CW-9176I access points. On the switch (ports 5-13), this is configured within the sb122 template within the data/templates-inventory-related.nac.yaml file. On the access points, Data, Voice, and Guest SSIDs are mapped to separate VLANs specified by the network administrator through variable definitions. 
+> :information_source:
+> Configuration for VLAN 1 does not appear within the YAML configuration files, since this is a default configuration.  Work is ongoing to import VLAN 1 configuration to make it visible within the YAML configuration files to the network administrator.
 
-Access ports (ports 5-24 on the C9300L-24P-4X or ports 5-48 on the C9300L-48P-4X) on the switch are configured with a VLAN and voice VLAN configuration.  For Release 1 - Early Availability, these are hardcoded to be VLAN 1 and VLAN 30 respectively, within the app_ports template within the data/templates-appliance-related.nac.yaml file.
+Multiple VLAN support is enabled through *vlans_settings* within the *app_vlans* template of the *data/templates-appliance-related.nac.yaml* file. Layer 3 (SVI) interface definitions for the VLANs are configured on the MX-85 security appliance.  These are defined within the same template.  The template allows for the subnet of each VLAN as well as the IP address of the MX-85 Layer 3 (SVI) interface corresponding to the VLAN to be specified by the network administrator through variable definitions.
+
+VLAN trunking is supported on the links between the MX-85 security appliance and the C9300L-24P-4X or C9300L-48P-4X switch. On the MX-85 security appliance, this is configured within the *app_ports* template within the *data/templates-appliance-related.nac.yaml* file. On the switch (ports 1-2), this is configured within the *sb122* template within the *data/templates-inventory-related.nac.yaml* file.
+
+VLAN trunking is also supported on the links between the C9300L-24P-4X or C9300L-48P-4X switch and the CW-9176I access points. On the switch (ports 5-13), this is again configured within the *sb122* template within the *data/templates-inventory-related.nac.yaml* file. On the access points, Data, Voice, and Guest SSIDs are mapped to separate VLANs specified through variable definitions. This is configured within the *wireless* template within the *data/templates-network-related.nac.yaml* file.
+
+Access ports (ports 5-24 on the C9300L-24P-4X or ports 5-48 on the C9300L-48P-4X) on the switch are hardcoded with a VLAN and voice VLAN configuration within the *app_ports* template within the *data/templates-appliance-related.nac.yaml* file.
 
 #### LAN Port Schedules #####
 
-LAN Port schedules allow network administrators to set up recurring time-based schedules in which LAN switch ports are enabled or disabled for security and/or power savings purposes.  The nw_switch template within the data/templates-network-related.nac.yaml file provides an example YAML configuration of a LAN port schedule in which all switch ports are enabled at all hours for all days of the week. This can be modified to suit the needs of the particular organization.  The example port schedule is applied to all switch ports of the C9300L-24P-4X or C9300L-48P-4X small branch switch within the sb122 template within the data/templates-inventory-related.nac.yaml file.
+LAN Port schedules allow network administrators to set up recurring time-based schedules in which LAN switch ports are enabled or disabled for security and/or power savings purposes.  The *nw_switch* template within the *data/templates-network-related.nac.yaml* file provides an example YAML configuration of a LAN port schedule in which all switch ports are enabled at all hours for all days of the week. This can be modified to suit the needs of the particular organization.  The example port schedule is applied to all switch ports of the C9300L-24P-4X or C9300L-48P-4X small branch switch via the *port_schedule_name* setting within the *sb122* template within the *data/templates-inventory-related.nac.yaml* file.
 
 ### Security Services ###
 
@@ -208,16 +221,18 @@ Security services for the small branch for Release 1 - Early Availability consis
 Firewalling services for the small branch are implemented by the MX security appliance.  Firewalling services consist of the following:
 - L3 Firewalling:  These are outbound rules which allow or deny traffic passing through the MX security appliance based on source and/or destination IP addresses and ports.
 - WAN Appliance Services:  These control SNMP, Web, and ICMP Ping access to the MX security appliance itself.
-- L7 firewalling:  These are rules which allow or block traffic based on application or application category, relying on technologies such as deep packet inspection to identify and classify traffic. (Note: Applications and application categories must be specified by ID currently.  Work to translate the IDs into user-friendly names is ongoing.)  The app_fw template within the data/templates-appliance-related.nac.yaml file provides an example of the configuration of firewall services via YAML.
+- L7 firewalling:  These are rules which allow or block traffic based on application or application category, relying on technologies such as deep packet inspection to identify and classify traffic. (Note: Applications and application categories must be specified by ID currently.  Work to translate the IDs into user-friendly names is ongoing.)  
+
+The *app_fw* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of firewall services via YAML.  Note that this is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual firewall configuration within any organization will depend upon the security policy of the organization.
 
 #### Content Filtering ####
 
-Content filtering services for the small branch are implemented by the MX security applicance.  Content filtering rules allow or block Internet-bound web traffic based on specific URLs or URL categories.  The app_content template within the data/templates-appliance-related.nac.yaml file provides an example of the configuration of content filtering services via YAML.
+Content filtering services for the small branch are implemented by the MX security applicance.  Content filtering rules allow or block Internet-bound web traffic based on specific URLs or URL categories.  The *app_content* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of content filtering services via YAML.  Note that this is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual content filtering configuration within any organization will depend upon the security policy of the organization.
 
 #### Intrusion Detection and Prevention ####
 
-For Release 1 - Early Availability, intrusion detection and prevention services for the small branch are implemented by the MX security appliance.  Intrusion detection and prevention applies to LAN traffic to and from the Internet, as well as between VLANs which passed through the security appliance.  Intrusion detection and prevention can be configured to simply detect (detection mode) and/or prevent (prevention mode) malicious traffic based on a selectable ruleset geared toward security, connectivity, or a balance between security & connectivity.  The app_intrusion template within the data/templates-appliance-related.nac.yaml file provides an example of the configuration of intrusion prevention services via YAML.  (Note: Exclusions via allowed list rules are currently not supported within the YAML configuration for Release 1 - Early Availabliity.  The network administrator will need to access the Cisco (formerly Meraki) dashboard to exclude specific IDS rules.
+For Release 1 - Early Availability, intrusion detection and prevention services for the small branch are implemented by the MX security appliance.  Intrusion detection and prevention applies to LAN traffic to and from the Internet, as well as between VLANs which passed through the security appliance.  Intrusion detection and prevention can be configured to simply detect (detection mode) and/or prevent (prevention mode) malicious traffic based on a selectable ruleset geared toward security, connectivity, or a balance between security & connectivity.  The *app_intrusion* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of intrusion prevention services via YAML.  (Note: Exclusions via allowed list rules are currently not supported within the YAML configuration for Release 1 - Early Availabliity.  The network administrator will need to access the Cisco (formerly Meraki) dashboard to exclude specific IDS rules.  Note that this is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual intrusion detection or prevention configuration within any organization will depend upon the security policy of the organization.
 
-#### Advanced Malware Protection ####
+#### Advanced Malware Protection (AMP) ####
 
-Advanced malware protection services for the small branch are implemented by the MX security appliance.  Advance malware protection applies to LANT traffic to and from the Internet.  Once enabled, specific URLs can be excluded from being scanned for malware.  Likewise, previously identified files can be excluded by including the SHA-256 hash of the file to be excluded, in scenarios where a false positive has blocked the file.  The app_mal template within the data/templates-appliance-related.nac.yaml file provides an example of the configuration of advanced malware protection via YAML. 
+AMP services for the small branch are implemented by the MX security appliance.  AMP applies to non-encrypted (since AMP must first identify that content is being downloaded) LAN traffic to and from the Internet.  Once enabled, specific URLs can be excluded from being scanned for malware.  Likewise, previously identified files can be excluded by including the SHA-256 hash of the file to be excluded, in scenarios where a false positive has blocked the file.  The *app_mal* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of advanced malware protection via YAML. Note that this is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual AMP configuration within any organization will depend upon the security policy of the organization.
