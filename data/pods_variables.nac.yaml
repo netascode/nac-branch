@@ -1,7 +1,10 @@
+# Below is provided sample variable file. This is just a sample 
+# and needs to be edited with your own data. 
+#
 # The below code does the following:
 #
 # This YAML file defines an organization named
-# "CX Meraki Lab".  It further defines/creates a
+# "YOUR_ORGANIZATION_NAME".  It further defines/creates a
 # network named "Unified Branch 1", representing a 
 # single small branch, under the organization:
 #
@@ -22,18 +25,19 @@
 #
 meraki:
   domains:
-    - name: EMEA
+    - name: US  # Change as required
       administrator:
-        name: admin
+        name: admin # Change as required
       organizations:
         # 
         # The below code does the following:
         #
         # Defines / creates an organization named with 
-        # hardcoded name of "CX Meraki Lab", along with 
+        # hardcoded name of "YOUR_ORGANIZATION_NAME", along with 
         # a single branch network.
         #
-        - name: CX Meraki Lab
+        - name: YOUR_ORGANIZATION_NAME # Replace with your organization name
+         # if Organization is managed: false then the organization will not be deleted if "terraform destroy" is run.
           managed: false
           networks:
             # 
@@ -99,7 +103,6 @@ meraki:
             #  - vlan10_subnet
             #  - vlan20_subnet
             #  - vlan30_subnet
-            #  - vlan344_subnet
             #
             #  From app_vlans
             #  - vlan10_appliance_ip
@@ -111,9 +114,6 @@ meraki:
             #  - vlan30_appliance_ip
             #  - vlan30_dhcp_start
             #  - vlan30_dhcp_end
-            #  - vlan344_appliance_ip
-            #  - vlan344_dhcp_start
-            #  - vlan344_dhcp_end
             #
             #  From wireless
             #  - ap-tag1
@@ -144,11 +144,14 @@ meraki:
                 ap-01: Branch1-ap-01
                 ap-02: Branch1-ap-02
                 switch-stack-name: Branch1-Cat9300-Stack
-                appliance-01-serial: Q2YN-XMR9-M48C
-                switch-01-serial: Q5TT-NUBK-R29L
-                switch-02-serial: Q5TR-QKSY-MMLT
-                ap-01-serial: Q5BA-N24C-HKRL
-                ap-02-serial: Q5BB-7XAB-HAXZ
+                #
+                # Make sure to put correct serial numbers
+                #
+                appliance-01-serial: ABCD-EFGH-IJKL
+                switch-01-serial: ABCD-EFGH-IJKL
+                switch-02-serial: ABCD-EFGH-IJKL
+                ap-01-serial: ABCD-EFGH-IJKL
+                ap-02-serial: ABCD-EFGH-IJKL
                 lat: 37.41809510000001
                 lng: -122.098531
                 address: Wake Forest, N.C.
@@ -164,10 +167,6 @@ meraki:
                 vlan30_appliance_ip: 10.1.30.1
                 vlan30_dhcp_start: 10.1.30.40
                 vlan30_dhcp_end: 10.1.30.50
-                vlan344_subnet: 192.168.144.0/24
-                vlan344_appliance_ip: 192.168.144.1
-                vlan344_dhcp_start: 192.168.144.40
-                vlan344_dhcp_end: 192.168.144.50
                 ap-tag1: ap-group1
                 ap-tag2: ap-group2
                 default-vlan-id-data: 10
