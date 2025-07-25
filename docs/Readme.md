@@ -162,7 +162,6 @@ LAN services for the small branch for Release 1 - Early Availability consist of 
 - Power over Ethernet (PoE)
 - Rapid Spanning-Tree Protocol (RSTP)
 - Multiple VLAN Support
-- VLAN Trunking
 - LAN Port Schedules
 
 #### LAN Connectivity ####
@@ -175,14 +174,25 @@ LAN QoS (ingress classification & marking) consist of DSCP to CoS queue mapping 
 
 #### Power over Ethernet (PoE) ####
 
-For Release 1 - Early Availability, the  C9300L-24P-4X or C9300L-48P-4X switch within the small branch supplies up to 30 Watts 802.3at / PoE+ power per switch port (ports 1-24 for the C9300L-24P-4X or ports 1-48 for the C9300L-48P-4X).  This is sufficient to power to the CW-9176I access points within the small branch design, without the use of the USB port. PoE is enabled by default within the 
+For Release 1 - Early Availability, the  C9300L-24P-4X or C9300L-48P-4X switch within the small branch supplies up to 30 Watts 802.3at / PoE+ power per switch port (ports 1-24 for the C9300L-24P-4X or ports 1-48 for the C9300L-48P-4X).  This is sufficient to power to the CW-9176I access points within the small branch design, without the use of the USB port. PoE is enabled by default on the switch ports and therefore does not appear within the sb122 template within the data/templates-inventory-related.nac.yaml file.
+
+#### Rapid Spanning Tree Protocol (RSTP) ####
+
+RTSP is enabled by default on the switch ports of the C9300L-24P-4X or C9300L-48P-4X small branch switch and therefore does not appear within the sb122 template within the data/templates-inventory-related.nac.yaml file. In addition, BPDU guard and storm control are hardcoded within the sb122 template to be enabled for the access ports (ports not configured as trunk ports.  The storm control configuration is hardcoded within the nw_switch template within the data/templates-network-related.nac.yaml file to restrict broadcast, multicast, and unknown unicast traffic to 30% of the available bandwidth of the switch ports.
+
+#### Multiple VLAN Support ####
+
+For Release 1 - Early Availability the small branch design YAML files are hardcoded to support four VLANs - Data (VLAN 10), Voice (VLAN 20), Guest (VLAN 30), and Infrastructure (VLAN 1).  Layer 3 (SVI) interface definitions for the VLANs are configured on the MX-85 security appliance.  These are defined within the app_vlans template within the data/templates-appliance-related.nac.yaml file.  The template allow for the subnet of each VLAN as well as the IP address of the MX-85 Layer 3 (SVI) interface corresponding to the VLAN to be defined by the network administrator through variable definitions.
+
+VLAN trunking is supported on the links between the MX-85 security appliance and the C9300L-24P-4X or C9300L-48P-4X switch. On the MX-85 security appliance, this is configured within the app_ports template within the data/templates-appliance-related.nac.yaml file. On the switch (ports 1-2), this is configured within the sb122 template within the data/templates-inventory-related.nac.yaml file.
+
+VLAN trunking is also supported on the links between the C9300L-24P-4X or C9300L-48P-4X switch and the CW-9176I access points. On the switch (ports 5-13), this is configured within the sb122 template within the data/templates-inventory-related.nac.yaml file. On the access points, Data, Voice, and Guest SSIDs are mapped to separate VLANs specified by the network administrator through variable definitions. 
+
+Access ports (ports 5-24 on the C9300L-24P-4X or ports 5-48 on the C9300L-48P-4X) on the switch are configured with a VLAN and voice VLAN configuration.  For Release 1 - Early Availability, these are hardcoded to be VLAN 1 and VLAN 30 respectively, within the app_ports template within the data/templates-appliance-related.nac.yaml file.
 
 #### LAN Port Schedules #####
 
-LAN Port schedules allow network administrators to set up recurring time-based schedules in which LAN switch ports are enabled or disabled for security and/or power savings purposes.  The nw_switch template within the /data/templates-network-related.nac.yaml file provides an example YAML configuration of a LAN port schedule in which all switch ports are enabled at all hours for all days of the week. This can be modified to suit the needs of the particular organization. 
-
-
-
+LAN Port schedules allow network administrators to set up recurring time-based schedules in which LAN switch ports are enabled or disabled for security and/or power savings purposes.  The nw_switch template within the data/templates-network-related.nac.yaml file provides an example YAML configuration of a LAN port schedule in which all switch ports are enabled at all hours for all days of the week. This can be modified to suit the needs of the particular organization.  The example port schedule is applied to all switch ports of the C9300L-24P-4X or C9300L-48P-4X small branch switch within the sb122 template within the data/templates-inventory-related.nac.yaml file.
 
 ### Security Services ###
 
