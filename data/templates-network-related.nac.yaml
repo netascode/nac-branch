@@ -60,7 +60,7 @@ meraki:
           secure_port: false
           local_status_page_authentication:
             username: ${local_status_page_username}
-            password: "mEraki123%"
+            password: !env local_status_page_password
           named_vlans: true  
       # 
       # The below code does the following:
@@ -82,7 +82,7 @@ meraki:
           access: users
           users:
             - username: ${snmp_username}
-              passphrase: Cisco123
+              passphrase: !env snmp_passphrase
       # 
       # The below code does the following:
       #
@@ -583,7 +583,7 @@ meraki:
                             free_access:
                                 duration_in_minutes: 20
                                 enabled: false
-                            reply_to_email_address: digidev.gen@cisco.com
+                            reply_to_email_address: ${splash_reply_email}
                         block_all_traffic_before_sign_on: true
                         controller_disconnection_behavior: default
                         guest_sponsorship:
