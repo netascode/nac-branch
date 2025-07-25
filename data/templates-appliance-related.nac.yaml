@@ -5,7 +5,6 @@
 #
 # - Appliance settings - defined in the app_settings template
 # - AutoVPN configuration (spoke) - defined in the app_spoke template
-# - AutoVPN configuration (hub) - defined in the app_hub template
 # - Port configuration - defined in the app_ports template
 # - VLAN configuration - defined in the app_vlans template
 # - Firewall configuration - defined in the app_fw template
@@ -46,7 +45,7 @@ meraki:
       # Configures the branch netowrk to which the template is applied as a spoke with a single 
       # hard-coded hub named "Unified Hub" which is also the default route for all spoke networks.  
       #
-      # Advertises the VLAN 10 (data), VLAN 20 (voice), and VLAN 344 (unused) subnets across the VPN 
+      # Advertises the VLAN 10 (data) and VLAN 20 (voice) subnets across the VPN 
       # to the cloud. IP address and subnets for VLANs are specified as variables which 
       # are defined in the pods_variables.nac.yaml file.
       #
@@ -55,46 +54,23 @@ meraki:
                 vpn_site_to_site_vpn:
                   mode: spoke
                   hubs:
-                    - hub_network_name: Unified Hub
+                    - hub_network_name: ${hub_network_name}
                       use_default_route: true
                   subnets:
                     - local_subnet: ${vlan10_subnet}
                       use_vpn: true
                     - local_subnet: ${vlan20_subnet}
                       use_vpn: true
-                    - local_subnet: ${vlan344_subnet}
-                      use_vpn: 
-      # 
-      # The below code does the following:
-      #
-      # Security appliance AutoVPN configuration template for the hub network.
-      #
-      # Configures the network to which the template is applied as a hub and advertises the 
-      # VLAN 10 (data), VLAN 20 (voice), and VLAN 344 (unused) subnets across the VPN 
-      # to the cloud. IP address and subnets for VLANs are specified as variables which 
-      # are defined in the pods_variables.nac.yaml file.
-      #      
-      - name: app_hub
-        appliance:
-                vpn_site_to_site_vpn:
-                  mode: hub
-                  subnets:
-                    - local_subnet: ${vlan10_subnet}
-                      use_vpn: true
-                    - local_subnet: ${vlan20_subnet}
-                      use_vpn: true
-                    - local_subnet: ${vlan344_subnet}
-                      use_vpn: true
       # 
       # The below code does the following:
       #
       # Security appliance LAN port configuration template.
       # Configures and enables LAN ports 5, 6, 13, & 14 as trunks to the branch switch, 
-      # allowing VLANs 1, 10, 20, 30, and 344. Only port 6 was connected to the switch
+      # allowing VLANs 1, 10, 20 and 30. Only port 6 was connected to the switch
       # for validation. Native VLAN 1 on the trunk serves as an Infrastructure VLAN, 
       # allowing devices downstream of the security appliance to get IP addresses and 
       # communicate with the Cisco (formerly Meraki) cloud. VLANs 10, 20, & 30 correspond 
-      # to Data, Voice, & Guest VLANs.  VLAN 344 is unused.
+      # to Data, Voice, & Guest VLANs. 
       #
       - name: app_ports
         appliance:
@@ -102,28 +78,28 @@ meraki:
             - port_id: 5
               enabled: true
               type: trunk
-              allowed_vlans: "1,10,20,30,344"
+              allowed_vlans: "1,10,20,30"
               vlan: 1              
             - port_id: 6
               enabled: true
               type: trunk
-              allowed_vlans: "1,10,20,30,344"
+              allowed_vlans: "1,10,20,30"
               vlan: 1
             - port_id: 13
               enabled: true
               type: trunk
-              allowed_vlans: "1,10,20,30,344"          
+              allowed_vlans: "1,10,20,30"          
             - port_id: 14
               enabled: true
               type: trunk
-              allowed_vlans: "1,10,20,30,344"
+              allowed_vlans: "1,10,20,30"
       #
       # The below code does the following:
       #
       # Security appliance VLAN configuration template.
       #
       # This template hardcodes the configuration for 4 VLANs - VLAN 10 (Data),
-      # VLAN 20 (Voice), VLAN 30 (Guest), and VLAN 344 (Unused).  For each 
+      # VLAN 20 (Voice) and VLAN 30 (Guest).  For each 
       # VLAN, the IPv4 subnet and address of the security appliance are defined
       # as variables.   IPv6 is disabled for each VLAN. 
       
@@ -208,28 +184,6 @@ meraki:
               reserved_ip_ranges:
                 - start: ${vlan30_dhcp_start}
                   end:  ${vlan30_dhcp_end}
-                  comment: "Reserved"
-              mandatory_dhcp: true
-            - vlan_id: 344
-              name: "clamer"
-              subnet: ${vlan344_subnet}
-              appliance_ip: ${vlan344_appliance_ip}
-              ipv6:
-                enabled: false
-              dns_nameservers: upstream_dns
-              dhcp_handling: "Run a DHCP server"
-              dhcp_lease_time: "1 day"
-              dhcp_boot_options: false
-              dhcp_options:
-                - code: "66"
-                  type: "text"
-                  value: "tftp.example.com"
-                - code: "67"
-                  type: "text"
-                  value: "bootfile"
-              reserved_ip_ranges:
-                - start: ${vlan344_dhcp_start}
-                  end:  ${vlan344_dhcp_end}
                   comment: "Reserved"
               mandatory_dhcp: true
       #
@@ -651,3 +605,9 @@ meraki:
             - name: Static Route 02
               subnet: ${static_route2_subnet}
               gateway_ip: ${static_route2_gw}
+      - name: appl_comonitoring
+        appliance:
+          connectivity_monitoring_destinations:
+                  - ip: "1.1.1.1"
+                    description: Cloudflare DNS
+                    default: true
