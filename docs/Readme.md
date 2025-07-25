@@ -1,3 +1,4 @@
+:blue_book:
 # Unified Branch - Branch as Code Design Guide: Release 1 - Early Availability #
 
 ## Overview ##
@@ -221,6 +222,34 @@ LAN Port schedules allow network administrators to set up recurring time-based s
 
 The general use of port schedules depends on the needs of the specific organization.  There are no best practives or recommendations. Examples of use may be for security or power savings purposes - for example disabling LAN switch ports during non-work hours when employees are not expected to be at the site.  However, the network administrator must balance this against unforseen situations where LAN port connectivity may occasionally be needed during those non-work hours.  Additionally, should IP phone and/or IP surveillance camera connectivity within the small branch site be dependent upon the LAN switch ports being active, provisions for reaching emergency services and for surveillance monitoring may be required within the site, even during non-work hours.  
 
+### Wireless LAN (WLAN) Services ###
+
+WLAN services for the small branch for Release 1 - Early Availability consist of the following:
+
+- 802.11 a/b/g/n/ac/be Connectivity
+- Multiple SSIDs
+- WLAN QoS
+
+#### 802.11a/b/g/n/ac/be Connectivity ####
+
+TBD...
+
+#### Multiple SSIDs ####
+
+TBD...
+
+#### WLAN QoS ####
+
+TBD...
+
+### Network Services ###
+
+Network services for the small branch for Release 1 - Early Availabiliyt consist of the following:
+
+- DHCP Services
+- NTP Services
+- DNS Services
+
 ### Security Services ###
 
 Security services for the small branch for Release 1 - Early Availability consist of the following:
@@ -229,6 +258,7 @@ Security services for the small branch for Release 1 - Early Availability consis
 - Content Filtering
 - Intrusion Prevention
 - Advanced Malware Protection
+- Identity Services
 
 #### Firewalling ####
 
@@ -256,3 +286,15 @@ For Release 1 - Early Availability, intrusion detection and prevention services 
 #### Advanced Malware Protection (AMP) ####
 
 AMP services for the small branch are implemented by the MX security appliance.  AMP applies to non-encrypted (since AMP must first identify that content is being downloaded) LAN traffic to and from the Internet.  Once enabled, specific URLs can be excluded from being scanned for malware.  Likewise, previously identified files can be excluded by including the SHA-256 hash of the file to be excluded, in scenarios where a false positive has blocked the file.  The *app_mal* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of advanced malware protection via YAML. This is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual AMP configuration within any organization will depend upon the security policy of the organization.
+
+### Identity Services ###
+
+Identity Services provide per-user authentication and authorization the wired and wireless LAN within the small branch design.  These services include the following:
+
+- 802.1x authentication of devices connected to wired switch ports with fallback to MAB for devices without 802.1x supplicant support, such as printers.
+- Per-user access control via Group Policy assignment or VLAN assignment upon device authentication to a wired switch port.
+- WPA2-Enterprise or WPA3-Enterprise with 802.1x authentication for non-Guest SSIDs.
+- Per-user access control via Group Policy assignment or VLAN assignment upon device authentication to an access point.
+- External ISE / Radius or Meraki Cloud authentication server. 
+
+For Release 1 - Early Availability, identity services have not been implemented and validated for the small branch design.  Work is ongoing to add configurations for Identity services to the YAML files within the repository.   
