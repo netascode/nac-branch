@@ -1,13 +1,13 @@
 meraki:
   domains:
-    - name: EMEA
+    - name: US           # Change as required
       administrator:
-        name: admin
+        name: admin      # Change as required
       organizations:
-        - name: CX Meraki Lab
+        - name: YOUR_ORGANIZATION_NAME # Change to your organization name
           managed: false
           login_security:
-            enforce_password_expiration: false # Boolean indicating whether users are forced to change their password every X number of days.
+            enforce_password_expiration: true # Boolean indicating whether users are forced to change their password every X number of days.
             password_expiration_days: 30 # Number of days after which users will be forced to change their password.
             enforce_different_passwords: true # Boolean indicating whether users, when setting a new password, are forced to choose a new password that is different from any past passwords.
             num_different_passwords: 5 # Number of recent passwords that new password must be distinct from.
@@ -27,9 +27,9 @@ meraki:
             v2c: true
             v3: true
             v3_auth_mode: MD5
-            v3_auth_pass: abc1abc1
+            v3_auth_pass: !env v3_auth_pass
             v3_priv_mode: AES128
-            v3_priv_pass: cde1cde1
+            v3_priv_pass: !env v3_priv_pass
             peer_ips: []
           policy_objects:
               - name: test cidr
