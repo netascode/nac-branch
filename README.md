@@ -15,6 +15,14 @@ To make use of this repository, you will need:
 * ✅ A **Meraki API Key**
 * ✅ **Hardware Serial Numbers** for the setup (as described in the [Network Design Section](#)) **\[ADD LINK]**
 * ✅ Network Variables (e.g. **Network Name**, **Hostnames**, **IP Addressing Schema**, etc.)
+* ✅ Enviromental Variables - the setup is configured with following enviromental variables:
+
+        v3_auth_pass
+        v3_priv_pass
+        local_status_page_password
+        snmp_passphrase
+        domain
+        org_name
 
 ---
 
