@@ -7,7 +7,6 @@
 # - snmp
 # - syslog
 # - nw_switch
-# - nw_switch1
 # - wireless
 #
 # Each template defines services configuration which is
@@ -583,7 +582,7 @@ meraki:
                             free_access:
                                 duration_in_minutes: 20
                                 enabled: false
-                            reply_to_email_address: ${splash_reply_email}
+                            reply_to_email_address: ${splash_reply_to_email_address}
                         block_all_traffic_before_sign_on: true
                         controller_disconnection_behavior: default
                         guest_sponsorship:
@@ -602,169 +601,3 @@ meraki:
                             start_time: 00:00:00
                             end_time: 06:00:00
                             end_day: Saturday
-      # 
-      # The below code does the following:
-      #
-      # nw_switch1 configuration template.
-      #
-      # The nw_switch1 template configures the following
-      # for the switch within the network to which the
-      # template is applied:
-      #
-      # - Sets the management VLAN to VLAN 1.
-      #
-      # - Sets any secondary power supply to be redundant
-      #   power for the switch only.
-      #
-      # - Enables sampling of clients and traffic on the 
-      #   detected uplink interface.
-      #
-      # - Sets the default MTU size of switch ports to 
-      #   9100 bytes.
-      #
-      # - Sets the DHCP server policy of the switch to
-      #   allow DHCP traffic. 
-      #
-      # - Defines the DSCP to CoS queue mapping assuming
-      #   a 12-class QoS model, using all 8 CoS queues.
-      #
-      # - Defines an example set of QoS classification
-      #   and marking rules for different VLANs on the switch.
-      # 
-      # - Restricts broadcast, multicast, and unknown unicast
-      #   traffic to 30% of the available bandwidth of the 
-      #   switch ports (storm control).
-      #
-      # - Defines an esample port schedule named "Weekend Only
-      #   Port Schedule". Configures ports to which the schedule
-      #   is applied to be available at all hours for all days
-      #   of the week.
-      #   
-      - name: nw_switch1
-        switch:
-          settings:
-            vlan: 1
-            use_combined_power: false
-            uplink_client_sampling: true
-            mac_blocklist: false
-          mtu:
-            default_mtu_size: 9100
-          dhcp_server_policy:
-            default_policy: allow
-          dscp_to_cos_mappings:
-            - cos: 0
-              dscp: 8
-              title: Scavenger CS1
-            - cos: 0
-              dscp: 10
-              title: Bulk AF11
-            - cos: 0
-              dscp: 12
-              title: Bulk AF12
-            - cos: 0
-              dscp: 14
-              title: Bulk AF13
-            - cos: 1
-              dscp: 0
-              title: Default CS0
-            - cos: 2
-              dscp: 16
-              title: Network Mgmt CS2
-            - cos: 2
-              dscp: 18
-              title: Transactional Data AF21
-            - cos: 2
-              dscp: 20
-              title: Transactional Data AF22
-            - cos: 2
-              dscp: 22
-              title: Transactional Data AF23
-            - cos: 2
-              dscp: 24
-              title: Signaling CS3
-            - cos: 3
-              dscp: 26
-              title: Multimedia Streaming AF31
-            - cos: 3
-              dscp: 28
-              title: Multimedia Streaming AF32
-            - cos: 3
-              dscp: 30
-              title: Multimedia Streaming AF33
-            - cos: 3
-              dscp: 40
-              title: Broadcast Video CS5
-            - cos: 4
-              dscp: 32
-              title: Realtime Interactive CS4
-            - cos: 4
-              dscp: 34
-              title: Multimedia Conferencing AF41
-            - cos: 4
-              dscp: 36
-              title: Multimedia Conferencing AF42
-            - cos: 4
-              dscp: 38
-              title: Multimedia Conferencing AF43
-            - cos: 5
-              dscp: 44
-              title: Admission-Controlled Voice EF
-            - cos: 5
-              dscp: 46
-              title: Voice EF
-            - cos: 5
-              dscp: 48
-              title: Internetwork Control CS6
-            - cos: 5
-              dscp: 56
-              title: Network Control CS7
-          qos_rules:
-              - vlan: 20
-                protocol: ANY
-                dscp: -1
-                qos_rule_name: Trust_DSCP_Voice_VLAN
-              - vlan: 30
-                protocol: ANY
-                dscp: 0
-                qos_rule_name: Remark_Guest_to_Default
-              - vlan: 10
-                protocol: UDP
-                source_port_range: 16384-32767
-                destination_port_range: 16385-32767
-                dscp: 46
-                qos_rule_name: Voice_to_EF_Data_VLAN
-              - vlan: 10
-                protocol: ANY
-                dscp: 0
-                qos_rule_name: Other_to_Default_Data_VLAN
-          port_schedules:
-                  - name: Weekend Only Port Schedule
-                    port_schedule:
-                        friday:
-                            active: true
-                            from: 00:00
-                            to: '24:00'
-                        monday:
-                            active: true
-                            from: 00:00
-                            to: '24:00'
-                        saturday:
-                            active: true
-                            from: 00:00
-                            to: '24:00'
-                        sunday:
-                            active: true
-                            from: 00:00
-                            to: '24:00'
-                        thursday:
-                            active: true
-                            from: 00:00
-                            to: '24:00'
-                        tuesday:
-                            active: true
-                            from: 00:00
-                            to: '24:00'
-                        wednesday:
-                            active: true
-                            from: 00:00
-                            to: '24:00'
