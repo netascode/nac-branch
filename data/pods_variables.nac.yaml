@@ -1,12 +1,7 @@
-# This file is provided as an example only.
-#
-# It contains placeholder values and must be reviewed and updated 
-# to reflect your actual environment and requirements before use.
-#
 # The below code does the following:
 #
 # This YAML file defines an organization named
-# "YOUR_ORGANIZATION_NAME".  It further defines/creates a
+# "CX Meraki Lab".  It further defines/creates a
 # network named "Unified Branch 1", representing a 
 # single small branch, under the organization:
 #
@@ -27,19 +22,18 @@
 #
 meraki:
   domains:
-    - name: US  # Change as required
+    - name: !env domain
       administrator:
-        name: admin # Change as required
+        name: admin
       organizations:
         # 
         # The below code does the following:
         #
         # Defines / creates an organization named with 
-        # hardcoded name of "YOUR_ORGANIZATION_NAME", along with 
+        # hardcoded name of "CX Meraki Lab", along with 
         # a single branch network.
         #
-        - name: YOUR_ORGANIZATION_NAME # Replace with your organization name
-         # When Organization is managed: false then the organization will not be deleted if "terraform destroy" is run.
+        - name: !env org_name
           managed: false
           networks:
             # 
@@ -63,7 +57,7 @@ meraki:
             #  - app_static_routes
             #
             #  From templates-inventory-related.nac.yaml
-            #  - sb122
+            #  - sb112
             #
             #  From templates-network-related.nac.yaml
             #  - product_types
@@ -85,14 +79,11 @@ meraki:
             #  From network_settings
             #  - local_status_page_username
             #
-            #  From sb122
+            #  From sb112
             #  - appliance-01
             #  - appliance-01-serial
             #  - switch-01
             #  - switch-01-serial
-            #  - switch-02
-            #  - switch-02-serial
-            #  - switch-stack-name
             #  - ap-01
             #  - ap-01-serial
             #  - ap-02
@@ -135,25 +126,19 @@ meraki:
             #  - static_route2_gw
             #
             - name: Unified Branch 1
-              templates: [product_types, snmp, syslog, network_settings, nw_switch, sb122, wireless, app_settings, app_spoke,  app_vlans, app_fw, app_ts,app_content, app_intrusion, app_mal, tfsteering, app_static_routes]
+              templates: [product_types, snmp, syslog, network_settings, nw_switch, sb112, wireless, app_settings, app_spoke,  app_vlans, app_fw, app_ts,app_content, app_intrusion, app_mal, tfsteering, app_static_routes, appl_comonitoring]
               variables:
                 snmp_username: user1
                 syslog_server: 3.4.5.6
                 local_status_page_username: admin
                 appliance-01: Branch1-appliance-01
                 switch-01: Branch1-Cat9300-01
-                switch-02: Branch1-Cat9300-02
                 ap-01: Branch1-ap-01
                 ap-02: Branch1-ap-02
-                switch-stack-name: Branch1-Cat9300-Stack
-                #
-                # Make sure to put correct serial numbers
-                #
-                appliance-01-serial: ABCD-EFGH-IJKL
-                switch-01-serial: ABCD-EFGH-IJKL
-                switch-02-serial: ABCD-EFGH-IJKL
-                ap-01-serial: ABCD-EFGH-IJKL
-                ap-02-serial: ABCD-EFGH-IJKL
+                appliance-01-serial: Q2YN-XMR9-M48C
+                switch-01-serial: Q5TT-NUBK-R29L
+                ap-01-serial: Q5BA-N24C-HKRL
+                ap-02-serial: Q5BB-7XAB-HAXZ
                 lat: 37.41809510000001
                 lng: -122.098531
                 address: Wake Forest, N.C.
@@ -169,6 +154,7 @@ meraki:
                 vlan30_appliance_ip: 10.1.30.1
                 vlan30_dhcp_start: 10.1.30.40
                 vlan30_dhcp_end: 10.1.30.50
+                hub_network_name: Unified Hub
                 ap-tag1: ap-group1
                 ap-tag2: ap-group2
                 default-vlan-id-data: 10
@@ -184,5 +170,4 @@ meraki:
                 static_route2_subnet: 10.101.20.0/24
                 static_route2_gw: 10.1.20.2
                 # static_route2_enabled: true
-                splash_reply_email: example@example.com
-
+                splash_reply_to_email_address: example@example.com
