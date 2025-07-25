@@ -1,5 +1,7 @@
-# Below is provided sample variable file. This is just a sample 
-# and needs to be edited with your own data. 
+# This file is provided as an example only.
+#
+# It contains placeholder values and must be reviewed and updated 
+# to reflect your actual environment and requirements before use.
 #
 # The below code does the following:
 #
@@ -37,7 +39,7 @@ meraki:
         # a single branch network.
         #
         - name: YOUR_ORGANIZATION_NAME # Replace with your organization name
-         # if Organization is managed: false then the organization will not be deleted if "terraform destroy" is run.
+         # When Organization is managed: false then the organization will not be deleted if "terraform destroy" is run.
           managed: false
           networks:
             # 
