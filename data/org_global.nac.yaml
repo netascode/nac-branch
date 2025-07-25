@@ -1,13 +1,13 @@
 meraki:
   domains:
-    - name: US           # Change as required
+    - name: !env domain
       administrator:
-        name: admin      # Change as required
+        name: admin
       organizations:
-        - name: YOUR_ORGANIZATION_NAME # Change to your organization name
+        - name: !env org_name
           managed: false
           login_security:
-            enforce_password_expiration: true # Boolean indicating whether users are forced to change their password every X number of days.
+            enforce_password_expiration: false # Boolean indicating whether users are forced to change their password every X number of days.
             password_expiration_days: 30 # Number of days after which users will be forced to change their password.
             enforce_different_passwords: true # Boolean indicating whether users, when setting a new password, are forced to choose a new password that is different from any past passwords.
             num_different_passwords: 5 # Number of recent passwords that new password must be distinct from.
