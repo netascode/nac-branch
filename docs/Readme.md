@@ -1,4 +1,3 @@
-:blue_book:
 # Unified Branch - Branch as Code Design Guide: Release 1 - Early Availability #
 
 ## Overview ##
