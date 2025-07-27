@@ -228,7 +228,7 @@ WLAN services for the small branch for Release 1 - Early Availability consist of
 - WLAN Connectivity
 - Multiple SSIDs
 - Guest Services
-- WLAN QoS
+- Traffic & Bandwidth Shaping and QoS
 
 #### WLAN Connectivity ####
 
@@ -251,17 +251,87 @@ For Release 1 - Early Availability, Guest traffic is intended to be allowed Dire
 > :information_source:
 > Release 1 - Early Availability of the small branch design only considers wireless Guest services.  No configurations have been considered for extending Guest services to wired guest taffic.
 
-#### WLAN QoS ####
+#### Traffic & Bandwidth Shaping and QoS ####
 
-TBD...
+Bandwidth shaping for cloud managed access points allows the network administrator to set per-SSID and per-device/user rate limits for upstream and downstream traffic, which are enforced on a per-AP basis. For Release 1 - Early Availability of the small branch design, the Data and Voice SSIDs have no bandwidth shaping limits.  However, the Guest SSID has been hardcoded for a upstream and downstream per-SSID limits of 100 Mbps and per-device/user limits of 10 Mbps.  This is configured within the *wireless* template within the *data/templates-inventory-related.nac.yaml* file. This is meant as an example only and should not be taken as any form of best practice or implemented in a production network.
+
+Traffic shaping for cloud managed access points allows the network administrator to set per-device/user rate limits on a per-application basis.  Traffic shaping configuration consists of rule definitions and rule actions.
+
+Rule definitions for traffic shaping can consist of the following:
+
+- Pre-defined application categories
+- Custom definitions specifying HTTP hostname, port number, IP address range, or combinations of IP address range and port.
+
+Rule actions can then specify one of the following for the matched traffic:
+
+- Unlimited bandwidth usage - ignoring bandwidth shaping limits set for the SSID
+- Obey the bandwidth shaping rate limits set for the SSID
+- Apply more restrictive limits than specified for the SSID
+
+For Release 1 - Early Availability of the small branch design, the Data and Voice SSIDs provide example traffic shaping configurations. This is configured within the *wireless* template within the *data/templates-inventory-related.nac.yaml* file. This is meant as an example only and should not be taken as any form of best practice or implemented in a production network.
+
+Cloud managed access points have a default downstream mapping of DSCP values to 802.11 Access Categories (ACs), as discussed in the [Wireless QoS and Fast Lane](https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wireless_QoS_and_Fast_Lane) document.  Upstream QoS sent by the wireless client is honored and the DSCP field within the traffic sent from the client is maintained on the Ethernet network. 
+
+> :information_source:
+> The upstream switch port to which the access point is connected will need to be configured to trust DSCP markings or implement an ingress classification & marking policy if QoS from the wireless client is desired to be maintained. 
+
+Fast Lane is supported with the ability to install a wireless profile on Apple iOS devices via the Meraki EMM.  The default configuration accepts all applicatoin markings.  For Release 1 - Early Availability of the small branch design, Fast Lane was not considered. 
 
 ### Network Services ###
 
 Network services for the small branch for Release 1 - Early Availabiliy consist of the following:
 
 - DHCP Services
+- SNMP Services
+- Syslog Services
 - NTP Services
 - DNS Services
+- Netflow Services
+
+#### DHCP Services ####
+IP address assignment to devices within the small branch design can be static or dynamic.  Dynamic IP address assignment is via the Dynamic Host Configuration Protocol (DHCP).  IP addresses can also be IPv4 or IPv6.  Release 1 - Early Availability of the small branch design only considers IPv4 addressing.  Future releases may consider IPv6 as well.  Both static and dynamic (DHCP) IP address assignment are used within the small branch design.
+
+IP address assignments apply to wired and wireless devices within the small branch.  Such devices can be network infrastructure devices such as the MX security appliance, C9300L-24P-4X or C9300L-48P-4X switch, and CW-9176I access points; or end-user devices such as laptops, IP phones, smart phones, tablets, etc.  Within the small branch design, the MX security appliance can simultaneously function as a DHCP client, DHCP server, and/or DHCP relay agent.  
+
+A DHCP relay agent forwards DHCP requests to a centralized / remote DHCP server.  Such designs are implemented typically to enforce centralized IP address assignment for administrative ease of deployment.  With such designs, network redundancy (dual WAN circuits) becomes more critical, since a network failure could result in new clients not being able to receive an IP address when they connect to the wired or wireless network.  
+
+Alternatively, running one or more DHCP server instances within the MX security appliance increases administrative overhead, particularly in deployments with hundreds or thousands of branches, since each DHCP server instance must be configured and maintained individually.  However, the configuration of each DHCP instance within each IP subnet / VLAN of each branch MX security appliance can be rather simple compared to a centralized DHCP server deployment.  Further, client devices can still get IP addresses in the event of a failure of connectivity to the site which houses the remote DHCP server.  
+
+Release 1 - Early Availability of the small branch design implements DHCP server instances for each of the three VLANs defined - Data (VLAN 10), Voice (VLAN 20), and Guest (VLAN 30).  The DHCP server definitions for each of the VLANs is found within the *app_vlans* template within the *data/templates-appliance-related.nac.yaml* file.The DHCP server configuration specifies a lease time of 1 day, provides an example of how to configure DHCP options and reserved IP address ranges, and requires clients to get IP addresses from the DHCP server instance in order for the MX security appliance to forward traffic from those clients.  The IP subnet range, IP address assignment of the SVI interface of the MX security appliance corresponding to the VLAN, and reserved IP address ranges are specified as variables for the network administrator to assign within the *Unified Branch 1* network configuration within the *pods_variables.nac.yaml* file within the repository.  
+
+> :information_source:
+> Note that the assignment of the IP address of the SVI interface of the MX security appliance corresponding to a given VLAN is a static definition. 
+
+Because VLAN trunking is enabled between the MX security appliance and the Layer 2 C9300L-24P-4X or C9300L-48P-4X switch, all wired end-user devices which connect to the switch are expected to received IP address from the DHCP server pools within the MX security appliance for the respective VLAN to which the device is connected.  
+
+Likewise, because VLAN trunking is enabled between the Layer 2 C9300L-24P-4X or C9300L-48P-4X switch and the CW-9176I access points, and because the SSID definitions found within the *wireless* template within the *data/templates-networks specify bridged mode for IP address assignment, wireless clients are also expected to receive IP addresses from the DHCP server pools within the MX security appliance for the respective SSID (which is mapped to a specific VLAN) to which the device is connected.
+
+The MX security appliance by default also configures VLAN 1 along with a DHCP server instance for VLAN 1.  For Release 1 - Early Availability of the small branch design, VLAN 1 is used as the Infrastructure VLAN.  Cloud managed CW-9176I access points and  C9300L-24P-4X or C9300L-48P-4X switches receive IP addresses from the default 192.168.1.0/24 subnet of the VLAN 1 server pool.  These IP addresses are used as management IP addresses, allowing network devices downstream of the MX security appliance to connect to the Cisco (formerly Meraki) Cloud to be managed.  
+
+> :information_source:
+> Note that the SVI interface of the MX security appliance for VLAN 1 is automatically assigned the 192.168.1.1/24 IP address.  Note also, that all 192.168.1.0/24 addresses are automatically NAT translated to the IP address of the WAN interface of the MX security appliance as the devices attempt to reach the Cisco (formerly Meraki) Cloud.
+
+Finally, it should be noted that for Release 1 - Early Availability of the small branch design, the WAN interfaces of the MX security appliance are configured for dynamic IP address assignment.  The configuration for IP address assignment of the WAN interfaces is found within the device *$(appliance-01)* section of the *sb122* template within the *data/templates-inventory-related.yaml* file.  Hence, the MX security appliance is simultaneously functioning as a DHCP client on the WAN interfaces, while also functioning as multiple DHCP server instances for each of the VLANs defined, and also has statically defined IP addresses for the Layer 3 SVI interfaces associated with each VLAN.
+
+#### SNMP Services ####
+
+TBD...
+
+#### Syslog Services ####
+
+TBD...
+
+#### NTP Services ####
+
+TBD....
+
+### DNS Services ####
+
+TBD...
+
+### Netflow Services ####
+
+TBD...
 
 ### Security Services ###
 
@@ -300,7 +370,7 @@ For Release 1 - Early Availability, intrusion detection and prevention services 
 
 AMP services for the small branch are implemented by the MX security appliance.  AMP applies to non-encrypted (since AMP must first identify that content is being downloaded) LAN traffic to and from the Internet.  Once enabled, specific URLs can be excluded from being scanned for malware.  Likewise, previously identified files can be excluded by including the SHA-256 hash of the file to be excluded, in scenarios where a false positive has blocked the file.  The *app_mal* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of advanced malware protection via YAML. This is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual AMP configuration within any organization will depend upon the security policy of the organization.
 
-### Identity Services ###
+#### Identity Services ####
 
 Identity Services provide per-user authentication and authorization the wired and wireless LAN within the small branch design.  These services include the following:
 
