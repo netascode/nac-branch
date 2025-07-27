@@ -225,17 +225,31 @@ The general use of port schedules depends on the needs of the specific organizat
 
 WLAN services for the small branch for Release 1 - Early Availability consist of the following:
 
-- 802.11 a/b/g/n/ac/be Connectivity
+- WLAN Connectivity
 - Multiple SSIDs
+- Guest Services
 - WLAN QoS
 
-#### 802.11a/b/g/n/ac/be Connectivity ####
+#### WLAN Connectivity ####
 
-TBD...
+For Release 1 - Early Availability, the small branch design supports Wi-Fi 7 / 802.11be compliant CW-9176I cloud managed access points for WLAN connectivity.  CW-9176I access points feature WPA3 security and tri-band (2.4, 5, and 6 GHz) operation with a single multi-Gigabit Ethernet (mGig) uplink up to 10 Gbps. 
+
+For many WLAN deployments, the pre-configured Basic Indoor and Basic Outdoor RF profiles provided by the Cisco (formerly Meraki) dashboard provide sufficient coverage when applied to access points which are properly placed within the network / site.  Nevertheless, the *wireless* template within the *data/templates-inventory-related.nac.yaml* file, provides an example configuration of a custom RF profile.  Note that within the example RF profile, only the 2.4 and 5 GHz bands are enabled and parameters such as RX-SOP are modified.  This is intended as an example of how to configure RF profile parameters via YAML configuration files only.  It is not representative of best practices, or meant to be deployed within a production environment.  Work is ongoing to refine the wireless configurations throughout the YAML files within the repository to more accurately reflect best practices, and to also include Wi-Fi 7 / 802.11be components in future releases.
 
 #### Multiple SSIDs ####
 
-TBD...
+For Release 1 - Early Availability, three SSIDs - Data, Voice, and Guest - are hardcoded within the *wireless* template within the *data/templates-inventory-related.nac.yaml* file for the small branch design.  All three SSIDs are configured for open access and allow the mapping of SSID to VLAN to be specified via variables.  
+
+A genteral best practice for non-Guest SSIDs would be to utilize WPA3 enterprise security, WPA2 enterprise security, or potentially WPA3 transition mode - utilizing an external RADIUS server such as Cisco ISE, or the Meraki Cloud Authentication.  Additionally, it is generally recommended to minimize the number of SSIDs advertised within a site.  Potential methods to reduce the number of SSIDs include dynamic VLAN assignment of wireless clients such as IP Phones as they authenticate to the network on a common Corporate SSID, rather than provisioning a dedicated Voice SSID.  Hence, work is ongoing to refine the wireless configurations as well as include identity services (discussed below) throughout the YAML files within the repository of the small branch design to more accurately reflect such best practices in future releases.
+
+#### Guest Services ####
+
+Guest services for the small branch for Release 1 - Early Availability consists of a Guest SSID configured with open authentication and click-through splash page.  The Guest SSID is terminated on a dedicateed Guest VLAN (VLAN 30).  Guest traffic is further rate limited on a per-user and per-SSID basis. The configuration of the Guest SSID is found in the *wireless* template within the *data/templates-inventory-related.nac.yaml* file.  
+
+For Release 1 - Early Availability, Guest traffic is intended to be allowed Direct Internet Access (DIA) only via the MX security appliance firewall policy. The current firewall policy found within the *app_fw* template within the *data/templates-appliance-related.nac.yaml* file does not include rules restricting Guest traffic.  Hence, the Guest services configuration is an incomplete example at this point, and should not be taken as any form of best practice or implemented in a production network.  Work is ongoing to refine the configurations within the repository to show a more complete policy allowing DIA access, potentially with content filtering rules for Guest traffic.
+
+> :information_source:
+> Release 1 - Early Availability of the small branch design only considers wireless Guest services.  No configurations have been considered for extending Guest services to wired guest taffic.
 
 #### WLAN QoS ####
 
@@ -243,7 +257,7 @@ TBD...
 
 ### Network Services ###
 
-Network services for the small branch for Release 1 - Early Availabiliyt consist of the following:
+Network services for the small branch for Release 1 - Early Availabiliy consist of the following:
 
 - DHCP Services
 - NTP Services
