@@ -126,7 +126,7 @@ As with the uplink between the MX-85 security appliance and the C9300L-24P-4X or
 
 For Release 1 - Early Availability, no authentication of the Access Point to the switch port was configured. The switch models for Release 1 - Early Availability do not support Meraki Secure Port.  Likewise, the AP model does not support the 802.1x supplicant necessary for 802.1x authentication of the AP to the switch. Hence, the only alternatives are either no authentication or MAC Authentication Bypass (MAB).  MAB is not ideal because the MAC address of the AP is normally printed on the AP, making it somewhat easy to circumvent.  However, given the physical installations of the APs are typically 8-12 feet off the ground in the ceilings of sites, it is still preferable to no authentication, and would generally be recommended, although it HAS NOT BEEN VALIDATED for Release 1 - Early Availability.
 
-### WLAN SSIDs ####
+#### WLAN SSIDs ####
 
 For Release 1 - Early Availability, the following three SSIDs (Data - SSID 0, Voice - SSID 1, and Guest - SSDI 2) are hardcoded in the YAML configuration files for example purposes only.  The SSIDs are all configured for open access (no authentication or encryption), with traffic mapped to the three VLANs (Data - VLAN 10, Voice - VLAN 20, and Guest - VLAN 30) defined as variables.
 
@@ -229,22 +229,23 @@ WLAN services for the small branch for Release 1 - Early Availability consist of
 - Multiple SSIDs
 - Guest Services
 - Traffic & Bandwidth Shaping and QoS
+- WLAN Port Schedules
 
 #### WLAN Connectivity ####
 
 For Release 1 - Early Availability, the small branch design supports Wi-Fi 7 / 802.11be compliant CW-9176I cloud managed access points for WLAN connectivity.  CW-9176I access points feature WPA3 security and tri-band (2.4, 5, and 6 GHz) operation with a single multi-Gigabit Ethernet (mGig) uplink up to 10 Gbps. 
 
-For many WLAN deployments, the pre-configured Basic Indoor and Basic Outdoor RF profiles provided by the Cisco (formerly Meraki) dashboard provide sufficient coverage when applied to access points which are properly placed within the network / site.  Nevertheless, the *wireless* template within the *data/templates-inventory-related.nac.yaml* file, provides an example configuration of a custom RF profile.  Note that within the example RF profile, only the 2.4 and 5 GHz bands are enabled and parameters such as RX-SOP are modified.  This is intended as an example of how to configure RF profile parameters via YAML configuration files only.  It is not representative of best practices, or meant to be deployed within a production environment.  Work is ongoing to refine the wireless configurations throughout the YAML files within the repository to more accurately reflect best practices, and to also include Wi-Fi 7 / 802.11be components in future releases.
+For many WLAN deployments, the pre-configured Basic Indoor and Basic Outdoor RF profiles provided by the Cisco (formerly Meraki) dashboard provide sufficient coverage when applied to access points which are properly placed within the network / site.  Nevertheless, the *wireless* template within the *data/templates-network-related.nac.yaml* file, provides an example configuration of a custom RF profile.  Note that within the example RF profile, only the 2.4 and 5 GHz bands are enabled and parameters such as RX-SOP are modified.  This is intended as an example of how to configure RF profile parameters via YAML configuration files only.  It is not representative of best practices, or meant to be deployed within a production environment.  Work is ongoing to refine the wireless configurations throughout the YAML files within the repository to more accurately reflect best practices, and to also include Wi-Fi 7 / 802.11be components in future releases.
 
 #### Multiple SSIDs ####
 
-For Release 1 - Early Availability, three SSIDs - Data, Voice, and Guest - are hardcoded within the *wireless* template within the *data/templates-inventory-related.nac.yaml* file for the small branch design.  All three SSIDs are configured for open access and allow the mapping of SSID to VLAN to be specified via variables.  
+For Release 1 - Early Availability, three SSIDs - Data, Voice, and Guest - are hardcoded within the *wireless* template within the *data/templates-network-related.nac.yaml* file for the small branch design.  All three SSIDs are configured for open access and allow the mapping of SSID to VLAN to be specified via variables.  
 
 A genteral best practice for non-Guest SSIDs would be to utilize WPA3 enterprise security, WPA2 enterprise security, or potentially WPA3 transition mode - utilizing an external RADIUS server such as Cisco ISE, or the Meraki Cloud Authentication.  Additionally, it is generally recommended to minimize the number of SSIDs advertised within a site.  Potential methods to reduce the number of SSIDs include dynamic VLAN assignment of wireless clients such as IP Phones as they authenticate to the network on a common Corporate SSID, rather than provisioning a dedicated Voice SSID.  Hence, work is ongoing to refine the wireless configurations as well as include identity services (discussed below) throughout the YAML files within the repository of the small branch design to more accurately reflect such best practices in future releases.
 
 #### Guest Services ####
 
-Guest services for the small branch for Release 1 - Early Availability consists of a Guest SSID configured with open authentication and click-through splash page.  The Guest SSID is terminated on a dedicateed Guest VLAN (VLAN 30).  Guest traffic is further rate limited on a per-user and per-SSID basis. The configuration of the Guest SSID is found in the *wireless* template within the *data/templates-inventory-related.nac.yaml* file.  
+Guest services for the small branch for Release 1 - Early Availability consists of a Guest SSID configured with open authentication and click-through splash page.  The Guest SSID is terminated on a dedicateed Guest VLAN (VLAN 30).  Guest traffic is further rate limited on a per-user and per-SSID basis. The configuration of the Guest SSID is found in the *wireless* template within the *data/templates-network-related.nac.yaml* file.  
 
 For Release 1 - Early Availability, Guest traffic is intended to be allowed Direct Internet Access (DIA) only via the MX security appliance firewall policy. The current firewall policy found within the *app_fw* template within the *data/templates-appliance-related.nac.yaml* file does not include rules restricting Guest traffic.  Hence, the Guest services configuration is an incomplete example at this point, and should not be taken as any form of best practice or implemented in a production network.  Work is ongoing to refine the configurations within the repository to show a more complete policy allowing DIA access, potentially with content filtering rules for Guest traffic.
 
@@ -253,7 +254,7 @@ For Release 1 - Early Availability, Guest traffic is intended to be allowed Dire
 
 #### Traffic & Bandwidth Shaping and QoS ####
 
-Bandwidth shaping for cloud managed access points allows the network administrator to set per-SSID and per-device/user rate limits for upstream and downstream traffic, which are enforced on a per-AP basis. For Release 1 - Early Availability of the small branch design, the Data and Voice SSIDs have no bandwidth shaping limits.  However, the Guest SSID has been hardcoded for a upstream and downstream per-SSID limits of 100 Mbps and per-device/user limits of 10 Mbps.  This is configured within the *wireless* template within the *data/templates-inventory-related.nac.yaml* file. This is meant as an example only and should not be taken as any form of best practice or implemented in a production network.
+Bandwidth shaping for cloud managed access points allows the network administrator to set per-SSID and per-device/user rate limits for upstream and downstream traffic, which are enforced on a per-AP basis. For Release 1 - Early Availability of the small branch design, the Data and Voice SSIDs have no bandwidth shaping limits.  However, the Guest SSID has been hardcoded for a upstream and downstream per-SSID limits of 100 Mbps and per-device/user limits of 10 Mbps.  This is configured within the *wireless* template within the *data/templates-network-related.nac.yaml* file. This is meant as an example only and should not be taken as any form of best practice or implemented in a production network.
 
 Traffic shaping for cloud managed access points allows the network administrator to set per-device/user rate limits on a per-application basis.  Traffic shaping configuration consists of rule definitions and rule actions.
 
@@ -268,14 +269,20 @@ Rule actions can then specify one of the following for the matched traffic:
 - Obey the bandwidth shaping rate limits set for the SSID
 - Apply more restrictive limits than specified for the SSID
 
-For Release 1 - Early Availability of the small branch design, the Data and Voice SSIDs provide example traffic shaping configurations. This is configured within the *wireless* template within the *data/templates-inventory-related.nac.yaml* file. This is meant as an example only and should not be taken as any form of best practice or implemented in a production network.
+For Release 1 - Early Availability of the small branch design, the Data and Voice SSIDs provide example traffic shaping configurations. This is configured within the *wireless* template within the *data/templates-network-related.nac.yaml* file. This is meant as an example only and should not be taken as any form of best practice or implemented in a production network.
 
 Cloud managed access points have a default downstream mapping of DSCP values to 802.11 Access Categories (ACs), as discussed in the [Wireless QoS and Fast Lane](https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wireless_QoS_and_Fast_Lane) document.  Upstream QoS sent by the wireless client is honored and the DSCP field within the traffic sent from the client is maintained on the Ethernet network. 
 
 > :information_source:
 > The upstream switch port to which the access point is connected will need to be configured to trust DSCP markings or implement an ingress classification & marking policy if QoS from the wireless client is desired to be maintained. 
 
-Fast Lane is supported with the ability to install a wireless profile on Apple iOS devices via the Meraki EMM.  The default configuration accepts all applicatoin markings.  For Release 1 - Early Availability of the small branch design, Fast Lane was not considered. 
+Fast Lane is supported with the ability to install a wireless profile on Apple iOS devices via the Meraki EMM.  The default configuration accepts all applicatoin markings.  For Release 1 - Early Availability of the small branch design, Fast Lane was not considered.
+
+#### WLAN SSID Schedules #####
+
+WLAN SSID schedules allow network administrators to set up recurring time-based schedules in which WLAN SSIDs are enabled or disabled.  The *wireless* template within the *data/templates-network-related.nac.yaml* file provides example YAML configurations of a WLAN SSID schedules for each of the SSIDs. This can be modified to suit the needs of the particular organization.
+
+The general use of SSID schedules depends on the needs of the specific organization.  There are no best practives or recommendations. Examples of use may be for security or power savings purposes - for example disabling SSIDs during non-work hours when employees are not expected to be at the site.  However, the network administrator must balance this against unforseen situations where WLAN SSID connectivity may occasionally be needed during those non-work hours.  Additionally, should WLAN connected IP phone and/or IP surveillance camera connectivity within the small branch site be dependent upon the SSID being active, provisions for reaching emergency services and for surveillance monitoring may be required within the site, even during non-work hours. 
 
 ### Network Services ###
 
@@ -289,6 +296,7 @@ Network services for the small branch for Release 1 - Early Availabiliy consist 
 - Netflow Services
 
 #### DHCP Services ####
+
 IP address assignment to devices within the small branch design can be static or dynamic.  Dynamic IP address assignment is via the Dynamic Host Configuration Protocol (DHCP).  IP addresses can also be IPv4 or IPv6.  Release 1 - Early Availability of the small branch design only considers IPv4 addressing.  Future releases may consider IPv6 as well.  Both static and dynamic (DHCP) IP address assignment are used within the small branch design.
 
 IP address assignments apply to wired and wireless devices within the small branch.  Such devices can be network infrastructure devices such as the MX security appliance, C9300L-24P-4X or C9300L-48P-4X switch, and CW-9176I access points; or end-user devices such as laptops, IP phones, smart phones, tablets, etc.  Within the small branch design, the MX security appliance can simultaneously function as a DHCP client, DHCP server, and/or DHCP relay agent.  
@@ -315,23 +323,37 @@ Finally, it should be noted that for Release 1 - Early Availability of the small
 
 #### SNMP Services ####
 
-TBD...
+SNMP polling can be used to query and gather information either from the Cisco (formerly Meraki) dashboard or directly from devices (security appliances, switches, and access points) within networks / sites.
+
+The SNMP configuration found within the *data/org_global.nac.yaml* file within this repository provides an example of allowing SNMPv2c and SNMPv3 access to the Cisco (formerly Meraki) dashboard.  Note that for SNMPv2c access, the community string is not present as a configurable parameter.  Likewise, for SNMPv3 access, although the authentication password is specified, the userid is not present as a configurable parameter.  As discussed in the [SNMP Overview and Configuration](https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/SNMP_Overview_and_Configuration) document and shown in the example figure within the *Dashboard Polling* section of the document, these parameters along with hostname and port for sending the SNMP queries are visible through the dashboard.
+
+It should be noted that the dashboard polling example shown in the configuration is only an example of how to configure dashboard polling via YAML configuration.  It does not represent represent best practices, nor should it be used in a production network.  SNMPv2c passes the community string in clear text within queries.  Hence SNMPv2c is NOT RECOMMENDED to be used over unsecure networks - even though dashboard SNMP access provides just read only query capability.  SNMPv3 is generally recommended, since it includes provisions for privacy.  Further, it is highly recommended to limit the source IP addresses which can issue dashboard SNMP queries, particularly when using SNMPv2C, but also when using SNMPv3.
+
+The SNMP configuration found within the *snmp* template within the *data/templates-network-related.nac.yaml* file within this repository provides an example of how to configure local polling of devices using SNMPv3 via YAML configuration.  Within the example configuration, the SNMP username is defined as a variable.  This variable is then assigned a value within the *Unified Branch 1* network configuration within the *pods_variables.nac.yaml* file.  The SNMP password is defined as an environmental variable.  This is simply to demonstrate the best practice of never including passwords within any file which is subject to version control.  
+
+It should be noted that the configuration provides for SNMP polling from a management station which is local to the device being polled - meaning the management station must be on the same subnet as the management interface of the device being polled.  The *app_fw* template within the *data/templates-appliance-related.nac.yaml* file contains configuration allowing SNMP through the security appliance for remote polling.  Note however, that unrestricted SNMP access is not recommended.  Hence this configuration is just an example only, does not represent best practices, and should not be deployed in a production network.  Also, with the current Release 1 - Early Availability small branch design, the management interfaces of the MX security appliance, switch and access points are on VLAN 1.  VLAN 1 is not transported across the VPN network, since the default IP address range of 192.168.1.0/24 is used currently.  VLAN 1 IP addresses, including the management interfaces of the devices are not reachable remotely across the VPN or externally.  
+
+For Release 1 - Early Availability the YAML configuration files contain no configuration for enabling SNMP traps.  Work is ongoing to refine the SNMP services configuration for remote SNMP querying of devices and generation of SNMP traps for future releases.
 
 #### Syslog Services ####
 
-TBD...
+Documentation of syslog services is currently under development and is expected to be included shortly.
 
 #### NTP Services ####
 
-TBD....
+The Cisco (formerly Meraki) cloud handles all time synchronization for network devices.  Specification of the time zone of a network / site is currently not included in the YAML configuration files within the repository.  Future releases may add this capability.
 
-### DNS Services ####
+#### DNS Services ####
 
-TBD...
+For Release 1 - Early Availability of the small branch design, DNS services consist of the following:
 
-### Netflow Services ####
+- Dynamic DNS (DDNS) registration of the MX security appliance to update its DNS host record automatically each time its public IP address changes. This allows the network administrator to access the MX security appliance by its hostname instead of an IP address.  Dynamic DNS configuration can be found within the *app_settings* template within the *data/templates-appliance-related.nac.yaml* file.  All that is required is to enable DDNS and specify a prefix which is included to create the FQDN for the MX security appliance.  The FQDN can be found by accessing the Cisco (formerly Meraki) dashboard, as discussed in the [Dynamic DNS (DDNS)](https://documentation.meraki.com/MX/Other_Topics/Dynamic_DNS_(DDNS)) document.
 
-TBD...
+- Specification of the DNS server to be handed to clients which receive IP addresses via the individual DHCP server instances defined in the MX security appliance. This is configured via the *dns_nameservers* parameter within the *app_vlans* template within the *data/templates-appliance-related.nac.yaml* file for each of the DHCP server instances in each of the VLANs. 
+
+#### Netflow Services ####
+
+For Release 1 - Early Availability of the small branch design, NetFlow services are not included.  Work is ongoing to include the configuration to support NetFlow services within the YAML files. 
 
 ### Security Services ###
 
@@ -353,7 +375,9 @@ Firewalling services for the small branch are implemented by the MX security app
 > :information_source:
 > Firewall applications and application categories must be specified by ID currently.  Work to translate the IDs into user-friendly names is ongoing.  
 
-The *app_fw* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of firewall services via YAML.  This is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual firewall configuration within any organization will depend upon the security policy of the organization.
+The *app_fw* template within the *data/templates-appliance-related.nac.yaml* file provides an example of the configuration of firewall services for Internet bound traffic via YAML.  This is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual firewall configuration within any organization will depend upon the security policy of the organization.
+
+The *vpn_firewall_rules* section under *appliance* within the *data/org_global.nac.yaml* provides an example of the configuration of firewall services for traffic across the VPN via YAML.  Again, this is an example only, not intended to be deployed within a production network, and does not represent any form of best practices.  The actual firewall configuration within any organization will depend upon the security policy of the organization.  Note that the rules defined here apply to all networks across the organization. 
 
 #### Content Filtering ####
 
@@ -380,4 +404,4 @@ Identity Services provide per-user authentication and authorization the wired an
 - Per-user access control via Group Policy assignment or VLAN assignment upon device authentication to an access point.
 - External ISE / Radius or Meraki Cloud authentication server. 
 
-For Release 1 - Early Availability, identity services have not been implemented and validated for the small branch design.  Work is ongoing to add configurations for Identity services to the YAML files within the repository.   
+For Release 1 - Early Availability, identity services have not been implemented and validated for the small branch design.  Work is ongoing to add configurations for Identity services to the YAML files within the repository.
