@@ -4,6 +4,8 @@
 
 This initial release of **Unified Branch – Branch as Code** (referred to as **Release 1, Early Availability**) introduces the provisioning of branch network infrastructure—**security appliances**, **switches**, and **Wi-Fi access points**—holistically using **Network as Code (NAC)** concepts, practices, and procedures.
 
+➡️ Check the [Unified Branch - Branch as Code Design Guide: Release 1 - Early Availability](docs/Readme.md) to learn more about the deployment model supported.
+
 ➡️ The Branch as Code Design Guide is available here: **\[ADD LINK]**
 
 ---
@@ -93,7 +95,7 @@ Defines files and directories to be excluded from version control (e.g., `.terra
 
 ---
 
-### `Readme.md`
+### `README.md`
 
 This file. Provides an overview of the project and usage instructions.
 
