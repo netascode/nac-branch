@@ -36,7 +36,6 @@ nac-branch/
 ├── data/
 ├── docs/
 ├── workspaces/
-├── .gitignore
 ├── Readme.md
 └── main.tf
 ```
@@ -87,12 +86,6 @@ The Terraform module invoked in this folder will:
 
 * Load templates and variable values from `/data`
 * Merge them into a single file: `merged_configuration.nac.yaml`
-
----
-
-### `.gitignore`
-
-Defines files and directories to be excluded from version control (e.g., `.terraform/`, logs, cache files).
 
 ---
 
