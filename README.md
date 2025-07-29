@@ -6,8 +6,7 @@ This initial release of **Unified Branch – Branch as Code** (referred to as **
 
 ➡️ Check the [Unified Branch - Branch as Code Design Guide: Release 1 - Early Availability](docs/Readme.md) to learn more about the deployment model supported.
 
-➡️ The Branch as Code Design Guide is available here: **\[ADD LINK]**
-
+➡️ The provided templates contain the VPN Hub and Branches (Spoke) Configuration. Future releases will consider importing previously configured VPN Hub Network(s).
 ---
 
 ## 🧰 Requirements
@@ -15,10 +14,11 @@ This initial release of **Unified Branch – Branch as Code** (referred to as **
 To make use of this repository, you will need:
 
 * ✅ A **Meraki API Key**
-* ✅ **Hardware Serial Numbers** for the setup (as described in the [Network Design Section](#)) **\[ADD LINK]**
+* ✅ **Hardware Serial Numbers** for the setup (as described in the [Network Design Section] (docs/Readme.md)
 * ✅ Network Variables (e.g. **Network Name**, **Hostnames**, **IP Addressing Schema**, etc.)
 * ✅ Enviromental Variables - the setup is configured with following enviromental variables:
 
+        MERAKI_API_KEY
         v3_auth_pass
         v3_priv_pass
         local_status_page_password

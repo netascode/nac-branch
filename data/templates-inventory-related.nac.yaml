@@ -12,6 +12,15 @@
 # Note that these templates are not related to templates
 # configured within the Cisco (formerly Meraki) dashboard.
 #
+# The below code does the following:
+#
+# hub configuration template.
+#
+# The hub configuration template configures defines the
+# device (security appliance)
+# and configures parameters specific to those devices 
+# within the site / network to which the template is applied.
+#
 meraki:
   template:
     networks:
