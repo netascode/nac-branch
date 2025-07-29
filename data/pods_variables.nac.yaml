@@ -171,6 +171,60 @@ meraki:
                 static_route2_gw: 10.1.20.2
                 # static_route2_enabled: true
                 splash_reply_to_email_address: example@example.com
+                      # 
+             # The below code does the following:
+             #
+             # Defines/creates the hub network named "Unified Hub".
+             #
+             # Assigns the following templates from the associated YAML
+             # files as follows:
+             #
+             #   From templates-appliance-related.nac.yaml
+             #   - app_settings
+             #   - app_hub
+             #   - app_vlans
+             #
+             #   From templates-network-related.nac.yaml
+             #   - product_types
+             #   - snmp
+             #   - syslog
+             #   - network_settings
+             #
+             # Assigns values to the variables defined within the 
+             # associated templates as follows:
+             #
+             #   From snmp
+             #   - snmp_username
+             #
+             #   From syslog
+             #   - syslog_server
+             #
+             #   From network_settings
+             #   - local_status_page_username
+             #
+             #   From hub (found in templates-inventory-related.nac.yaml)
+             #   - appliance-01-serial
+             #   - appliance-01
+             #   - lat
+             #   - lng
+             #   - address
+             #
+             #   From app_hub & app_vlans
+             #   - vlan10_subnet
+             #   - vlan20_subnet
+             #   - vlan30_subnet
+             #
+             #   From app_vlans
+             #   - vlan10_appliance_ip
+             #   - vlan10_dhcp_start
+             #   - vlan10_dhcp_end
+             #   - vlan20_appliance_ip
+             #   - vlan20_dhcp_start
+             #   - vlan20_dhcp_end
+             #   - vlan30_appliance_ip
+             #   - vlan30_dhcp_start
+             #   - vlan30_dhcp_end
+             #
             - name: Unified Hub
               templates: [product_types, hub, snmp, syslog, app_settings, network_settings, app_hub, app_vlans]
               variables:
