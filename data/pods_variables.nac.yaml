@@ -135,10 +135,10 @@ meraki:
                 switch-01: Branch1-Cat9300-01
                 ap-01: Branch1-ap-01
                 ap-02: Branch1-ap-02
-                appliance-01-serial: Q2YN-XMR9-M48C
-                switch-01-serial: Q5TT-NUBK-R29L
-                ap-01-serial: Q5BA-N24C-HKRL
-                ap-02-serial: Q5BB-7XAB-HAXZ
+                appliance-01-serial: ABCD-EFGH-IJKL
+                switch-01-serial: ABCD-EFGH-IJKL
+                ap-01-serial: ABCD-EFGH-IJKL
+                ap-02-serial: ABCD-EFGH-IJKL
                 lat: 37.41809510000001
                 lng: -122.098531
                 address: Wake Forest, N.C.
@@ -177,7 +177,7 @@ meraki:
                 snmp_username: user1
                 syslog_server: 3.4.5.6
                 local_status_page_username: admin
-                appliance-01-serial: Q3LC-D4M5-Q8QL
+                appliance-01-serial: ABCD-EFGH-IJKL
                 appliance-01: Hub
                 vlan10_subnet: 10.1.1.0/24
                 vlan10_appliance_ip: 10.1.1.1
