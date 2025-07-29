@@ -15,6 +15,28 @@
 meraki:
   template:
     networks:
+       - name: hub
+         devices:
+          - name: ${appliance-01}
+            serial: ${appliance-01-serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Appliance
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic
+                wan2:
+                  enabled: true
+                  svis:
+                    ipv4:
+                      assignment_mode: dynamic       
        # 
        # The below code does the following:
        #

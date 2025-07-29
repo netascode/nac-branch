@@ -37,6 +37,25 @@ meraki:
                   dynamic_dns:
                     prefix: "my-network"
                     enabled: true
+
+      # The below code does the following:
+      #
+      # Security appliance AutoVPN configuration template for the hub network.
+      #
+      # Configures the network to which the template is applied as a hub and advertises the 
+      # VLAN 10 (data) and VLAN 20 (voice) subnets across the VPN 
+      # to the cloud. IP address and subnets for VLANs are specified as variables which 
+      # are defined in the pods_variables.nac.yaml file.
+      #      
+      - name: app_hub
+        appliance:
+                vpn_site_to_site_vpn:
+                  mode: hub
+                  subnets:
+                    - local_subnet: ${vlan10_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan20_subnet}
+                      use_vpn: true
       # 
       # The below code does the following:
       #
