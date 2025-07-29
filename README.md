@@ -6,7 +6,8 @@ This initial release of **Unified Branch – Branch as Code** (referred to as **
 
 ➡️ Check the [Unified Branch - Branch as Code Design Guide: Release 1 - Early Availability](docs/Readme.md) to learn more about the deployment model supported.
 
-➡️ The provided templates contain the VPN Hub and Branches (Spoke) Configuration. Future releases will consider importing previously configured VPN Hub Network(s).
+➡️ The provided templates include configuration for both VPN Hubs and Branches (Spokes). Support for importing existing VPN Hub network configurations will be considered in future releases.
+
 ---
 
 ## 🧰 Requirements
@@ -33,7 +34,7 @@ To make use of this repository, you will need:
 ```
 nac-branch/
 ├── data/
-├── images/
+├── docs/
 ├── workspaces/
 ├── .gitignore
 ├── Readme.md
@@ -72,9 +73,9 @@ data/
 
 ---
 
-### `images/`
+### `docs/`
 
-Stores reference diagrams and visuals for documentation and dashboard use.
+Stores reference diagrams and documentation such as Design Guide. 
 
 ---
 
@@ -117,10 +118,16 @@ git clone <your_repo_url>
 cd nac-branch
 ```
 
-### 2. Export Your Meraki API Key
+### 2. Export Your Meraki API Key and other enviromental variables 
 
 ```bash
 export MERAKI_API_KEY=ABC1234
+export v3_auth_pass=ABC1234
+export v3_priv_pass=ABC1234
+export local_status_page_password=ABC1234
+export snmp_passphrase=ABC1234
+export domain=ABC1234
+export org_name=ABC1234
 ```
 
 ### 3. Edit Your Configuration Files
@@ -130,7 +137,7 @@ Navigate to the `data/` folder and update the following:
 * `pods_variables.nac.yaml` – set your desired branch variables
 * `org_global.nac.yaml` – set your org-level configuration
 
-Sample configuration is included for reference.
+Sample configuration is included for reference. Make sure to use correct serial numbers. 
 
 ### 4. Run Workspace Terraform
 
