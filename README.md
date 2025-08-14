@@ -8,6 +8,7 @@ This initial release of **Unified Branch – Branch as Code** (referred to as **
 
 ➡️ The provided templates include configuration for both VPN Hubs and Branches (Spokes). Support for importing existing VPN Hub network configurations will be considered in future releases.
 
+➡️ See the [Cisco Unified Branch Solution Brief](https://www.cisco.com/c/en/us/td/docs/solutions/CVD/Campus/Unifiedbranch_solution_brief_0813v4.html) for a high-level overview of the Cisco Unified Branch solution.
 ---
 
 ## 🧰 Requirements
