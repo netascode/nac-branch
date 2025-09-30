@@ -1,0 +1,84 @@
+name: Check md files vs API
+
+env:
+  BASE_URL: ${{ secrets.BASE_URL }}
+  NETWORK_ID: ${{ secrets.NETWORK_ID }}
+  API_KEY: ${{ secrets.MERAKI_API_KEY }}
+
+on:
+  schedule:
+    - cron: "20 6 * * *" # every day at 06:20 UTC
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Verify Content Filtering Categories and Application Categiries IDs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency: md_check
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Fetch API outputs
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          NETWORK_ID: ${{ secrets.NETWORK_ID }}
+          API_KEY: ${{ secrets.MERAKI_API_KEY }}
+        run: |
+          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
+            "$BASE_URL/networks/$NETWORK_ID/appliance/firewall/l7FirewallRules/applicationCategories" \
+            > api_applicationCategories.txt
+
+          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
+            "$BASE_URL/networks/$NETWORK_ID/appliance/contentFiltering/categories" \
+            > api_ContentFilteringCategories.txt
+
+      - name: Compare applicationCategories
+        id: compare1
+        run: |
+          if ! diff -u docs/applicationCategiories.md api_applicationCategories.txt > diff_app.txt; then
+            echo "APP_MISMATCH=true" >> $GITHUB_ENV
+          else
+            echo "APP_MISMATCH=false" >> $GITHUB_ENV
+          fi
+
+      - name: Compare ContentFilteringCategories
+        id: compare2
+        run: |
+          if ! diff -u docs/ContentFilteringCategories.md api_ContentFilteringCategories.txt > diff_filter.txt; then
+            echo "FILTER_MISMATCH=true" >> $GITHUB_ENV
+          else
+            echo "FILTER_MISMATCH=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create issue if applicationCategories mismatch
+        if: env.APP_MISMATCH == 'true'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "applicationCategiories.md mismatch with API output"
+          content-filepath: diff_app.txt
+          labels: mismatch
+
+      - name: Create issue if ContentFilteringCategories mismatch
+        if: env.FILTER_MISMATCH == 'true'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "ContentFilteringCategories.md mismatch with API output"
+          content-filepath: diff_filter.txt
+          labels: mismatch
+
+      - name: Webex Notification
+        if: always()
+        uses: qsnyder/action-wxt@master
+        env:
+          TOKEN: ${{ secrets.WEBEX_TOKEN }}
+          ROOMID: ${{ secrets.WEBEX_ROOM_ID }}
+          MESSAGE: |
+            [**[${{ job.status }}] ${{ github.repository }} #${{ github.run_number }}**](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            * Job: ${{ github.job }}
+            * Branch: ${{ github.ref }}
+            * Event: ${{ github.event_name }}
+            * applicationCategiories mismatch: ${{ env.APP_MISMATCH }}
+            * ContentFilteringCategories mismatch: ${{ env.FILTER_MISMATCH }}
