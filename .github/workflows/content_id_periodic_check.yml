@@ -47,10 +47,10 @@ jobs:
           #!/usr/bin/env bash
           set -e
 
-          REF_FILE_CF="contentFilteringCategories.json"
+          REF_FILE_CF="data/contentFilteringCategories.json"
           API_FILE_CF="api_contentFilteringCategories.json"
 
-          REF_FILE_APP="applicationCategories.json"
+          REF_FILE_APP="data/applicationCategories.json"
           API_FILE_APP="api_applicationCategories.json"
 
           MISMATCH=0
