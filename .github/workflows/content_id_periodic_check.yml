@@ -1,13 +1,8 @@
 name: Check md files vs API
 
-env:
-  BASE_URL: ${{ secrets.BASE_URL }}
-  NETWORK_ID: ${{ secrets.NETWORK_ID }}
-  API_KEY: ${{ secrets.MERAKI_API_KEY }}
-
 on:
   schedule:
-    - cron: "20 6 * * *" # every day at 06:20 UTC
+    - cron: "20 6 * * *"
   workflow_dispatch:
     inputs:
       branch:
@@ -15,123 +10,91 @@ on:
         required: true
         default: "gh-action-for-ids"
 
+env:
+  BASE_URL: ${{ secrets.BASE_URL }}
+  NETWORK_ID: ${{ secrets.NETWORK_ID }}
+  API_KEY: ${{ secrets.MERAKI_API_KEY }}
+
 jobs:
-  check:
-    name: Verify Content Filtering Categories and Application Categories IDs
+  check_categories:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    concurrency: md_check
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.branch || 'main' }}
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Fetch API outputs
-        env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-          NETWORK_ID: ${{ secrets.NETWORK_ID }}
-          API_KEY: ${{ secrets.MERAKI_API_KEY }}
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Check contentFiltering categories
         run: |
-          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
-            "$BASE_URL/networks/$NETWORK_ID/appliance/firewall/l7FirewallRules/applicationCategories" \
-            -o api_applicationCategories.json
-
-          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
-            "$BASE_URL/networks/$NETWORK_ID/appliance/contentFiltering/categories" \
-            -o api_contentFilteringCategories.json
-
-      - name: Compare JSON files with API
-        run: |
-          #!/usr/bin/env bash
-          set -e
-
-          REF_FILE_CF="data/contentFilteringCategories.json"
-          API_FILE_CF="api_contentFilteringCategories.json"
-
-          REF_FILE_APP="data/applicationCategories.json"
-          API_FILE_APP="api_applicationCategories.json"
-
+          REF_FILE_CF="docs/ContentFilteringCategories.md"
+          API_TMP_CF="tmp_api_CF.md"
           MISMATCH=0
 
-          echo "=== Checking contentFiltering categories ==="
-          # Compare reference → API
-          for id in $(jq -r '.categories[].id' "$REF_FILE_CF"); do
-            REF_NAME=$(jq -r ".categories[] | select(.id==\"$id\") | .name" "$REF_FILE_CF")
-            API_NAME=$(jq -r ".categories[] | select(.id==\"$id\") | .name // empty" "$API_FILE_CF")
-            if [ "$REF_NAME" != "$API_NAME" ]; then
-              echo "Mismatch for category ID $id: ref='$REF_NAME', api='$API_NAME'"
+          echo "=== Fetching contentFiltering categories ==="
+          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
+            "$BASE_URL/networks/$NETWORK_ID/appliance/contentFiltering/categories" \
+            | jq -r '.[] | "id: \(.id)\nname: \(.name)\n"' > "$API_TMP_CF"
+
+          echo "=== Comparing contentFiltering categories ==="
+          while IFS= read -r ref_line; do
+            api_line=$(grep -F "$ref_line" "$API_TMP_CF" || true)
+            if [ -z "$api_line" ]; then
+              echo "❌ Mismatch or missing line in API: '$ref_line'"
               MISMATCH=1
             fi
-          done
+          done < "$REF_FILE_CF"
 
-          # Check API → reference (extra IDs in API)
-          for id in $(jq -r '.categories[].id' "$API_FILE_CF"); do
-            REF_NAME=$(jq -r ".categories[] | select(.id==\"$id\") | .name // empty" "$REF_FILE_CF")
-            if [ -z "$REF_NAME" ]; then
-              API_NAME=$(jq -r ".categories[] | select(.id==\"$id\") | .name" "$API_FILE_CF")
-              echo "Extra contentFiltering category in API not in reference: ID=$id, name='$API_NAME'"
+          # Check for extra items in API not in reference
+          while IFS= read -r api_line; do
+            ref_line=$(grep -F "$api_line" "$REF_FILE_CF" || true)
+            if [ -z "$ref_line" ]; then
+              echo "⚠ Extra line in API not in reference: '$api_line'"
               MISMATCH=1
             fi
-          done
-
-          echo "=== Checking application categories ==="
-          # Compare reference → API
-          for cat_id in $(jq -r '.applicationCategories[].id' "$REF_FILE_APP"); do
-            REF_CAT_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .name" "$REF_FILE_APP")
-            API_CAT_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .name // empty" "$API_FILE_APP")
-            if [ "$REF_CAT_NAME" != "$API_CAT_NAME" ]; then
-              echo "Mismatch for application category ID $cat_id: ref='$REF_CAT_NAME', api='$API_CAT_NAME'"
-              MISMATCH=1
-            fi
-
-            # Compare applications inside this category
-            for app_id in $(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[].id" "$REF_FILE_APP"); do
-              REF_APP_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[] | select(.id==\"$app_id\") | .name" "$REF_FILE_APP")
-              API_APP_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[] | select(.id==\"$app_id\") | .name // empty" "$API_FILE_APP")
-              if [ "$REF_APP_NAME" != "$API_APP_NAME" ]; then
-                echo "Mismatch for application ID $app_id in category $cat_id: ref='$REF_APP_NAME', api='$API_APP_NAME'"
-                MISMATCH=1
-              fi
-            done
-          done
-
-          # Check API → reference for extra application categories
-          for cat_id in $(jq -r '.applicationCategories[].id' "$API_FILE_APP"); do
-            REF_CAT_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .name // empty" "$REF_FILE_APP")
-            if [ -z "$REF_CAT_NAME" ]; then
-              API_CAT_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .name" "$API_FILE_APP")
-              echo "Extra application category in API not in reference: ID=$cat_id, name='$API_CAT_NAME'"
-              MISMATCH=1
-            fi
-
-            # Extra applications in API category
-            for app_id in $(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[].id" "$API_FILE_APP"); do
-              REF_APP_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[] | select(.id==\"$app_id\") | .name // empty" "$REF_FILE_APP")
-              if [ -z "$REF_APP_NAME" ]; then
-                API_APP_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[] | select(.id==\"$app_id\") | .name" "$API_FILE_APP")
-                echo "Extra application in API not in reference: ID=$app_id in category $cat_id, name='$API_APP_NAME'"
-                MISMATCH=1
-              fi
-            done
-          done
+          done < "$API_TMP_CF"
 
           if [ $MISMATCH -eq 1 ]; then
-            echo "Category/application mismatches detected. Failing workflow."
+            echo "contentFiltering categories mismatch detected. Failing workflow."
             exit 1
           else
-            echo "All categories and applications match reference."
-          fi
+            echo "✅ All contentFiltering categories match reference."
 
-      - name: Webex Notification
-        if: always()
-        uses: qsnyder/action-wxt@master
-        env:
-          TOKEN: ${{ secrets.WEBEX_TOKEN }}
-          ROOMID: ${{ secrets.WEBEX_ROOM_ID }}
-          MESSAGE: |
-            [**[${{ job.status }}] ${{ github.repository }} #${{ github.run_number }}**](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            * Job: ${{ github.job }}
-            * Branch: ${{ github.ref }}
-            * Event: ${{ github.event_name }}
+      - name: Check application categories
+        run: |
+          REF_FILE_APP="docs/applicationCategories.md"
+          API_TMP_APP="tmp_api_APP.md"
+          MISMATCH=0
+
+          echo "=== Fetching application categories ==="
+          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
+            "$BASE_URL/networks/$NETWORK_ID/appliance/firewall/l7FirewallRules/applicationCategories" \
+            | jq -r '
+                .applicationCategories[] as $cat |
+                "id: \($cat.id)\nname: \($cat.name)\n" +
+                ($cat.applications[]? | "  id: \(.id)\n  name: \(.name)\n")
+              ' > "$API_TMP_APP"
+
+          echo "=== Comparing application categories ==="
+          while IFS= read -r ref_line; do
+            api_line=$(grep -F "$ref_line" "$API_TMP_APP" || true)
+            if [ -z "$api_line" ]; then
+              echo "❌ Mismatch or missing line in API: '$ref_line'"
+              MISMATCH=1
+            fi
+          done < "$REF_FILE_APP"
+
+          # Check for extra items in API not in reference
+          while IFS= read -r api_line; do
+            ref_line=$(grep -F "$api_line" "$REF_FILE_APP" || true)
+            if [ -z "$ref_line" ]; then
+              echo "⚠ Extra line in API not in reference: '$api_line'"
+              MISMATCH=1
+            fi
+          done < "$API_TMP_APP"
+
+          if [ $MISMATCH -eq 1 ]; then
+            echo "application categories mismatch detected. Failing workflow."
+            exit 1
+          else
+            echo "✅ All application categories match reference."
