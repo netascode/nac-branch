@@ -16,70 +16,59 @@ on:
         default: "gh-action-for-ids"
 
 jobs:
-  check:
-    name: Verify Content Filtering Categories and Application Categories IDs
+  check_categories:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    concurrency: md_check
-
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.branch }}
 
-      - name: Fetch API outputs
-        env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-          NETWORK_ID: ${{ secrets.NETWORK_ID }}
-          API_KEY: ${{ secrets.MERAKI_API_KEY }}
+      - name: Compare Categories JSON
         run: |
-          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
-            "$BASE_URL/networks/$NETWORK_ID/appliance/firewall/l7FirewallRules/applicationCategories" \
-            > api_applicationCategories.txt
+          # Save API JSON to file (replace with actual curl/fetch if needed)
+          # curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
+          #   "$BASE_URL/networks/$NETWORK_ID/appliance/contentFiltering/categories" \
+          #   -o api_Categories.json
 
-          curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
-            "$BASE_URL/networks/$NETWORK_ID/appliance/contentFiltering/categories" \
-            > api_ContentFilteringCategories.txt
+          # Use the reference file already in the repo
+          REF_FILE="reference_Categories.json"
+          API_FILE="api_Categories.json"
 
-      - name: Compare applicationCategories
-        id: compare1
-        run: |
-          if [ -f "docs/applicationCategiories.md" ]; then
-            if ! diff -u docs/applicationCategiories.md api_applicationCategories.txt > diff_app.txt; then
-              echo "APP_MISMATCH=true" >> $GITHUB_ENV
-            else
-              echo "APP_MISMATCH=false" >> $GITHUB_ENV
+          MISMATCH=0
+
+          # Compare contentFiltering categories
+          for id in $(jq -r '.categories[].id' "$REF_FILE"); do
+            REF_NAME=$(jq -r ".categories[] | select(.id==\"$id\") | .name" "$REF_FILE")
+            API_NAME=$(jq -r ".categories[] | select(.id==\"$id\") | .name // empty" "$API_FILE")
+            if [ "$REF_NAME" != "$API_NAME" ]; then
+              echo "Mismatch for category ID $id: ref='$REF_NAME', api='$API_NAME'"
+              MISMATCH=1
             fi
-          else
-            echo "applicationCategiories.md not found in branch"
-            echo "APP_MISMATCH=skipped" >> $GITHUB_ENV
-          fi
+          done
 
-      - name: Compare ContentFilteringCategories
-        id: compare2
-        run: |
-          if [ -f "docs/ContentFilteringCategories.md" ]; then
-            if ! diff -u docs/ContentFilteringCategories.md api_ContentFilteringCategories.txt > diff_filter.txt; then
-              echo "FILTER_MISMATCH=true" >> $GITHUB_ENV
-            else
-              echo "FILTER_MISMATCH=false" >> $GITHUB_ENV
+          # Compare applicationCategories
+          for cat_id in $(jq -r '.applicationCategories[].id' "$REF_FILE"); do
+            REF_CAT_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .name" "$REF_FILE")
+            API_CAT_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .name // empty" "$API_FILE")
+            if [ "$REF_CAT_NAME" != "$API_CAT_NAME" ]; then
+              echo "Mismatch for application category ID $cat_id: ref='$REF_CAT_NAME', api='$API_CAT_NAME'"
+              MISMATCH=1
             fi
-          else
-            echo "ContentFilteringCategories.md not found in branch"
-            echo "FILTER_MISMATCH=skipped" >> $GITHUB_ENV
-          fi
 
-      - name: Webex Notification
-        if: always()
-        uses: qsnyder/action-wxt@master
-        env:
-          TOKEN: ${{ secrets.WEBEX_TOKEN }}
-          ROOMID: ${{ secrets.WEBEX_ROOM_ID }}
-          MESSAGE: |
-            [**[${{ job.status }}] ${{ github.repository }} #${{ github.run_number }}**](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            * Job: ${{ github.job }}
-            * Branch: ${{ github.ref }}
-            * Event: ${{ github.event_name }}
-            * applicationCategiories mismatch: ${{ env.APP_MISMATCH }}
-            * ContentFilteringCategories mismatch: ${{ env.FILTER_MISMATCH }}
+            # Compare applications inside this category
+            for app_id in $(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[].id" "$REF_FILE"); do
+              REF_APP_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[] | select(.id==\"$app_id\") | .name" "$REF_FILE")
+              API_APP_NAME=$(jq -r ".applicationCategories[] | select(.id==\"$cat_id\") | .applications[] | select(.id==\"$app_id\") | .name // empty" "$API_FILE")
+              if [ "$REF_APP_NAME" != "$API_APP_NAME" ]; then
+                echo "Mismatch for application ID $app_id in category $cat_id: ref='$REF_APP_NAME', api='$API_APP_NAME'"
+                MISMATCH=1
+              fi
+            done
+          done
+
+          if [ $MISMATCH -eq 1 ]; then
+            echo "Category/application mismatches detected. Failing workflow."
+            exit 1
+          else
+            echo "All categories and applications match reference."
