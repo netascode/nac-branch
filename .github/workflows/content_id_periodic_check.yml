@@ -2,7 +2,7 @@ name: Check md files vs API
 
 on:
   schedule:
-    - cron: "20 6 * * *"
+    - cron: "20 6 * * *"  # every day at 06:20 UTC
   workflow_dispatch:
     inputs:
       branch:
@@ -16,19 +16,24 @@ env:
   API_KEY: ${{ secrets.MERAKI_API_KEY }}
 
 jobs:
-  check_categories:
+  compare_md_with_api:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Install jq
-        run: sudo apt-get install -y jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Check contentFiltering categories
+      - name: Compare .md files with API
+        shell: /usr/bin/bash
         run: |
           REF_FILE_CF="docs/ContentFilteringCategories.md"
+          REF_FILE_APP="docs/applicationCategories.md"
           API_TMP_CF="tmp_api_CF.md"
+          API_TMP_APP="tmp_api_APP.md"
           MISMATCH=0
 
           echo "=== Fetching contentFiltering categories ==="
@@ -45,7 +50,6 @@ jobs:
             fi
           done < "$REF_FILE_CF"
 
-          # Check for extra items in API not in reference
           while IFS= read -r api_line; do
             ref_line=$(grep -F "$api_line" "$REF_FILE_CF" || true)
             if [ -z "$ref_line" ]; then
@@ -54,26 +58,17 @@ jobs:
             fi
           done < "$API_TMP_CF"
 
-          if [ $MISMATCH -eq 1 ]; then
-            echo "contentFiltering categories mismatch detected. Failing workflow."
-            exit 1
-          else
-            echo "✅ All contentFiltering categories match reference."
-
-      - name: Check application categories
-        run: |
-          REF_FILE_APP="docs/applicationCategories.md"
-          API_TMP_APP="tmp_api_APP.md"
-          MISMATCH=0
-
           echo "=== Fetching application categories ==="
           curl -s -H "X-Cisco-Meraki-API-Key: $API_KEY" \
             "$BASE_URL/networks/$NETWORK_ID/appliance/firewall/l7FirewallRules/applicationCategories" \
             | jq -r '
-                .applicationCategories[] as $cat |
-                "id: \($cat.id)\nname: \($cat.name)\n" +
-                ($cat.applications[]? | "  id: \(.id)\n  name: \(.name)\n")
-              ' > "$API_TMP_APP"
+              .applicationCategories[] |
+              "category_id: \(.id)\ncategory_name: \(.name)" + (
+                if .applications then
+                  "\n" + (.applications[] | "  app_id: \(.id)\n  app_name: \(.name)")
+                else "" end
+              )
+            ' > "$API_TMP_APP"
 
           echo "=== Comparing application categories ==="
           while IFS= read -r ref_line; do
@@ -84,7 +79,6 @@ jobs:
             fi
           done < "$REF_FILE_APP"
 
-          # Check for extra items in API not in reference
           while IFS= read -r api_line; do
             ref_line=$(grep -F "$api_line" "$REF_FILE_APP" || true)
             if [ -z "$ref_line" ]; then
@@ -94,7 +88,7 @@ jobs:
           done < "$API_TMP_APP"
 
           if [ $MISMATCH -eq 1 ]; then
-            echo "application categories mismatch detected. Failing workflow."
+            echo "❌ Category/application mismatches detected. Failing workflow."
             exit 1
           else
-            echo "✅ All application categories match reference."
+            echo "✅ All categories and applications match reference."
