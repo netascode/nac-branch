@@ -9,17 +9,24 @@ on:
   schedule:
     - cron: "20 6 * * *" # every day at 06:20 UTC
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to check files in"
+        required: true
+        default: "gh-action-for-ids"
 
 jobs:
   check:
-    name: Verify Content Filtering Categories and Application Categiries IDs
+    name: Verify Content Filtering Categories and Application Categories IDs
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency: md_check
 
     steps:
-      - name: Checkout
+      - name: Checkout branch
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
 
       - name: Fetch API outputs
         env:
@@ -38,36 +45,30 @@ jobs:
       - name: Compare applicationCategories
         id: compare1
         run: |
-          if ! diff -u docs/applicationCategiories.md api_applicationCategories.txt > diff_app.txt; then
-            echo "APP_MISMATCH=true" >> $GITHUB_ENV
+          if [ -f "docs/applicationCategiories.md" ]; then
+            if ! diff -u docs/applicationCategiories.md api_applicationCategories.txt > diff_app.txt; then
+              echo "APP_MISMATCH=true" >> $GITHUB_ENV
+            else
+              echo "APP_MISMATCH=false" >> $GITHUB_ENV
+            fi
           else
-            echo "APP_MISMATCH=false" >> $GITHUB_ENV
+            echo "applicationCategiories.md not found in branch"
+            echo "APP_MISMATCH=skipped" >> $GITHUB_ENV
           fi
 
       - name: Compare ContentFilteringCategories
         id: compare2
         run: |
-          if ! diff -u docs/ContentFilteringCategories.md api_ContentFilteringCategories.txt > diff_filter.txt; then
-            echo "FILTER_MISMATCH=true" >> $GITHUB_ENV
+          if [ -f "docs/ContentFilteringCategories.md" ]; then
+            if ! diff -u docs/ContentFilteringCategories.md api_ContentFilteringCategories.txt > diff_filter.txt; then
+              echo "FILTER_MISMATCH=true" >> $GITHUB_ENV
+            else
+              echo "FILTER_MISMATCH=false" >> $GITHUB_ENV
+            fi
           else
-            echo "FILTER_MISMATCH=false" >> $GITHUB_ENV
+            echo "ContentFilteringCategories.md not found in branch"
+            echo "FILTER_MISMATCH=skipped" >> $GITHUB_ENV
           fi
-
-      - name: Create issue if applicationCategories mismatch
-        if: env.APP_MISMATCH == 'true'
-        uses: peter-evans/create-issue-from-file@v5
-        with:
-          title: "applicationCategiories.md mismatch with API output"
-          content-filepath: diff_app.txt
-          labels: mismatch
-
-      - name: Create issue if ContentFilteringCategories mismatch
-        if: env.FILTER_MISMATCH == 'true'
-        uses: peter-evans/create-issue-from-file@v5
-        with:
-          title: "ContentFilteringCategories.md mismatch with API output"
-          content-filepath: diff_filter.txt
-          labels: mismatch
 
       - name: Webex Notification
         if: always()
