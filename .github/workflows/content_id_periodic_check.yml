@@ -32,8 +32,11 @@ jobs:
           #   -o api_Categories.json
 
           # Use the reference file already in the repo
-          REF_FILE="reference_Categories.json"
-          API_FILE="api_Categories.json"
+          REF_FILE_CF="contentFilteringCategories.json"
+          API_FILE_CF="api_contentFilteringCategories.json"
+
+          REF_FILE_APP="applicationCategories.json"
+          API_FILE_APP="api_applicationCategories.json"
 
           MISMATCH=0
 
