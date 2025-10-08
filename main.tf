@@ -8,6 +8,6 @@ terraform {
 }
 
 module "meraki" {
-  source = "github.com/netascode/terraform-meraki-nac-meraki"
+  source = "github.com/netascode/terraform-meraki-nac-meraki?ref=v0.3.4"
   yaml_directories = ["data/"]
 }
