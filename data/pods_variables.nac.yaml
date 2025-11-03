@@ -1,22 +1,27 @@
 # The below code does the following:
 #
-# This YAML file defines an organization named
-# "CX Meraki Lab".  It further defines/creates a
-# network named "Unified Branch 1", representing a 
-# single small branch, under the organization:
+# This YAML file defines an organization.
+# It further defines/creates a network,
+# representing a single small branch, under the organization:
 #
 # For the network created, it assigns values to variables
 # previously defined in templates within the following
 # YAML files:
 #
-# - templates-appliance-related.nac.yaml
-# - templates-appliance-related.nac.yaml
+# - templates-appliance.nac.yaml
+# - templates-inventory.nac.yaml
 # - templates-network-related.nac.yaml
+# - templates-switch.nac.yaml
+# - templates-wireless.nac.yaml
+# - templates-wan-uplinks.nac.yaml
+# - templates-wan-ts.nac.yaml
+# - templates-wan-connectivity.nac.yaml
+# - templates-internet-policies.nac.yaml
 #
 # Note that these templates are not related to templates
 # configured within the Cisco (formerly Meraki) dashboard.
 #
-# Finally, for the network created, it assigns values 
+# Finally, for the network created, it assigns values
 # to the variables which were defined within the template
 # definitions in the YAML files.
 #
@@ -26,231 +31,301 @@ meraki:
       administrator:
         name: admin
       organizations:
-        # 
+        #
         # The below code does the following:
         #
-        # Defines / creates an organization named with 
-        # hardcoded name of "CX Meraki Lab", along with 
-        # a single branch network.
+        # Defines / creates an organization named with the name specified as
+        # an environmental variable, along with a single branch network 
+        # hardcoded with the name Unified Branch 2.
         #
         - name: !env org_name
           managed: false
           networks:
-            # 
+            #
             # The below code does the following:
             #
-            # Defines/creates the spoke network named "Unified Branch 1".
+            # Defines/creates the spoke network named "Unified Branch 2".
             #
-            # Assigns the following templates from the associated YAML
-            # files as follows:
+            # =====================================================================
+            # HOW TO USE THESE TEMPLATES
+            # =====================================================================
             #
-            #  From templates-appliance-related.nac.yaml
+            # 1. SELECT A TEMPLATE:
+            #    Choose the appropriate template from templates-xxx-related.nac.yaml
+            #    based on your configuration needs.
+            #
+            # 2. REFERENCE THE TEMPLATE:
+            #    In your network configuration, reference the template name:
+            #    networks:
+            #      - name: "Your-Network"
+            #        templates:
+            #          - name: wan_dhcp_dhcp  # Or whichever template you need
+            #
+            # 3. DEFINE VARIABLES:
+            #    Create a pod with the necessary variables as shown in these examples
+            #    Only include the variables required by your selected template
+            #
+            # 4. APPLY CONFIGURATION:
+            #    The terraform provider will merge the template with your variables
+            #    to create the final configuration
+            #
+            # =====================================================================
+            # VARIABLES AND TEMPLATES USED
+            # Assigns the following templates from the associated YAML files as follows:
+            # =====================================================================
+            #
+            #  From templates-appliance.nac.yaml
             #  - app_settings
             #  - app_spoke
+            #  - app_ports
             #  - app_vlans
             #  - app_fw
-            #  - app_ts
             #  - app_content
             #  - app_intrusion
             #  - app_malware
-            #  - tfsteering
             #  - app_static_routes
             #
-            #  From templates-inventory-related.nac.yaml
-            #  - sb112
+            #  From templates_internet-policies.nac.yaml
+            #  - internet_policies
+            #
+            #  From templates-inventory.nac.yaml
+            #  - small_branch_inventory
             #
             #  From templates-network-related.nac.yaml
-            #  - product_types
-            #  - snmp
-            #  - syslog
-            #  - network_settings
-            #  - nw_switch
+            #  - nw_setup
+            #  - nw_management
+            #  - group_policies
+            #
+            #  From templates-switch.nac.yaml
+            #  - switch
+            #  - switch_stacks
+            #
+            #  From templates-wan-connectivity.nac.yaml
+            #  - appl_comonitoring
+            #
+            #  From templates-wan-ts.nac.yaml
+            #  - app_ts
+            #
+            #  From templates-wan-uplinks.nac.yaml
+            #  - wan_dhcp_dhcp
+            #  - wan_static_dhcp
+            #  - wan_dhcp_static
+            #  - wan_static_static
+            #  - wan_ppoe_dhcp
+            #  - wan_dhcp_ppoe
+            #  - wan_ppoe_ppoe
+            #  - wan_vlan_vlan
+            #  - wan_vlan_static_dhcp
+            #  - wan_ipv4_dhcp_dhcp
+            #  - wan_ipv4_static_dhcp
+            #  - wan_p2p_31
+            #  - wan_enterprise_vlan
+            #
+            #  From templates-wireless.nac.yaml
             #  - wireless
             #
-            # Assigns values to the variables defined within the 
-            # associated templates as follows:
+            # ------------------------------------------------------------------
+            # Assigns the following variables from the associated templates as follows:
             #
-            #  From snmp
-            #  - snmp_username
+            #  From the templates within the wan-uplinks.nac.yaml file:
             #
-            #  From syslog
-            #  - syslog_server
+            #  APPLIANCE:
+            #  - appliance_01_serial: String - Device serial number (format: QXXX-XXXX-XXXX)
+            #  - appliance_01_name: String - Descriptive device name
             #
-            #  From network_settings
-            #  - local_status_page_username
+            #  WAN1 CONFIGURATION:
+            #  - wan1_enabled: Boolean - Enable/disable WAN1 (default: true)
+            #  - wan1_vlan_enabled: Boolean - Enable VLAN tagging (default: false)
+            #  - wan1_vlan_id: Integer - VLAN ID (1-4094)
+            #  - wan1_pppoe_enabled: Boolean - Enable PPPoE (default: false)
+            #  - wan1_pppoe_auth_enabled: Boolean - Enable PPPoE authentication (default: true)
+            #  - wan1_pppoe_username: String - PPPoE username
+            #  - wan1_pppoe_password: String - PPPoE password (5-64 characters)
+            #  - wan1_ipv4_mode: String - "dynamic" or "static"
+            #  - wan1_ipv4_address: String - IPv4 address with CIDR (e.g., "192.168.1.10/24")
+            #  - wan1_ipv4_gateway: String - IPv4 gateway address
+            #  - wan1_ipv4_dns: List - DNS servers (e.g., ["8.8.8.8", "8.8.4.4"])
+            #  - wan1_ipv6_address: String - IPv6 address with prefix (e.g., "2001:db8::10/64")
+            #  - wan1_ipv6_gateway: String - IPv6 gateway address
+            #  - wan1_ipv6_dns: List - IPv6 DNS servers
             #
-            #  From sb112
-            #  - appliance-01
-            #  - appliance-01-serial
-            #  - switch-01
-            #  - switch-01-serial
-            #  - ap-01
-            #  - ap-01-serial
-            #  - ap-02
-            #  - ap-02-serial
-            #  - lat
-            #  - lng
-            #  - address
+            #  WAN2 CONFIGURATION:
+            #  - wan2_enabled: Boolean - Enable/disable WAN2 (default: true)
+            #  - wan2_vlan_enabled: Boolean - Enable VLAN tagging (default: false)
+            #  - wan2_vlan_id: Integer - VLAN ID (1-4094)
+            #  - wan2_pppoe_enabled: Boolean - Enable PPPoE (default: false)
+            #  - wan2_pppoe_auth_enabled: Boolean - Enable PPPoE authentication (default: true)
+            #  - wan2_pppoe_username: String - PPPoE username
+            #  - wan2_pppoe_password: String - PPPoE password (5-64 characters)
+            #  - wan2_ipv4_mode: String - "dynamic" or "static"
+            #  - wan2_ipv4_address: String - IPv4 address with CIDR
+            #  - wan2_ipv4_gateway: String - IPv4 gateway address
+            #  - wan2_ipv4_dns: List - DNS servers
+            #  - wan2_ipv6_address: String - IPv6 address with prefix
+            #  - wan2_ipv6_gateway: String - IPv6 gateway address
+            #  - wan2_ipv6_dns: List - IPv6 DNS servers
             #
-            #  From app_spoke & app_vlans
-            #  - vlan10_subnet
-            #  - vlan20_subnet
-            #  - vlan30_subnet
+            # ------------------------------------------------------------------
             #
-            #  From app_vlans
-            #  - vlan10_appliance_ip
-            #  - vlan10_dhcp_start
-            #  - vlan10_dhcp_end
-            #  - vlan20_appliance_ip
-            #  - vlan20_dhcp_start
-            #  - vlan20_dhcp_end
-            #  - vlan30_appliance_ip
-            #  - vlan30_dhcp_start
-            #  - vlan30_dhcp_end
+            #  From app_ts template:
+            #  - wan_limit_up: Integer (min=0, max=1000000) - MX upstream per-client rate-limit (0 = unlimited)
+            #  - wan_limit_down: Integer (min=0, max=1000000) - MX downstream per-client rate-limit (0 = unlimited)
+            #  - wan1_limit_up: Integer (min=0, max=1000000) - MX WAN1 interface upstream rate-limit (0 = unlimited)
+            #  - wan1_limit_down: Integer (min=0, max=1000000) - MX WAN1 interface downstream rate-limit (0 = unlimited)
+            #  - wan2_limit_up: Integer (min=0, max=1000000) - MX WAN2 interface upstream rate-limit (0 = unlimited)
+            #  - wan2_limit_down: Integer (min=0, max=1000000) - MX WAN2 interface downstream rate-limit (0 = unlimited)
+            #
+            #  From app_spoke, app_vlans, & internet_policies templates:
+            #  - vlan10_subnet: String - IPv4 address with CIDR of VLAN 10 (Date)
+            #  - vlan20_subnet: String - IPv4 address with CIDR of VLAN 20 (Voice)
+
+            #  From app_spoke & app_vlans tempates:
+            #  - vlan30_subnet: String - IPv4 address with CIDR of VLAN 30 (Iot)
+            #  - vlan50_subnet: String - IPv4 address with CIDR of VLAN 50 (Guest)
+            #  - vlan999_subnet: String - IPv4 address with CIDR ov VLAN 999 (Infra)
+            #
+            #  From app_vlans template: 
+            #  - vlan10_appliance_ip: String - IPv4 address of MX for VLAN 10 (Data)
+            #  - vlan20_appliance_ip: String - IPv4 address of MX for VLAN 20 (Voice)
+            #  - vlan30_appliance_ip: String - IPv4 address of MX for VLAN 30 (Iot)
+            #  - vlan50_appliance_ip: String - IPv4 address of MX for VLAN 50 (Guest)
+            #  - vlan999_appliance_ip: String - IPv4 address of MX for VLAN 999 (Infra)
+            #  - corp_dhcp_server1: String - IPv4 address of remote DHCP Server 1
+            #  - corp_dhcp_server2: String - IPv4 address of remote DHCP Server 2
+            #
+            #  From app_static_routes template:
+            #  - static_route1_subnet: String - IPv4 address with CIDR
+            #  - static_route1_gw: String - IPv4 gateway address
+            #  - static_route2_subnet: String - IPv4 address with CIDR
+            #  - static_route2_gw: String - IPv4 gateway address
+            #
+            #  From small_branch_inventory template:
+            #  - appliance_01_name: String - Descriptive device name for MX
+            #  - appliance_01_serial: String - Device serial number for MX
+            #  - lat: String - Latitude coordinates for devices in the network
+            #  - lng: String - Longitude coordinates for devices in the network
+            #  - address: String - Location address for devices in the network
+            #  - access_switch_01_name: String - Descriptive device name for first switch
+            #  - access_switch_01_serial: String - Device serial number for first switch
+            #  - access_switch_02_name: String - Descriptive device name for second switch
+            #  - access_switch_02_serial: String - Device serial number for second switch
+            #  - ap_01_name: String - Descriptive device name for first AP
+            #  - ap_01_serial: String - Device serial number for first AP
+            #  - ap_02_name: String - Descriptive device name for second AP
+            #  - ap_02_serial: String - Device serial number for second AP
+            #
+            # From nw_setup template:
+            #  - time_zone: String - Time Zone (ex. America/Los_Angeles)
+            #  - network_notes: String
+            #
+            #  From nw_management template:
+            #  - syslog_server: String - IPv4 address of remote syslog server
+            #  - syslog_port: Integer (min=1, max=65535) - Syslog server port
+            #  - netflow_server: String - IPv4 address of remote NetFlow server
+            #  - netflow_port:  Integer (min=1, max=65535) - NetFlow server port
+            #
+            # From group_policies template:
+            #  - data_vlan_group_policy: String - Group policy name for device assignment to VLAN 10 (Data)
+            #  - voice_vlan_group_policy: String - Group policy name for device assignment to VLAN 20 (Voice)
+            #  - iot_vlan_group_policy: String - Group policy name for device assignment to VLAN 30 (Iot)
+            #
+            # From switch and wireless templates:
+            #  - radius_accounting_server1_host: String - IPv4 address of the first RADIUS accounting server
+            #  - radius_accounting_server1_port: Integer (min=1, max=65535) - First RADIUS accounting server port
+            #  - radius_server1_host: String - IPv4 address of the first RADIUS server
+            #  - radius_server1_port: Integer (min=1, max=65535) - First RADIUS server port
+            #
+            #  From switch template:
+            #  - switch_mtu_size: Integer (min=1, max=9578) - MTU size of the switch
+            #  - access_stack_01_name: String - Descriptive name for the switch stack
+            #  - access_switch_01_name String - Descriptive name for first switch in the stack
+            #  - access_switch_02_name String - Descriptive name for second switch in the stack
             #
             #  From wireless
-            #  - ap-tag1
-            #  - ap-tag1-vlan-id
-            #  - ap-tag2
-            #  - ap-tag2-vlan-id
-            #  - default-vlan-id-data
-            #  - default-vlan-id-voice
-            #  - data_ssid_schedules_enabled
-            #  - voice_ssid_schedules_enabled
-            #  - guest_ssid_schedules_enabled
-            # 
-            #  From app_static_routes
-            #  - static_route1_subnet
-            #  - static_route1_gw
-            #  - static_route2_subnet
-            #  - static_route2_gw
+            #  - data_wireless_ssid_name: String - Descriptive name for the SSID corresponding to employee traffic
+            #  - guest_wireless_ssid_name:  String - Descriptive name for the SSID corresponding to guest traffic
+            #  - data_ssid_schedules_enabled: Boolean - Enable Data SSID unavailability schedule 
+            #  - guest_ssid_schedules_enabled:  Boolean - Enable Guest SSID unavailability schedule 
+            #  - guest_wireless_client_bw_down: Integer (min=0, max=1000000) - Guest SSID upstream per-client rate-limit (0 = unlimited)
+            #  - guest_wireless_client_bw_up: Integer (min=0, max=1000000) - Guest SSID downstream per-client rate-limit (0 = unlimited)
+            #  - guest_wireless_ssid_bw_down: Integer (min=0, max=1000000) - Guest SSID upstream rate-limit (0 = unlimited)
+            #  - guest_wireless_ssid_bw_up: Integer (min=0, max=1000000) - Guest SSID upstream rate-limit (0 = unlimited)
+            #  - guest_ssid_welcome_message: String - Message displayed in Guest SSID pass-through splash page
             #
-            - name: Unified Branch 1
-              templates: [product_types, snmp, syslog, network_settings, nw_switch, sb112, wireless, app_settings, app_spoke,  app_vlans, app_fw, app_ts,app_content, app_intrusion, app_mal, tfsteering, app_static_routes, appl_comonitoring]
+            - name: Unified Branch 2
+              templates: [nw_setup, nw_management, app_ports, switch, small_branch_inventory, wan_dhcp_dhcp, wireless, app_settings, app_spoke,  app_vlans, app_fw, app_ts,app_content, app_intrusion, app_mal, internet_policies, app_static_routes, group_policies]
               variables:
-                snmp_username: user1
                 syslog_server: 3.4.5.6
-                local_status_page_username: admin
-                appliance-01: Branch1-appliance-01
-                switch-01: Branch1-Cat9300-01
-                ap-01: Branch1-ap-01
-                ap-02: Branch1-ap-02
-                appliance-01-serial: ABCD-EFGH-IJKL
-                switch-01-serial: ABCD-EFGH-IJKL
-                ap-01-serial: ABCD-EFGH-IJKL
-                ap-02-serial: ABCD-EFGH-IJKL
+                syslog_port: 514
+                # netflow_server: 4.5.6.7
+                # netflow_port: 2055
+                appliance_01_name: Branch2-appliance-01
+                access_switch_01_name: Branch2-Cat9300-01
+                access_switch_02_name: Branch2-Cat9300-02
+                access_stack_01_name: Access-Stack-01
+                ap_01_name: Branch2-ap-01
+                ap_02_name: Branch2-ap-02
+                appliance_01_serial: !env Appliance
+                access_switch_01_serial: !env Switch1
+                access_switch_02_serial: !env Switch2
+                ap_01_serial: !env AP
+                ap_02_serial: !env AP2
                 lat: 37.41809510000001
                 lng: -122.098531
+                wan1_enabled: true
+                wan2_enabled: true
                 address: Wake Forest, N.C.
-                vlan10_subnet: 10.1.10.0/24
-                vlan10_appliance_ip: 10.1.10.1
-                vlan10_dhcp_start: 10.1.10.40
-                vlan10_dhcp_end: 10.1.10.50
-                vlan20_subnet: 10.1.20.0/24
-                vlan20_appliance_ip: 10.1.20.1
-                vlan20_dhcp_start: 10.1.20.40
-                vlan20_dhcp_end: 10.1.20.50
-                vlan30_subnet: 10.1.30.0/24
-                vlan30_appliance_ip: 10.1.30.1
-                vlan30_dhcp_start: 10.1.30.40
-                vlan30_dhcp_end: 10.1.30.50
+                vlan10_subnet: 10.2.10.0/24
+                vlan10_appliance_ip: 10.2.10.1
+                vlan20_subnet: 10.2.20.0/24
+                vlan20_appliance_ip: 10.2.20.1
+                vlan30_subnet: 10.2.30.0/24
+                vlan30_appliance_ip: 10.2.30.1
+                vlan50_subnet: 10.2.50.0/24
+                vlan50_appliance_ip: 10.2.50.1
+                vlan999_appliance_ip: 10.2.255.1
+                vlan999_subnet: 10.2.255.0/24
                 hub_network_name: Unified Hub
-                ap-tag1: ap-group1
-                ap-tag2: ap-group2
-                default-vlan-id-data: 10
-                default-vlan-id-voice: 20
-                ap-tag1-vlan-id: 11
-                ap-tag2-vlan-id: 12
+                data_wireless_ssid_name: Data
+                data_vlan_group_policy: Employees
+                voice_vlan_group_policy: Voice
+                iot_vlan_group_policy: Iot
                 data_ssid_schedules_enabled: true
-                voice_ssid_schedules_enabled: true
+                guest_wireless_ssid_name: Guest
+                guest_wireless_client_bw_down: 0
+                guest_wireless_client_bw_up: 0
+                guest_wireless_ssid_bw_down: 0
+                guest_wireless_ssid_bw_up: 0
                 guest_ssid_schedules_enabled: true
+                guest_ssid_welcome_message: Unauthorized access is prohibited.
+                radius_accounting_server1_host: 172.16.2.1
+                radius_accounting_server1_port: 1813
+                radius_accounting_server2_host: 172.16.2.2
+                radius_server1_host: 172.16.2.1
+                radius_server1_port: 1812
+                radius_server2_host: 172.16.2.2
                 static_route1_subnet: 10.101.10.0/24
-                static_route1_gw: 10.1.10.2
+                static_route1_gw: 10.2.10.2
                 # static_route1_enabled: true
                 static_route2_subnet: 10.101.20.0/24
-                static_route2_gw: 10.1.20.2
+                static_route2_gw: 10.2.20.2
                 # static_route2_enabled: true
                 splash_reply_to_email_address: example@example.com
-                      # 
-             # The below code does the following:
-             #
-             # Defines/creates the hub network named "Unified Hub".
-             #
-             # Assigns the following templates from the associated YAML
-             # files as follows:
-             #
-             #   From templates-appliance-related.nac.yaml
-             #   - app_settings
-             #   - app_hub
-             #   - app_vlans
-             #
-             #   From templates-network-related.nac.yaml
-             #   - product_types
-             #   - snmp
-             #   - syslog
-             #   - network_settings
-             #
-             # Assigns values to the variables defined within the 
-             # associated templates as follows:
-             #
-             #   From snmp
-             #   - snmp_username
-             #
-             #   From syslog
-             #   - syslog_server
-             #
-             #   From network_settings
-             #   - local_status_page_username
-             #
-             #   From hub (found in templates-inventory-related.nac.yaml)
-             #   - appliance-01-serial
-             #   - appliance-01
-             #   - lat
-             #   - lng
-             #   - address
-             #
-             #   From app_hub & app_vlans
-             #   - vlan10_subnet
-             #   - vlan20_subnet
-             #   - vlan30_subnet
-             #
-             #   From app_vlans
-             #   - vlan10_appliance_ip
-             #   - vlan10_dhcp_start
-             #   - vlan10_dhcp_end
-             #   - vlan20_appliance_ip
-             #   - vlan20_dhcp_start
-             #   - vlan20_dhcp_end
-             #   - vlan30_appliance_ip
-             #   - vlan30_dhcp_start
-             #   - vlan30_dhcp_end
-             #
+                switch_mtu_size: 9176
+                time_zone: America/New_York
+                network_notes: This is a small branch network created via Netascode.
+                wan_limit_down: 0
+                wan_limit_up: 0
+                wan1_limit_down: 400000
+                wan1_limit_up: 400000
+                wan2_limit_down: 500000
+                wan2_limit_up: 500000
+            #
+            # The below code does the following:
+            #
+            # Defines/creates the hub network named "Unified Hub".
+            #
+            # Managed is set to false - this makes the module aware of it for lookups without trying to create it.
+            #
             - name: Unified Hub
-              templates: [product_types, hub, snmp, syslog, app_settings, network_settings, app_hub, app_vlans]
-              variables:
-                snmp_username: user1
-                syslog_server: 3.4.5.6
-                local_status_page_username: admin
-                appliance-01-serial: ABCD-EFGH-IJKL
-                appliance-01: Hub
-                vlan10_subnet: 10.1.1.0/24
-                vlan10_appliance_ip: 10.1.1.1
-                vlan10_dhcp_start: 10.1.1.40
-                vlan10_dhcp_end: 10.1.1.50
-                vlan20_subnet: 10.1.2.0/24
-                vlan20_appliance_ip: 10.1.2.1
-                vlan20_dhcp_start: 10.1.2.40
-                vlan20_dhcp_end: 10.1.2.50
-                vlan30_subnet: 10.1.3.0/24
-                vlan30_appliance_ip: 10.1.3.1
-                vlan30_dhcp_start: 10.1.3.40
-                vlan30_dhcp_end: 10.1.3.50
-                ap-tag1: ap-group1
-                ap-tag2: ap-group2
-                default-vlan-id-data: 10
-                default-vlan-id-voice: 20
-                ap-tag1-vlan-id: 11
-                ap-tag2-vlan-id: 12
-                lat: 37.41809510000001
-                lng: -122.098531
-                address: Cary, N.C.
+              managed: false

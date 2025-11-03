@@ -1,0 +1,307 @@
+# This template defines comprehensive network configuration templates for Meraki infrastructure.
+# Templates are applied at the network/site level and configure device behaviors across the deployment.
+#
+# Note: These are NetasCode templates for infrastructure-as-code, not Meraki Dashboard templates.
+# Variables use ${variable_name} syntax and sensitive data uses !env for environment variables.
+# 
+#
+meraki:
+  template:
+    networks:
+      # 
+      # The below code does the following:
+      #
+      # wireless configuration template.
+      #
+      # The wireless template configures various parameters under three main 
+      # categories - settings, rf_profiles, and ssids for the access points within
+      # the network to which the template is applied.  The parameters defined
+      # within this section provide an example configuration based on best-practices
+      # consistent with Cisco Validated Designs.  However, as with all network deployments,
+      # the specific configuration parameters should be modified and implemented based upon
+      # the business requirements of the organization to which they are applied.
+      #
+      # settings:  The settings sections configures various network-wide wireless 
+      # device (AP) settings.
+      #
+      # - There are two parameters specified under settings: First is the upgrade strategy which is 
+      # hardcoded to minimize the time it takes to upgrade the APs.  The second is to disable wireless
+      # meshing, which prevents the APs from meshing.  All other parameters not specified are left at default values.
+      #
+      #  Please refer to the following URL for a full definition of the parameters 
+      # available under wireless settings:
+      #
+      #  https://netascode.cisco.com/docs/data_models/meraki/networks_wireless/settings/
+      #
+      #
+      # rf-profiles:  The rf_profiles section configures a single profile named
+      # "Corp wireless rf profile".  
+      # 
+      # - Clients are steered to the best available AP during association (client balancing).
+      # This is the default setting and does not appear within the YAML configuration.
+      #
+      # - Minimum bit rate supported is specified per RF band - 2.4, 5, 6 GHz, Rather than 
+      #   per AP.  Minimum bit rates are left at their default settings per band.
+      #
+      # - Selection of RF bands is configured on a per-SSID level, rather than across 
+      # all SSIDs to which the RF profile is applied.
+      #
+      # - For the 2.4 GHz RF band the settings are left at their defaults which depend on 
+      # the regulatory domain where the AP is operating.  For example for the U.S. 
+      # regulatory domain (-B) the following are the defaults.
+      #    - Minimum transmit power configured for 5 dBm
+      #    - Maximum transmit power configured for 30 dBm
+      #    - Minimum supported bit rate is 11 Mbps
+      #    - Auto channel selection is left at the default of channels 1, 3, & 11.
+      #    - Keeps 802.11ax enabled
+      #    - Receiver Start of Packet (RX-SOP) not defined (null)
+      #
+      # - For the 5 GHz RF band the settings are left at their defaults which depend on 
+      # the regulatory domain where the AP is operating.  For example for the U.S. 
+      # regulatory domain (-B) the following are the defaults.
+      #    - Minimum transmit power configured for 8 dBm
+      #    - Maximum transmit power configured for 30 dBm
+      #    - Minimum supported bit rate is 12 Mbps
+      #    - Auto channel selection is configured to the following channels 36, 40, 44 48,
+      #      52, 56 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144,
+      #      149, 153, 157, 161, and 165.
+      #    - Channel width is set to auto
+      #    - Receiver Start of Packet (RX-SOP) not defined (null)
+      #
+      # - For the 6 GHz RF band the settings are left at their defaults which depend on
+      # the regulatory domain where the AP is operating.  For example for the U.S. 
+      # regulatory domain (-B) the following are the defaults.
+      #    - Minimum transmit power configured for 8 dBm
+      #    - Maximum transmit power configured for 30 dBm
+      #    - Minimum supported bit rate is 12 Mbps
+      #    - Auto channel selection is configured to the following
+      #      channels 1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 49, 53, 57 61, 65, 69, 73,
+      #      77, 81, 85, 89, 93, 97, 101, 105, 109, 113, 117, 121, 125, 129, 133, 137, 141,
+      #      145, 149, 153, 157, 161, 165, 169, 173, 177, 181, 185, 189, 193, 197, 201, 205,
+      #      209, 213, 217, 221, 225, 229, 233
+      #    - Channel width is set to 0 (auto)
+      #    - Receiver Start of Packet (RX-SOP) not defined (null)
+      #
+      # - Enables radio transmission.
+      #
+      # - Sets the RF profile as the default indoor profile.
+      #
+      #  Please refer to the following URL and associated URLs for a full definition of the 
+      #  parameters available within an RF Profile:
+      #
+      #  https://netascode.cisco.com/docs/data_models/meraki/networks_wireless/ssid_settings/ssid_base/
+      #
+      # ssid:  The SSIDs section hardcodes two SSIDs  - Data (SSID 0) and Guest (SSID 1).
+      #
+      # - For the Data SSID:
+      #     - The name of the SSID is defined as a variable (although it 
+      #       will be referred to as the Data SSID within this document).
+      #
+      #     - All SSIDs are hardcoded to be enabled, advertised on all APs,
+      #       and visible in beacons for the small branch design.
+      #
+      #     - Authentication mode is set to 802.1x / WPA-EAP authentication 
+      #       via an external Radius server.  Radius Accounting is enabled. 
+      #       The first Radius and Radius Accounting servers (host, port, 
+      #       and secret) are defined as variables.  Additional servers can 
+      #       be added by modifying the YAML code.  If multiple Radius and
+      #       Radius Accounting servers are added, load-balancing is round-robin.
+      #       If the Radius servers are unavailable access is denied.
+      #
+      #     - Wi-Fi Protected Access (WPA) encryption mode is set for WPA 
+      #       Transition Mode.  802.11w Management Frame Protection (dot11w) 
+      #       is enabled but not mandatory, allowing for support for WPA3
+      #       with backward compatibility for WPA2.  
+      #
+      #     - VLAN tagging is enabled with the assignment of the VLAN to which 
+      #       the Data SSID is assigned hardcoded to VLAN 10.  The Radius server 
+      #       overrides the default VLAN ID assigned to the Data SSID via group policy
+      #       returned through the Filter-Id attribute. This is used to assign the
+      #       VLAN to which wireless clients are assigned once authenticated.
+      #
+      #     - 802.11r Fast Transition (dot11r) and Radius Change of Authorization (coa) 
+      #       are mutually exclusive for the version of wireless firmware which this
+      #       document is currently based on.  For the Data SSID, 802.11r Fast 
+      #       Transition has been enabled and Radius CoA disabled.  Should CoA be
+      #       desired, simply reverse the settings within the YAML code for the
+      #       Data SSID.  Future wireless firmware versions will support simultaneously
+      #       enabling both parameters.
+      #
+      #     - Per-client and per-SSID rate limits do not appear within the YAML
+      #       configuration - meaning they are set to the default which is unlimited 
+      #       (no rate-limiting).
+      #
+      #     - Traffic shaping is enabled on the Data SSID, using the 4 default traffic shaping
+      #       rules.  No Layer 7 firewall rules section appears within the YAML, since no
+      #       no Layer 7 firewall rules have been defined for the small branch design.  Should
+      #       Layer 7 firewall rules be desired, the YAML code can be modified to add this
+      #       section. 
+      #
+      #     - Wireless clients on the Data SSID are allowed to communicate with eachother and
+      #       with wired clients on the LAN. 
+      #
+      #     - IP address assignment for wireless clients is via DHCP server (bridged mode), 
+      #       although not explicitely configure to be mandatory.
+      #
+      #     - Enabling / disabling SSID availability via a schedule is configured as a variable.
+      #       If enabled, the example schedule within the YAML code provides a basic example 
+      #       which can be modified to meet requirements.
+      #
+      # - For the Guest SSID:
+      #     - The name of the SSID is defined as a variable (although it 
+      #       will be referred to as the Guest SSID within this document).
+      #
+      #     - All SSIDs are hardcoded to be enabled, advertised on all APs,
+      #       and visible in beacons for the small branch design.
+      #
+      #     - Authentication mode is set to open (no encryption).
+      #
+      #     - VLAN tagging is enabled with the assignment of the VLAN to which 
+      #       the Guest SSID is hardcoded to be VLAN 50.
+      #
+      #     - Per-client and per-SSID rate limits are defined as variables
+      #       within the YAML for the Guest SSID.
+      #
+      #     - Traffic shaping is enabled on the Guest SSID, using the 4 default traffic shaping
+      #       rules.  No Layer 7 firewall rules section appears within the YAML, since no
+      #       no Layer 7 firewall rules have been defined for the small branch design.  Should
+      #       Layer 7 firewall rules be desired, the YAML code can be modified to add this
+      #       section.
+      #
+      #     - Wireless clients on the Guest SSID are not allowed to communicate with eachother
+      #       or with wired clients on the LAN. 
+      #
+      #     - IP address assignment for wireless clients is via DHCP server (bridged mode), 
+      #       and also explicitely configure to be mandatory.
+      #
+      #     - Enabling / disabling SSID availability via a schedule is configured as a variable.
+      #       If enabled, the example schedule within the YAML code provides a basic example 
+      #       which can be modified to meet requirements. 
+      #
+      #     - A click-through splash-page is enabled for guest traffic with a variable defined
+      #       for the splash-page welcome message.
+      # 
+      #     - Enabling / disabling SSID availability via a schedule is configured as a variable.
+      #       If enabled, the example schedule within the YAML code provides a basic example 
+      #       which can be modified to meet requirements. 
+      #
+      #  Please refer to the following URL and associated URLs for a full definition of the 
+      #  parameters available within an SSID:
+      #
+      #  https://netascode.cisco.com/docs/data_models/meraki/networks_wireless/ssid_settings/ssid_base/
+      #
+      - name: wireless
+        wireless:
+          settings:
+            upgrade_strategy: minimizeUpgradeTime
+            meshing: false
+          rf_profiles:
+            - name: Corp wireless rf profile
+              band_selection_type: ssid
+              is_indoor_default: true
+              min_bitrate_type: band
+              per_ssid_settings:
+                - ssid_name: ${guest_wireless_ssid_name}
+                  band_operation_mode: dual
+                  band_steering: true
+                  bands:
+                    - "2.4"
+                    - "5"
+                - ssid_name: ${data_wireless_ssid_name}
+                  band_operation_mode: dual
+                  band_steering: true
+                  bands:
+                    - "2.4"
+                    - "5"
+                    - "6"
+              transmission: true
+          ssids:
+            - name: ${data_wireless_ssid_name}
+              auth_mode: 8021x-radius
+              available_on_all_aps: true
+              band_selection: Dual band operation with Band Steering
+              default_vlan_id: 10
+              dot11r:
+                enabled: true
+              dot11w:
+                enabled: true
+                required: false
+              enabled: true             
+              encryption_mode: wpa-eap
+              firewall_l3_firewall_rules:
+                allow_lan_access: true
+              ip_assignment_mode: Bridge mode
+              lan_isolation: false
+              radius:
+                accounting: true
+                accounting_servers:
+                  - host: ${radius_accounting_server1_host}
+                    port: 1813
+                    secret: !env radius_accounting_server1_secret
+                  - host: ${radius_accounting_server2_host}
+                    port: 1813
+                    secret: !env radius_accounting_server1_secret
+                attribute_for_group_policies: Filter-Id
+                coa: false
+                override: true
+                servers:
+                  - host: ${radius_server1_host}
+                    port: 1812
+                    secret: !env radius_server1_secret
+                  - host: ${radius_server2_host}
+                    port: 1812
+                    secret: !env radius_server1_secret
+                testing: true
+              unavailability_schedules:
+                enabled: ${data_ssid_schedules_enabled}
+                ranges:
+                  - start_day: Sunday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Sunday
+                  - start_day: Saturday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Saturday
+              ssid_number: '0'
+              traffic_shaping_rules:
+                traffic_shaping: true
+                default_rules: true
+              use_vlan_tagging: true
+              visible: true
+              wpa_encryption_mode: WPA3 Transition Mode
+            - name: ${guest_wireless_ssid_name}
+              auth_mode: open
+              available_on_all_aps: true
+              band_selection: Dual band operation
+              default_vlan_id: 50
+              enabled: true 
+              firewall_l3_firewall_rules:
+                allow_lan_access: false
+              ip_assignment_mode: Bridge mode
+              lan_isolation: true
+              mandatory_dhcp: true
+              per_client_bandwidth_limit_down: ${guest_wireless_client_bw_down}
+              per_client_bandwidth_limit_up: ${guest_wireless_client_bw_up}
+              per_ssid_bandwidth_limit_down: ${guest_wireless_ssid_bw_down}
+              per_ssid_bandwidth_limit_up: ${guest_wireless_ssid_bw_up}
+              unavailability_schedules:
+                enabled: ${guest_ssid_schedules_enabled}
+                ranges:
+                  - start_day: Sunday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Sunday
+                  - start_day: Saturday
+                    start_time: 00:00:00
+                    end_time: 06:00:00
+                    end_day: Saturday
+              splash_page: Click-through splash page
+              splash_settings:
+                welcome_message: ${guest_ssid_welcome_message}
+              ssid_number: '1'
+              traffic_shaping_rules:
+                traffic_shaping: true
+                default_rules: true
+              use_vlan_tagging: true
+              visible: true

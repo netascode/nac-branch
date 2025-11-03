@@ -1,0 +1,759 @@
+# Comprehensive WAN Uplink Configuration Template
+# This template provides complete coverage of all WAN uplink scenarios for Meraki MX appliances
+# Aligns with schema.yaml and Meraki best practices
+#
+# Last updated: 2025-10-16
+#
+meraki:
+  template:
+    networks:      
+      # =====================================================================
+      # WAN UPLINKS TEMPLATES
+      # =====================================================================
+      # The below code does the following:
+      #
+      # These templates cover multiple possible WAN1 and WAN2 configuration scenarios
+      # Each template represents a specific use case
+      # =====================================================================
+      # 
+      # ---------------------------------------------------------------------
+      # TEMPLATE 1: WAN1 DHCP, WAN2 DHCP (Most Common - Auto-configuration)
+      # ---------------------------------------------------------------------
+      - name: wan_dhcp_dhcp
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 2: WAN1 Static IPv4/IPv6, WAN2 DHCP
+      # ---------------------------------------------------------------------
+      - name: wan_static_dhcp
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv4_address}
+                      gateway: ${wan1_ipv4_gateway}
+                      nameservers: ${wan1_ipv4_dns}
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv6_address}
+                      gateway: ${wan1_ipv6_gateway}
+                      nameservers: ${wan1_ipv6_dns}
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 3: WAN1 DHCP, WAN2 Static IPv4/IPv6
+      # ---------------------------------------------------------------------
+      - name: wan_dhcp_static
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan2_ipv4_address}
+                      gateway: ${wan2_ipv4_gateway}
+                      nameservers: ${wan2_ipv4_dns}
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan2_ipv6_address}
+                      gateway: ${wan2_ipv6_gateway}
+                      nameservers: ${wan2_ipv6_dns}
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 4: Both WAN Static (Full Manual Configuration)
+      # ---------------------------------------------------------------------
+      - name: wan_static_static
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv4_address}
+                      gateway: ${wan1_ipv4_gateway}
+                      nameservers: ${wan1_ipv4_dns}
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv6_address}
+                      gateway: ${wan1_ipv6_gateway}
+                      nameservers: ${wan1_ipv6_dns}
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan2_ipv4_address}
+                      gateway: ${wan2_ipv4_gateway}
+                      nameservers: ${wan2_ipv4_dns}
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan2_ipv6_address}
+                      gateway: ${wan2_ipv6_gateway}
+                      nameservers: ${wan2_ipv6_dns}
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 5: PPPoE on WAN1, DHCP on WAN2
+      # ---------------------------------------------------------------------
+      - name: wan_pppoe_dhcp
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  pppoe:
+                    enabled: true
+                    authentication:
+                      enabled: true
+                      username: ${wan1_pppoe_username}
+                      password: ${wan1_pppoe_password}
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"  # PPPoE handles IP assignment
+                    ipv6:
+                      assignment_mode: "dynamic"
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 6: DHCP on WAN1, PPPoE on WAN2
+      # ---------------------------------------------------------------------
+      - name: wan_dhcp_pppoe
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  pppoe:
+                    enabled: true
+                    authentication:
+                      enabled: true
+                      username: ${wan2_pppoe_username}
+                      password: ${wan2_pppoe_password}
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"  # PPPoE handles IP assignment
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 7: Dual PPPoE Configuration
+      # ---------------------------------------------------------------------
+      - name: wan_pppoe_pppoe
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  pppoe:
+                    enabled: true
+                    authentication:
+                      enabled: true
+                      username: ${wan1_pppoe_username}
+                      password: ${wan1_pppoe_password}
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  pppoe:
+                    enabled: true
+                    authentication:
+                      enabled: true
+                      username: ${wan2_pppoe_username}
+                      password: ${wan2_pppoe_password}
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 8: WAN1 VLAN Tagged DHCP, WAN2 VLAN Tagged DHCP
+      # ---------------------------------------------------------------------
+      - name: wan_vlan_vlan
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: true
+                    vlan_id: ${wan1_vlan_id}
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: true
+                    vlan_id: ${wan2_vlan_id}
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 9: WAN1 Static VLAN Tagged, WAN2 DHCP
+      # ---------------------------------------------------------------------
+      - name: wan_vlan_static_dhcp
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: true
+                    vlan_id: ${wan1_vlan_id}
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv4_address}
+                      gateway: ${wan1_ipv4_gateway}
+                      nameservers: ${wan1_ipv4_dns}
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv6_address}
+                      gateway: ${wan1_ipv6_gateway}
+                      nameservers: ${wan1_ipv6_dns}
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 10: IPv4 Only - WAN1 DHCP, WAN2 DHCP (Legacy)
+      # ---------------------------------------------------------------------
+      - name: wan_ipv4_dhcp_dhcp
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                      nameservers: ${wan1_ipv4_dns}
+                    # IPv6 not configured for legacy networks
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    # IPv6 not configured for legacy networks
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 11: IPv4 Only - WAN1 Static, WAN2 DHCP (Legacy)
+      # ---------------------------------------------------------------------
+      - name: wan_ipv4_static_dhcp
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv4_address}
+                      gateway: ${wan1_ipv4_gateway}
+                      nameservers: ${wan1_ipv4_dns}
+                    # IPv6 not configured for legacy networks
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    # IPv6 not configured for legacy networks
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 12: /31 Subnet Point-to-Point (Requires FW 14.24+)
+      # ---------------------------------------------------------------------
+      - name: wan_p2p_31
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv4_address}  # /31 subnet for P2P
+                      gateway: ${wan1_ipv4_gateway}
+                      nameservers: ${wan1_ipv4_dns}
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv6_address}  # /127 for IPv6 P2P
+                      gateway: ${wan1_ipv6_gateway}
+                      nameservers: ${wan1_ipv6_dns}
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: false
+                  svis:
+                    ipv4:
+                      assignment_mode: "dynamic"
+                    ipv6:
+                      assignment_mode: "dynamic"
+
+      # ---------------------------------------------------------------------
+      # TEMPLATE 14: Enterprise with Custom Internal DNS and VLANs
+      # ---------------------------------------------------------------------
+      - name: wan_enterprise_vlan
+        devices:
+          - serial: ${appliance_01_serial}
+            name: ${appliance_01_name}
+            appliance:
+              uplinks_settings:
+                wan1:
+                  enabled: ${wan1_enabled}
+                  vlan_tagging:
+                    enabled: true
+                    vlan_id: ${wan1_vlan_id}  # Enterprise WAN VLAN
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv4_address}
+                      gateway: ${wan1_ipv4_gateway}
+                      nameservers: ${wan1_ipv4_dns}  # Internal DNS servers
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan1_ipv6_address}
+                      gateway: ${wan1_ipv6_gateway}
+                      nameservers: ${wan1_ipv6_dns}  # Internal IPv6 DNS
+                wan2:
+                  enabled: ${wan2_enabled}
+                  vlan_tagging:
+                    enabled: true
+                    vlan_id: ${wan2_vlan_id}  # Backup WAN VLAN
+                  svis:
+                    ipv4:
+                      assignment_mode: "static"
+                      address: ${wan2_ipv4_address}
+                      gateway: ${wan2_ipv4_gateway}
+                      nameservers: ${wan2_ipv4_dns}
+                    ipv6:
+                      assignment_mode: "static"
+                      address: ${wan2_ipv6_address}
+                      gateway: ${wan2_ipv6_gateway}
+                      nameservers: ${wan2_ipv6_dns}
+
+# =====================================================================
+# EXAMPLE CONFIGURATIONS USING VARIABLES
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# EXAMPLE 1: WAN1 DHCP, WAN2 DHCP (Most Common - Auto-configuration)
+# Template: wan_dhcp_dhcp
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-XXXX-XXXX"
+#   appliance_01_name: "Branch-01-MX67"
+#   wan1_enabled: true
+#   wan2_enabled: true
+
+# ---------------------------------------------------------------------
+# EXAMPLE 2: WAN1 Static IPv4/IPv6, WAN2 DHCP
+# Template: wan_static_dhcp
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-YYYY-ZZZZ"
+#   appliance_01_name: "HQ-MX250"
+#   wan1_enabled: true
+#   wan1_ipv4_address: "203.0.113.10/29"
+#   wan1_ipv4_gateway: "203.0.113.9"
+#   wan1_ipv4_dns:
+#     - "8.8.8.8"
+#     - "8.8.4.4"
+#   wan1_ipv6_address: "2001:db8:1234::10/64"
+#   wan1_ipv6_gateway: "2001:db8:1234::1"
+#   wan1_ipv6_dns:
+#     - "2001:4860:4860::8888"
+#     - "2001:4860:4860::8844"
+#   wan2_enabled: true
+
+# ---------------------------------------------------------------------
+# EXAMPLE 3: WAN1 DHCP, WAN2 Static IPv4/IPv6
+# Template: wan_dhcp_static
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-AAAA-BBBB"
+#   appliance_01_name: "Store-42-MX84"
+#   wan1_enabled: true
+#   wan2_enabled: true
+#   wan2_ipv4_address: "192.168.100.10/24"
+#   wan2_ipv4_gateway: "192.168.100.1"
+#   wan2_ipv4_dns:
+#     - "1.1.1.1"
+#     - "1.0.0.1"
+#   wan2_ipv6_address: "2001:db8:5678::10/64"
+#   wan2_ipv6_gateway: "2001:db8:5678::1"
+#   wan2_ipv6_dns:
+#     - "2606:4700:4700::1111"
+#     - "2606:4700:4700::1001"
+
+# ---------------------------------------------------------------------
+# EXAMPLE 4: Both WAN Static (Full Manual Configuration)
+# Template: wan_static_static
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-CCCC-DDDD"
+#   appliance_01_name: "DC-MX450"
+#   wan1_enabled: true
+#   wan1_ipv4_address: "198.51.100.10/30"
+#   wan1_ipv4_gateway: "198.51.100.9"
+#   wan1_ipv4_dns:
+#     - "8.8.8.8"
+#     - "8.8.4.4"
+#   wan1_ipv6_address: "2001:db8:dc01::10/64"
+#   wan1_ipv6_gateway: "2001:db8:dc01::1"
+#   wan1_ipv6_dns:
+#     - "2001:4860:4860::8888"
+#     - "2001:4860:4860::8844"
+#   wan2_enabled: true
+#   wan2_ipv4_address: "198.51.100.14/30"
+#   wan2_ipv4_gateway: "198.51.100.13"
+#   wan2_ipv4_dns:
+#     - "1.1.1.1"
+#     - "1.0.0.1"
+#   wan2_ipv6_address: "2001:db8:dc02::10/64"
+#   wan2_ipv6_gateway: "2001:db8:dc02::1"
+#   wan2_ipv6_dns:
+#     - "2606:4700:4700::1111"
+#     - "2606:4700:4700::1001"
+
+# ---------------------------------------------------------------------
+# EXAMPLE 5: PPPoE on WAN1, DHCP on WAN2
+# Template: wan_pppoe_dhcp
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-EEEE-FFFF"
+#   appliance_01_name: "Main-MX67"
+#   wan1_enabled: true
+#   wan1_pppoe_username: "user123@isp.com"
+#   wan1_pppoe_password: "SecurePass2024!"
+#   wan2_enabled: true
+
+# ---------------------------------------------------------------------
+# EXAMPLE 6: DHCP on WAN1, PPPoE on WAN2
+# Template: wan_dhcp_pppoe
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-GGGG-HHHH"
+#   appliance_01_name: "West-MX84"
+#   wan1_enabled: true
+#   wan2_enabled: true
+#   wan2_pppoe_username: "backup@isp2.net"
+#   wan2_pppoe_password: "BackupPass456!"
+
+# ---------------------------------------------------------------------
+# EXAMPLE 7: Dual PPPoE Configuration
+# Template: wan_pppoe_pppoe
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-IIII-JJJJ"
+#   appliance_01_name: "Remote-MX67C"
+#   wan1_enabled: true
+#   wan1_pppoe_username: "primary@isp1.com"
+#   wan1_pppoe_password: "PrimaryPass789!"
+#   wan2_enabled: true
+#   wan2_pppoe_username: "secondary@isp2.com"
+#   wan2_pppoe_password: "SecondaryPass012!"
+
+# ---------------------------------------------------------------------
+# EXAMPLE 8: WAN1 VLAN Tagged DHCP, WAN2 VLAN Tagged DHCP
+# Template: wan_vlan_vlan
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-MMMM-NNNN"
+#   appliance_01_name: "TenantA-MX84"
+#   wan1_enabled: true
+#   wan1_vlan_id: 500
+#   wan2_enabled: true
+#   wan2_vlan_id: 501
+
+# ---------------------------------------------------------------------
+# EXAMPLE 9: VLAN Tagged WAN1 Static, WAN2 DHCP
+# Template: wan_vlan_static_dhcp
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-KKKK-LLLL"
+#   appliance_01_name: "BuildingA-MX250"
+#   wan1_enabled: true
+#   wan1_vlan_id: 100
+#   wan1_ipv4_address: "10.100.1.10/24"
+#   wan1_ipv4_gateway: "10.100.1.1"
+#   wan1_ipv4_dns:
+#     - "10.0.1.53"
+#     - "10.0.2.53"
+#   wan1_ipv6_address: "2001:db8:vlan100::10/64"
+#   wan1_ipv6_gateway: "2001:db8:vlan100::1"
+#   wan1_ipv6_dns:
+#     - "2001:db8:dns::53"
+#   wan2_enabled: true
+
+# ---------------------------------------------------------------------
+# EXAMPLE 10: IPv4 Only - WAN1 DHCP, WAN2 DHCP (Legacy)
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-OOOO-PPPP"
+#   appliance_01_name: "Legacy-MX64"
+#   wan1_enabled: true
+#   wan1_ipv4_dns:
+#     - "10.0.1.53"       # Internal DNS primary
+#     - "10.0.2.53"       # Internal DNS secondary
+#     - "8.8.8.8"         # External fallback
+#     - "8.8.4.4"         # External fallback
+#   # No IPv6 configuration
+#   wan2_enabled: true
+#   # No IPv6 configuration
+
+# ---------------------------------------------------------------------
+# EXAMPLE 11: IPv4 Only - WAN1 Static, WAN2 DHCP (Legacy)
+# ---------------------------------------------------------------------
+# Variables to set:
+#   appliance_01_serial: "Q2XX-OOOO-PPPP"
+#   appliance_01_name: "Legacy-MX64"
+#   wan1_enabled: true
+#   wan1_ipv4_address: "192.0.2.10/24"
+#   wan1_ipv4_gateway: "192.0.2.1"
+#   wan1_ipv4_dns:
+#     - "10.0.1.53"       # Internal DNS primary
+#     - "10.0.2.53"       # Internal DNS secondary
+#     - "8.8.8.8"         # External fallback
+#     - "8.8.4.4"         # External fallback
+#   # No IPv6 configuration
+#   wan2_enabled: true
+#   # No IPv6 configuration
+
+# =====================================================================
+# VARIABLE REFERENCE GUIDE
+# =====================================================================
+#
+# APPLIANCE:
+#   appliance_01_serial: String - Device serial number (format: QXXX-XXXX-XXXX)
+#   appliance_01_name: String - Descriptive device name
+#
+# WAN1 CONFIGURATION:
+#   wan1_enabled: Boolean - Enable/disable WAN1 (default: true)
+#   wan1_vlan_enabled: Boolean - Enable VLAN tagging (default: false)
+#   wan1_vlan_id: Integer - VLAN ID (1-4094)
+#   wan1_pppoe_enabled: Boolean - Enable PPPoE (default: false)
+#   wan1_pppoe_auth_enabled: Boolean - Enable PPPoE authentication (default: true)
+#   wan1_pppoe_username: String - PPPoE username
+#   wan1_pppoe_password: String - PPPoE password (5-64 characters)
+#   wan1_ipv4_mode: String - "dynamic" or "static"
+#   wan1_ipv4_address: String - IPv4 address with CIDR (e.g., "192.168.1.10/24")
+#   wan1_ipv4_gateway: String - IPv4 gateway address
+#   wan1_ipv4_dns: List - DNS servers (e.g., ["8.8.8.8", "8.8.4.4"])
+#   wan1_ipv6_address: String - IPv6 address with prefix (e.g., "2001:db8::10/64")
+#   wan1_ipv6_gateway: String - IPv6 gateway address
+#   wan1_ipv6_dns: List - IPv6 DNS servers
+#
+# WAN2 CONFIGURATION:
+#   wan2_enabled: Boolean - Enable/disable WAN2 (default: true)
+#   wan2_vlan_enabled: Boolean - Enable VLAN tagging (default: false)
+#   wan2_vlan_id: Integer - VLAN ID (1-4094)
+#   wan2_pppoe_enabled: Boolean - Enable PPPoE (default: false)
+#   wan2_pppoe_auth_enabled: Boolean - Enable PPPoE authentication (default: true)
+#   wan2_pppoe_username: String - PPPoE username
+#   wan2_pppoe_password: String - PPPoE password (5-64 characters)
+#   wan2_ipv4_mode: String - "dynamic" or "static"
+#   wan2_ipv4_address: String - IPv4 address with CIDR
+#   wan2_ipv4_gateway: String - IPv4 gateway address
+#   wan2_ipv4_dns: List - DNS servers
+#   wan2_ipv6_address: String - IPv6 address with prefix
+#   wan2_ipv6_gateway: String - IPv6 gateway address
+#   wan2_ipv6_dns: List - IPv6 DNS servers
+#
+# =====================================================================
+# BEST PRACTICES AND RECOMMENDATIONS
+# =====================================================================
+#
+# 1. HIGH AVAILABILITY:
+#    - Configure WAN1 as primary (higher bandwidth/reliability)
+#    - Configure WAN2 as backup/failover
+#    - Use different ISPs for true redundancy
+#    - Test failover scenarios regularly
+#
+# 2. DNS CONFIGURATION:
+#    - Use geographically distributed DNS servers
+#    - Configure at least 2 DNS servers per WAN
+#    - Consider internal DNS for enterprise deployments
+#    - Popular public DNS options:
+#      * OpenDNS: 208.67.222.222, 208.67.220.220
+#      * Google: 8.8.8.8, 8.8.4.4
+#      * Cloudflare: 1.1.1.1, 1.0.0.1
+#      * Quad9: 9.9.9.9, 149.112.112.112
+#
+# 3. IP ADDRESSING:
+#    - Use RFC 1918 for internal networks
+#    - /30 or /31 subnets for point-to-point WAN links
+#    - Ensure no IP conflicts between WAN interfaces
+#    - Document all static IP assignments
+#
+# 4. PPPoE BEST PRACTICES:
+#    - Store credentials securely
+#    - Test authentication before production
+#    - Have ISP support contact readily available
+#    - Configure via local status page if needed
+#
+# 5. VLAN TAGGING:
+#    - Coordinate with upstream switch/router config
+#    - Document VLAN assignments
+#    - Use different VLANs for WAN separation
+#    - Test VLAN configuration with packet captures
+#
+# 6. IPv6 DEPLOYMENT:
+#    - Use /64 for standard subnets
+#    - Use /127 for point-to-point links
+#    - Ensure IPv6 DNS is configured
+#    - Test dual-stack functionality
+#
+# 7. MONITORING:
+#    - Enable uplink statistics
+#    - Configure alerts for failover events
+#    - Monitor latency and packet loss
+#    - Review uplink utilization regularly
+#
+# 8. SECURITY:
+#    - Change default credentials
+#    - Use strong PPPoE passwords
+#    - Implement firewall rules
+#    - Enable IDS/IPS on WAN interfaces
+#
+# 9. TESTING CHECKLIST:
+#    ✓ Verify both WAN links connect
+#    ✓ Test failover by disconnecting primary
+#    ✓ Verify DNS resolution on both links
+#    ✓ Test throughput on each link
+#    ✓ Verify VLAN tags if configured
+#    ✓ Test IPv6 connectivity if configured
+#    ✓ Document configuration and test results
+#
+# 10. FIRMWARE REQUIREMENTS:
+#     - MX 14.24+ for /31 subnet support
+#     - Check compatibility for specific features
+#     - Keep firmware updated for security
+#     - Test updates in lab environment first
+#
+# =====================================================================

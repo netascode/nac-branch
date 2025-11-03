@@ -1,0 +1,188 @@
+# This template defines comprehensive network configuration templates for Meraki infrastructure.
+# Templates are applied at the network/site level and configure device behaviors across the deployment.
+#
+# Note: These are NetasCode templates for infrastructure-as-code, not Meraki Dashboard templates.
+# Variables use ${variable_name} syntax and sensitive data uses !env for environment variables.
+# 
+#
+meraki:
+  template:
+    networks:
+      #
+      # The below code does the following:
+      # 
+      # Switch configuration including switch heirachy and setup, access control, QoS
+      # and network policies
+      #
+      # This template configures the complete switching infrastructure:
+      #
+      # Access Policies: - Configures a wired radius policy for authentication endpoints to the wire.
+      #
+      # - 802.1x hybrid authentication with RADIUS for wired network access control
+      # - RADIUS accounting for audit trails and session tracking
+      # - Change of Authorization (CoA) support for dynamic policy updates
+      # - Multi-host mode allowing multiple devices per port
+      # - Voice VLAN domain support for IP phones
+      # - Filter-Id attribute (11) maps to Meraki group policies for policy assignment
+      #
+      # Switch Settings:
+      # - Management VLAN 999 for out-of-band management (migrates from VLAN 1 after onboarding)
+      # - Uplink client sampling for traffic analytics
+      # - Jumbo frame support with MTU configuration configured at 9176
+      # - IGMP snooping for multicast optimization
+      #
+      # Quality of Service:
+      # - 12-class QoS model mapped to 8 CoS queues
+      # - DSCP to CoS mappings following RFC 4594 recommendations
+      # - Per-VLAN QoS rules for traffic classification and marking
+      # - Voice traffic marked as EF (DSCP 46) for priority handling
+      #
+      # Network Protection:
+      # - Storm control limiting broadcast/multicast/unknown unicast to 30%
+      # - Rapid Spanning Tree Protocol (RSTP) with tuned priorities
+      # - Switch stack configuration for redundancy
+      #
+      # Variables:
+      # - ${radius_server1_host/port}: Primary RADIUS server details
+      # - !env radius_server1_secret: RADIUS shared secret (from environment)
+      # - ${radius_accounting_server1_host/port}: RADIUS accounting server
+      # - ${switch_mtu_size}: Maximum transmission unit size (default 9176)
+      # - ${access_stack_01_name}: Switch stack identifier
+      # - ${access_switch_01_name/02_name}: Individual switch serial numbers
+      #
+      #
+      - name: switch
+        switch:
+          access_policies:
+            - name: "Wired Access Policy"
+              radius_servers:
+                - host: ${radius_server1_host}
+                  port: ${radius_server1_port}
+                  secret: !env radius_server1_secret
+              radius_accounting_servers:
+                - host: ${radius_accounting_server1_host}
+                  port: ${radius_accounting_server1_port}
+                  secret: !env radius_accounting_server1_secret
+              radius_accounting: true
+              radius_coa_support: true
+              radius_testing: true
+              radius_group_attribute: "11"
+              host_mode: Multi-Host
+              voice_vlan_clients: true
+              access_policy_type: Hybrid authentication
+              radius:
+                re_authentication_interval: 86400
+              dot1x_control_direction: both
+              url_redirect_walled_garden: false
+          settings:
+            vlan: 999
+            use_combined_power: false
+            uplink_client_sampling: true
+            mac_blocklist: false
+          mtu:
+            default_mtu_size: ${switch_mtu_size}
+          routing_multicast:
+            default_settings:
+              igmp_snooping: true
+              flood_unknown_multicast_traffic: false
+          dscp_to_cos_mappings:
+            - cos: 0
+              dscp: 8
+              title: Scavenger CS1
+            - cos: 0
+              dscp: 10
+              title: Bulk AF11
+            - cos: 0
+              dscp: 12
+              title: Bulk AF12
+            - cos: 0
+              dscp: 14
+              title: Bulk AF13
+            - cos: 1
+              dscp: 0
+              title: Default CS0
+            - cos: 2
+              dscp: 16
+              title: Network Mgmt CS2
+            - cos: 2
+              dscp: 18
+              title: Transactional Data AF21
+            - cos: 2
+              dscp: 20
+              title: Transactional Data AF22
+            - cos: 2
+              dscp: 22
+              title: Transactional Data AF23
+            - cos: 2
+              dscp: 24
+              title: Signaling CS3
+            - cos: 3
+              dscp: 26
+              title: Multimedia Streaming AF31
+            - cos: 3
+              dscp: 28
+              title: Multimedia Streaming AF32
+            - cos: 3
+              dscp: 30
+              title: Multimedia Streaming AF33
+            - cos: 3
+              dscp: 40
+              title: Broadcast Video CS5
+            - cos: 4
+              dscp: 32
+              title: Realtime Interactive CS4
+            - cos: 4
+              dscp: 34
+              title: Multimedia Conferencing AF41
+            - cos: 4
+              dscp: 36
+              title: Multimedia Conferencing AF42
+            - cos: 4
+              dscp: 38
+              title: Multimedia Conferencing AF43
+            - cos: 5
+              dscp: 44
+              title: Admission-Controlled Voice EF
+            - cos: 5
+              dscp: 46
+              title: Voice EF
+            - cos: 5
+              dscp: 48
+              title: Internetwork Control CS6
+            - cos: 5
+              dscp: 56
+              title: Network Control CS7
+          qos_rules:
+              - vlan: 20
+                protocol: ANY
+                dscp: -1
+                qos_rule_name: Trust_DSCP_Voice_VLAN
+              - vlan: 30
+                protocol: ANY
+                dscp: -1
+                qos_rule_name: Remark_Guest_to_Default
+              - vlan: 10
+                protocol: UDP
+                source_port_range: 16384-32767
+                destination_port_range: 16385-32767
+                dscp: 46
+                qos_rule_name: Voice_to_EF_Data_VLAN
+              - vlan: 10
+                protocol: ANY
+                dscp: -1
+                qos_rule_name: Other_to_Default_Data_VLAN
+          storm_control:
+              broadcast_threshold: 30
+              multicast_threshold: 30
+              unknown_unicast_threshold: 30
+          stp:
+            stp_bridge_priority:
+              - stp_priority: 8192
+                stacks:
+                  - ${access_stack_01_name}
+            rstp: true
+        switch_stacks:
+          - name: ${access_stack_01_name}
+            devices:
+              - ${access_switch_01_name}
+              - ${access_switch_02_name}
