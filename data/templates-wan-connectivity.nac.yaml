@@ -1,0 +1,23 @@
+# The below code does the following:
+#
+# This YAML file defines templates which provide the following set of
+# Unified Branch services applicable to the appliance:
+#
+# - Connectivivity monitoring configuration - defined in the app_connectivity_monitoring template
+#
+# Note that these templates are not related to templates
+# configured within the Cisco (formerly Meraki) dashboard.
+#
+# NOTE: uncomment the below code to enable connectivity monitoring configuration
+# and add appl_comonitoring template to your pods_variables.nac.yaml file to apply to desired network.
+# ===========================================================================
+#
+# meraki:
+#   template:
+#     networks:
+#       - name: appl_comonitoring
+#         appliance:
+#           connectivity_monitoring_destinations:
+#                   - ip: "1.1.1.1"
+#                     description: Cloudflare DNS
+#                     default: true

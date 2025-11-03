@@ -1,0 +1,410 @@
+# The below code does the following:
+#
+# This YAML file defines templates which provide the following set of
+# Unified Branch services applicable to the secure router (security appliance):
+#
+# - Appliance settings - defined in the app_settings template
+# - AutoVPN configuration (spoke) - defined in the app_spoke template
+# - Hub settings - defined in the app_hub template 
+# - Port configuration - defined in the app_ports template
+# - VLAN configuration - defined in the app_vlans template
+# - Firewall configuration - defined in the app_fw template
+# - Content filtering - defined in the app_content template
+# - Intrusion prevention - defined in the app_intrusion template
+# - Malware prevention - defined in the app_mal template
+# - Static route configuration - defined in the app_static_routes template
+#
+# Note that these templates are not related to templates
+# configured within the Cisco (formerly Meraki) dashboard.
+#
+meraki:
+  template:
+    networks:
+      #
+      # The below code does the following:
+      #
+      # Security appliance settings configuration template for branch networks.
+      #
+      # Sets the security appliance for routed mode operation, tracks clients by
+      # MAC address, and enables dynamic DNS for accessing the security appliance.
+      #
+      - name: app_settings
+        appliance:
+                settings:
+                  client_tracking_method: "MAC address"
+                  deployment_mode: routed
+                  dynamic_dns:
+                    prefix: "my-network"
+                    enabled: true
+      #
+      # The below code does the following:
+      #
+      # Security appliance AutoVPN configuration template for the hub network.
+      #
+      # Configures the network to which the template is applied as a hub and advertises the
+      # VLAN 10 (Data), VLAN 20 (Voice), VLAN 30 (Iot), and VLAN 999 (Infra) subnets across
+      # the VPN to the cloud. IP address and subnets for VLANs are specified as variables
+      # which are defined in the pods_variables.nac.yaml file. 
+      #
+      # Note this template may be unused as the hub name is imported in the current release.
+      #
+      - name: app_hub
+        appliance:
+                vpn_site_to_site_vpn:
+                  mode: hub
+                  subnets:
+                    - local_subnet: ${vlan10_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan20_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan30_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan999_subnet}
+                      use_vpn: true
+      #
+      # The below code does the following:
+      #
+      # Security appliance AutoVPN configuration template for branch networks.
+      #
+      # Configures the branch network to which the template is applied as a spoke with
+      # a single hub.  The name of the hub, which is specified as a variable, is also
+      # the default route for all spoke networks.
+      #
+      # Advertises the VLAN 10 (data), VLAN 20 (voice), VLAN 30 (iot), and VLAN 999
+      # (infra) subnets across the VPN to the cloud. VLAN 50 (Guest) is not advertised
+      # across the VPN.  The default VLAN (VLAN 1) is automatically configured by the 
+      # MX and does not appear within the YAML below.
+      # 
+      # IP address and subnets for VLANs are specified as variables which are defined
+      # in the pods_variables.nac.yaml file.
+      #
+      - name: app_spoke
+        appliance:
+                vpn_site_to_site_vpn:
+                  mode: spoke
+                  hubs:
+                    - hub_network_name: ${hub_network_name}
+                      use_default_route: true
+                  subnets:
+                    - local_subnet: ${vlan10_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan20_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan30_subnet}
+                      use_vpn: true
+                    - local_subnet: ${vlan50_subnet}
+                      use_vpn: false
+                    - local_subnet: ${vlan999_subnet}
+                      use_vpn: true
+      #
+      # The below code does the following:
+      #
+      # Security appliance LAN port configuration template.
+      # Configures and enables LAN ports 5, 6, 13, & 14 as trunks to the branch switch.  
+      # These ports are specific to the MX85 secure router.  For MX95/105 secure routers
+      # the SFP LAN ports are ports 9 & 10.  If you are using an MX67 with two WAN ports,
+      # the LAN port range is ports 3 - 5.  If you are using an MX68 the LAN port range
+      # is ports 3 - 12, with ports 11 & 12 supporting POE+.  Depending upon the secure
+      # router model you are deploying, you will need to change the port_id_ranges you wish
+      # to enable and configure as trunks.
+      #
+      # Allows VLANs 1, 10, 20, 30, 50, and 999. Native VLAN 1 on the trunk serves to allow
+      # devices downstream of the security appliance to initially get IP addresses and
+      # communicate with the Cisco (formerly Meraki) cloud. Upon receiving their configurations,
+      # devices downstream of the secure router are configured with VLAN 999 (infra) as their 
+      # manangement VLAN.  VLANs 10, 20, 30, and 50 correspond to Data, Voice, IoT, and Guest VLANs.
+      #
+      - name: app_ports
+        appliance:
+          ports:
+            - port_id_ranges:
+                          - from: 5
+                            to: 6
+                          - from: 13
+                            to: 14
+              enabled: true
+              type: trunk
+              allowed_vlans: "1,10,20,30,50,999"
+              vlan: 1
+      #
+      # The below code does the following:
+      #
+      # Security appliance VLAN configuration template.
+      #
+      # This template hardcodes the configuration for 5 VLANs - VLAN 10 (Data)
+      # VLAN 20 (Voice), VLAN 30 (IoT), VLAN 50 (Guest), and VLAN 999 (infra).
+      # For each VLAN, the IPv4 subnet and address of the security appliance 
+      # are defined as variables.  The VLAN names are hardcoded.
+      # IPv6 is disabled for each VLAN. 
+      #
+      # For VLANs 10 (Data), 20 (Voice), and 30 (IoT) the configuration specifies
+      # relaying DHCP back to centralized corporate DHCP servers, configured as 
+      # variables.  
+      #
+      # For VLANs 30 (Guest), and 999 (Infra), a separate DHCP server instance is
+      # configured within each VLAN to assign IP addresses to client devices for the VLAN, 
+      # with the following example configuration:
+      #
+      # - Mandatory IP address assignment for VLAN 30 (Guest) only
+      # - DNS server specified as openDNS
+      # - No DHCP boot options specified
+      # - DHCP lease time of 1 day
+      # - Fixed IP address assignments for VLAN 999 (Infra) corresponding to the
+      #   management interfaces of the switch and AP. This is to ensure these 
+      #   devices have a consistent IP address for sourcing syslog, NetFlow, snmp, etc.
+      #      
+      - name: app_vlans
+        appliance:
+          vlans:
+            - vlan_id: 10
+              name: "Data"
+              subnet: ${vlan10_subnet}
+              appliance_ip: ${vlan10_appliance_ip}
+              ipv6:
+                enabled: false
+              dhcp_handling: "Run a DHCP server"
+              # dhcp_handling: "Relay DHCP to another server"
+              # dhcp_relay_server_ips:
+              #   - ${corp_dhcp_server1}
+              #   - ${corp_dhcp_server2}
+              mandatory_dhcp: false
+            - vlan_id: 20
+              name: "Voice"
+              subnet: ${vlan20_subnet}
+              appliance_ip: ${vlan20_appliance_ip}
+              ipv6:
+                enabled: false
+              dhcp_handling: "Run a DHCP server"
+              # dhcp_handling: "Relay DHCP to another server"
+              # dhcp_relay_server_ips:
+              #   - ${corp_dhcp_server1}
+              #   - ${corp_dhcp_server2}
+              mandatory_dhcp: false
+            - vlan_id: 30
+              name: "Iot"
+              subnet: ${vlan30_subnet}
+              appliance_ip: ${vlan30_appliance_ip}
+              ipv6:
+                enabled: false
+              dhcp_handling: "Run a DHCP server"
+              # dhcp_handling: "Relay DHCP to another server"
+              # dhcp_relay_server_ips:
+              #   - ${corp_dhcp_server1}
+              #   - ${corp_dhcp_server2}
+              mandatory_dhcp: false
+            - vlan_id: 50
+              name: "Guest"
+              subnet: ${vlan50_subnet}
+              appliance_ip: ${vlan50_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: opendns
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              mandatory_dhcp: true
+            - vlan_id: 999
+              name: "Infra"
+              subnet: ${vlan999_subnet}
+              appliance_ip: ${vlan999_appliance_ip}
+              ipv6:
+                enabled: false
+              dns_nameservers: opendns
+              dhcp_handling: "Run a DHCP server"
+              dhcp_lease_time: "1 day"
+              dhcp_boot_options: false
+              mandatory_dhcp: false
+              # fixed_ip_assignments:
+              #  ip: 10.250.1.11
+              #  name: 6c:c3:b2:7e:ae:0a
+      #
+      # The below code does the following:
+      #
+      # Security appliance L3 & L7 firewall configuration template.
+      #
+      # This template hardcodes the following firewall rules on the
+      # security appliance.  The rules are configured as examples only.
+      # Network administrators should configure firewall rule based on
+      # the security policy of their individual organizations.
+      #
+      # - Outbound Layer 3 firewall rules:
+      #   - Deny UDP traffic from any source IP address with source port 1433
+      #     to any destination IP address with destination port 1433.
+      #   - Deny TCP traffic from any source IP address with source port 22
+      #     to any destination IP address with destination port 22.
+      #     (Note, this is technially not SSH traffic since SSH uses an ephemeral
+      #     source TCP port.)
+      #
+      # - Services available / blocked from the outside interface of the security
+      #   appliance
+      #   - ICMP services blocked
+      #   - Web services restricted to being reachable from IP addresses "2.2.2.2 and
+      #     3.3.3.3" only
+      #   - SNMP services allowed
+      #
+      # - Outbound Layer 7 firewall rules:
+      #   - Deny application category "meraki:layer7/category/27"
+      #     (Note that application categories must be specified by ID currently.
+      #     Work to translate the IDs into user-friendly names is ongoing.)
+      #   - Deny application name "meraki:layer7/application/106"
+      #     (Note that applications must be specified by ID currently. Work to
+      #     translate the IDs into user-friengly names is ongoing.)
+      #   - Deny traffic from host specified by name "abc.com"
+      #   - Deny traffic from any host to port "161"
+      #   - Deny traffic to remote IP address "192.168.0.1"
+      #   - Deny traffic to remote IP address "192.168.0.2" port "80"
+      #
+      - name: app_fw
+        appliance:
+          firewall:
+                  l3_firewall_rules:
+                      rules:
+                      - comment: "Block Bad Traffic"
+                        policy: deny
+                        protocol: udp
+                        source_port: 1433
+                        source_cidr: Any
+                        destination_port: 1433
+                        destination_cidr: Any
+                      - comment: "Block SSH"
+                        policy: deny
+                        protocol: tcp
+                        source_port: 22
+                        source_cidr: Any
+                        destination_port: 22
+                        destination_cidr: Any
+                  firewalled_services:
+                      - service_name: "ICMP"
+                        access: "blocked"
+                      - service_name: "web"
+                        access: "restricted"
+                        allowed_ips:
+                          - "2.2.2.2"
+                          - "3.3.3.3"
+                      - service_name: "SNMP"
+                        access: "unrestricted"
+                  l7_firewall_rules:
+                      - policy: deny
+                        type: applicationCategory
+                        value: "meraki:layer7/category/27"
+                      - policy: deny
+                        type: application
+                        value: "meraki:layer7/application/106"
+                      - policy: deny
+                        type: host
+                        value: "abc.com"
+                      - policy: deny
+                        type: port
+                        value: "161"
+                      - policy: deny
+                        type: ipRange
+                        value: "192.168.0.1"
+                      - policy: deny
+                        type: ipRange
+                        value: "192.168.0.2:80"
+      #
+      #
+      # The below code does the following:
+      #
+      # Security appliance content filtering configuration template.
+      #
+      # The following template enables content filtering on the security
+      # appliance. List entries under allowed_url_patterns, blocked_url_patterns,
+      # and blocked_url_categories are examples only.  Network administrators
+      # should configure content filtering rules based on the security policy and
+      # requirements of their individual organizations.
+
+      # - List entries under allowed_url_patterns are specific URLs excluded from
+      #   content filtering and therefore allowed.
+      # - List entries under blocked_url_patterns are automatically blocked.
+      # -  List entries under blocked_url_categories consist of categories of URLs
+      #    automatically blocked. (Note that URL category must be specified  by ID
+      #    currently. Work to translate the IDs into user-friendly names is ongoing.)
+      #
+      - name: app_content
+        appliance:
+            content_filtering:
+                allowed_url_patterns:
+                      - "www.cisco.com"
+                      - "*.meraki.com"
+                blocked_url_patterns:
+                      - www.porn.com
+                      - www.socialmedia.net
+                      - www.example.badsitehere.com
+                blocked_url_categories:
+                      - "meraki:contentFiltering/category/C6"
+                      - "meraki:contentFiltering/category/C69"
+                      - "meraki:contentFiltering/category/C55"
+                      - "meraki:contentFiltering/category/C47"
+                      - "meraki:contentFiltering/category/C84"
+                      - "meraki:contentFiltering/category/C22"
+                      - "meraki:contentFiltering/category/T01"
+                      - "meraki:contentFiltering/category/T03"
+                      - "meraki:contentFiltering/category/T14"
+                      - "meraki:contentFiltering/category/T05"
+                      - "meraki:contentFiltering/category/T02"
+                      - "meraki:contentFiltering/category/C36"
+                url_category_list_size: fullList
+      #
+      # The below code does the following:
+      #
+      # Security appliance intrusion prevention configuration template.
+      #
+      # The following template enables intrusion prevention on the security
+      # appliance and hardcodes a balanced ruleset, which is a compromise between
+      # performance and security. Note that no exclusion rules have been configured.
+      #
+      - name: app_intrusion
+        appliance:
+          security_intrusion:
+            mode: prevention
+            ids_rulesets: balanced
+      #
+      # The below code does the following:
+      #
+      # Security appliance advanced malware prevention configuration template.
+      #
+      # The following template enables advanced malware protection on the
+      # security appliance.  The hardcoded allowed_urls list ("www.cisco.com
+      # and *.meraki.com") are excluded from malware scanning.  The hardcoded
+      # allowed_files list contains files previously seen across the organization
+      # which were blocked.  Currently these are specified as SHA-256 hash strings.
+      # Work to translate the hash strings into user-friendly names is ongoing.
+      #
+      - name: app_mal
+        appliance:
+          security_malware:
+                    mode: enabled
+                    allowed_urls:
+                      - url: "www.cisco.com"
+                        comment: "Cisco"
+                      - url: "*.meraki.com"
+                        comment: "Meraki"
+                    allowed_files:
+                      - sha256: "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                        comment: "Test File 1"
+                      - sha256: "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+                        comment: "Test File 2"
+      #
+      # The below code does the following:
+      #
+      # Security appliance static routing configuration template.
+      #
+      # Static routes are used to reach subnets that are behind a layer 3 switch
+      # or otherwise not directly connected to or configured on the WAN appliance.
+      # For this release it is assumed the switch attached to the secure router
+      # (security appliance) is a L2 switch.  Hence there should be no static
+      # routes to be defined.  This section is therefore purely for example.
+      #
+      # This template demonstrates how to configure two static routes in which
+      # the subnet/mask and gateway for each is defined as a variable.
+      #
+      - name: app_static_routes
+        appliance:
+          static_routes:
+            - name: Static Route 01
+              subnet: ${static_route1_subnet}
+              gateway_ip: ${static_route1_gw}
+            - name: Static Route 02
+              subnet: ${static_route2_subnet}
+              gateway_ip: ${static_route2_gw}

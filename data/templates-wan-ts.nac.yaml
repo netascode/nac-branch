@@ -1,0 +1,204 @@
+# ===============================================================
+# WAN TRAFFIC SHAPPING
+# ===============================================================
+#
+# The below code does the following:
+#
+# Security appliance traffic shaping configuration template.
+#
+# This template applies to VPN (tunneled) traffic across the WAN
+# interfaces of the security appliance.  It consists of the following
+# 4 sections:
+#
+# - global_bandwidth_limits
+# - custom_performance_classes
+# - rules
+# - uplink_bandwidth_limits
+# - uplink_selection
+#
+# The custom_performance_classes section defines an example custom
+# (non-builtin) performance class named "Radius", and sets the max
+# latency and max jitter tolerances at 30 milliseconds, and the
+# max loss percentage at 5% in order for traffic to be within the
+# SLA of the performance class.  Note that performance classes defined
+# here can apply to either VPN or non-VPN (Internet) traffic across
+# WAN uplinks.
+#
+# The uplink_bandwidth_limits section sets the uplink and downlink
+# bandwidth limits for all traffic from all clients on each WAN uplink.
+# This is essentially equivalent to sub-line rate limiting to the
+# speed of carrier, even though the physical connection may be 1 Gbps
+# Ethernet.  The example configuration sets the rate-limit to 400,000 Kbps
+# (400 Mbps) upstream and downstream for WAN 1 uplinks and 500 Mbps for WAN 2.
+# The limits are configured as variables so that they can be easily adjusted. 
+meraki:
+  template:
+    networks:
+      - name: app_ts
+        appliance:
+            traffic_shaping:
+                    #
+                    #  ==============================================================
+                    # Global bandwidth limits
+                    # The global_bandwidth_limits section configures per-client
+                    # rate-limiting both upstream and downstream.
+                    # ==============================================================
+                    #
+                    global_bandwidth_limits:
+                        limit_up: ${wan_limit_up}
+                        limit_down: ${wan_limit_down}
+                    custom_performance_classes:
+                      - name: Radius
+                        max_latency: 30
+                        max_jitter: 30
+                        max_loss_percentage: 5
+                    #
+                    #  ==============================================================
+                    # Traffic shaping rules
+                    # Traffic shaping rules can be applied per client and per application
+                    # to optimize network performance and ensure critical applications
+                    # receive the necessary bandwidth.
+                    #
+                    # Rule actions:
+                    #   Actions include setting bandwidth limits (upload/download),
+                    #   prioritizing traffic (High, Normal, Low),
+                    #   and applying DSCP tagging for QoS prioritization
+                    #
+                    # Update the rules as needed to fit your requirements.
+                    # ==============================================================
+                    #
+                    rules:
+                        rules:
+                          - name: Rule 01
+                            definitions:
+                            # Application categories and applications can be found by running /networks/{networkId}/appliance/firewall/l7FirewallRules/applicationCategories API call
+                              - type: applicationCategory
+                                value: "meraki:layer7/category/24" # "Databases & cloud services"
+                              - type: application
+                                value: meraki:layer7/application/332 # "Amazon RDS"
+                            per_client_bandwidth_limits:
+                                settings: custom
+                                bandwidth_limits:
+                                  limit_up: 1000
+                                  limit_down: 1000
+                            dscp_tag_value: 10
+                            priority: high
+                          - name: Rule 02
+                            definitions:
+                              - type: application
+                                value: meraki:layer7/application/332 # "Amazon RDS"
+                            per_client_bandwidth_limits:
+                                settings: ignore
+                            dscp_tag_value: 18
+                            priority: high
+                        default_rules: false
+                    #
+                    #  ==============================================================
+                    # Uplink bandwidth limits
+                    # Implements sub-line rate limiting to the speed of the carrier
+                    # for each WAN uplink.
+                    # ==============================================================
+                    #
+                    uplink_bandwidth_limits:
+                        wan1:
+                            limit_up: ${wan1_limit_up}
+                            limit_down: ${wan1_limit_down}
+                        wan2:
+                            limit_up: ${wan2_limit_up}
+                            limit_down: ${wan2_limit_down}
+                        cellular:
+                            limit_up: 0
+                            limit_down: 0
+                    #
+                    #  ==============================================================
+                    # Uplink selection
+                    # provide several configurable options for uplink selection
+                    # as part of SD-WAN and traffic shaping capabilities.
+                    # These options allow administrators to control how traffic
+                    # is routed across multiple WAN uplinks to optimize performance,
+                    # reliability, and application prioritization.
+                    # ==============================================================
+                    #
+                    uplink_selection:
+                        default_uplink: wan1
+                        active_active_auto_vpn: true
+                        load_balancing: true
+                        failover_and_failback_immediate: true
+                        #
+                        # ==============================================================
+                        # Non-VPN (Internet) traffic uplink preferences
+                        #
+                        # See note below about using either wan_traffic_uplink_preferences
+                        # or sdwan_internet_policies, but not both
+                        # ==============================================================
+                        #
+                        # wan_traffic_uplink_preferences:
+                        # - name: policy 1
+                        #   preferred_uplink: "wan1"
+                        #   traffic_filters:
+                        #     - type: custom
+                        #       value:
+                        #         protocol: tcp
+                        #         source:
+                        #             port: "1-1024"
+                        #             cidr: any
+                        #         destination:
+                        #             cidr: any
+                        #             port: any
+                        # - name: policy 2
+                        #   preferred_uplink: "wan1"
+                        #   traffic_filters:
+                        #     - type: custom
+                        #       value:
+                        #         protocol: tcp
+                        #         source:
+                        #             port: any
+                        #             cidr: ${vlan10_subnet}
+                        #         destination:
+                        #             cidr: any
+                        #             port: "443"
+                        #
+                        # ==============================================================
+                        # VPN traffic uplink preferences
+                        # For VPN traffic uplink preferences on appliances
+                        # ==============================================================
+                        #
+                        vpn_traffic_uplink_preferences:
+                        - name: policy 1
+                          preferred_uplink: wan1
+                          traffic_filters:
+                            - type: application
+                              value:
+                                id: meraki:layer7/application/375
+                            - type: "custom"
+                              value:
+                                protocol: any
+                                source:
+                                    port: any
+                                    cidr: any
+                                destination:
+                                    port: any
+                                    cidr: any
+                          fail_over_criterion: poorPerformance
+                          performance_class:
+                            type: builtin
+                            builtin_performance_class_name: VoIP
+                        - name: policy 2
+                          preferred_uplink: wan1
+                          traffic_filters:
+                            - type: application
+                              value:
+                                id: meraki:layer7/application/4
+                            - type: "custom"
+                              value:
+                                protocol: any
+                                source:
+                                    port: any
+                                    cidr: any
+                                destination:
+                                    port: any
+                                    cidr: any
+                          fail_over_criterion: poorPerformance
+                          performance_class:
+                            type: builtin
+                            builtin_performance_class_name: VoIP

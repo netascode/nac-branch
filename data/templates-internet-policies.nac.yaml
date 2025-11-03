@@ -1,0 +1,120 @@
+# ===============================================================
+# SD-WAN INTERNET TRAFFIC POLICIES
+# ===============================================================
+#
+# The below code does the following:
+#
+# Security appliance traffic steering configuration template.
+#
+# This template provides an example of how to configure SD-WAN policies for
+# Internet traffic (SD-Internet). The SD-Internet function is to steer customer
+# traffic to SaaS or public cloud-based applications (outside of any transport
+# tunnel) over the best-performing WAN connection at the time the traffic is forwarded.
+# The policies are configured as examples only. Network administrators should configure
+# Internet traffic-steering policies based on the requirements the of their individual
+# organizations.
+#
+# Below are example policies for managing internet traffic.
+# Please customize these to fit your specific requirements.
+#
+# !!! NOTE !!!
+#
+# Don't use wan_traffic_uplink_preferences (see templates-wan-ts.nac.yaml)
+# together with networks[].appliance.sdwan_internet_policies.
+#
+# The latter is a strictly better version of the former, though it requires a license.
+# The 2 resources share the same set of data in the API,
+# and preferences/policies with e.g. matching source get overridden by the resource created last.
+# Also, deletion of any of the resources deletes the data from the other as well.
+# Examples below. Adjust as needed.
+#
+# Network as Code Documentation:
+# https://netascode.cisco.com/docs/data_models/meraki/networks_appliance/sdwan_internet_policies/
+#
+meraki:
+  template:
+    networks:
+      - name: internet_policies
+        appliance:
+            sdwan_internet_policies:
+              # Policy 1 implements custom traffic classification by matching TCP protocol traffic
+              # originating from vlan10 subnet
+              - name: policy 1
+                traffic_filters:
+                  - type: custom
+                    value:
+                      protocol: "tcp"
+                      source:
+                        port: any
+                        cidr: ${vlan10_subnet}
+                      destination:
+                        port: "any"
+                        cidr: "any"
+                preferred_uplink: "wan1"
+                fail_over_criterion: "poorPerformance"
+                performance_class:
+                  type: builtin
+                  builtin_performance_class_name: VoIP
+                # Policy 1 implements custom traffic classification by matching TCP protocol traffic
+                # originating from vlan20 subnet
+              - name: policy 2
+                traffic_filters:
+                  - type: custom
+                    value:
+                      protocol: "tcp"
+                      source:
+                        port: any
+                        cidr: ${vlan20_subnet}
+                      destination:
+                        port: "any"
+                        cidr: "any"
+                preferred_uplink: "wan1"
+                fail_over_criterion: "poorPerformance"
+                performance_class:
+                  type: builtin
+                  builtin_performance_class_name: VoIP
+              # policy 3 leverages majorApplication filtering to identify and prioritize
+              # Office 365 Suite traffic using UDP protocol
+              - name: policy 3
+                traffic_filters:
+                  - type: majorApplication
+                    value:
+                      protocol: udp
+                      source:
+                        port: any
+                        cidr: any
+                      destination:
+                        applications:
+                          - id: "meraki:layer7/application/1"
+                            name: "Office 365 Suite"
+                            type: "major"
+                preferred_uplink: "wan1"
+                fail_over_criterion: "poorPerformance"
+                performance_class:
+                  type: custom
+                  custom_performance_class_name: Radius
+              # “policy 3” employs granular application-based filtering targeting specific email services
+              # (Rackspace Hosted Exchange and Hotmail) from the 192.168.20.0/24 subnet
+              # using NBAR (Network-Based Application Recognition) technology
+              # for precise application identification and traffic steering
+              # with builtin VoIP performance class treatment.
+              - name: policy 4
+                traffic_filters:
+                  - type: application
+                    value:
+                      protocol: "any"
+                      source:
+                        cidr: ${vlan10_subnet}
+                      destination:
+                        applications:
+                          - id: "meraki:layer7/application/7"
+                            name: "Rackspace Hosted Exchange"
+                            type: "nbar"
+                          - id: "meraki:layer7/application/39"
+                            name: "Hotmail"
+                            type: "nbar"
+                preferred_uplink: "wan1"
+                fail_over_criterion: "poorPerformance"
+                performance_class:
+                  type: builtin
+                  builtin_performance_class_name: VoIP

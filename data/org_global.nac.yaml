@@ -8,9 +8,9 @@ meraki:
           managed: false
           login_security:
             enforce_password_expiration: false # Boolean indicating whether users are forced to change their password every X number of days.
-            password_expiration_days: 30 # Number of days after which users will be forced to change their password.
+            password_expiration_days: 40 # Number of days after which users will be forced to change their password.
             enforce_different_passwords: true # Boolean indicating whether users, when setting a new password, are forced to choose a new password that is different from any past passwords.
-            num_different_passwords: 5 # Number of recent passwords that new password must be distinct from.
+            num_different_passwords: 3 # Number of recent passwords that new password must be distinct from.
             enforce_strong_passwords: true # Boolean indicating whether users will be forced to choose strong passwords for their accounts. Strong passwords are at least 8 characters that contain 3 of the following: number, uppercase letter, lowercase letter, and symbol
             enforce_account_lockout: true # Boolean indicating whether users' Dashboard accounts will be locked out after a specified number of consecutive failed login attempts.
             account_lockout_attempts: 5 # Number of consecutive failed login attempts after which users' accounts will be locked.
@@ -22,33 +22,32 @@ meraki:
             api_authentication:
               enabled: false
               ranges: []
-          ## snmp queries, traps are network level setting and will part of the network tempalte
           snmp:
-            v2c: true
+            v2c: false
             v3: true
             v3_auth_mode: MD5
             v3_auth_pass: !env v3_auth_pass
             v3_priv_mode: AES128
             v3_priv_pass: !env v3_priv_pass
             peer_ips: []
-          policy_objects:
-              - name: test cidr
-                category: network
-                type: cidr
-                cidr: 10.0.0.0/24
-              - name: test fqdn
-                category: network
-                type: fqdn
-                fqdn: www.cisco.com
-          policy_objects_groups:
-              - name: test cidr
-                category: NetworkObjectGroup
-                object_names:
-                  - test cidr  # This references the "test" policy object by name
-              - name: test fqdn
-                category: NetworkObjectGroup
-                object_names:
-                  - test fqdn  # This references the "test" policy object by name
+          # policy_objects:
+          #     - name: test cidr
+          #       category: network
+          #       type: cidr
+          #       cidr: 10.0.0.0/24
+          #     - name: test fqdn
+          #       category: network
+          #       type: fqdn
+          #       fqdn: www.cisco.com
+          # policy_objects_groups:
+          #     - name: test cidr
+          #       category: NetworkObjectGroup
+          #       object_names:
+          #         - test cidr  # This references the "test" policy object by name
+          #     - name: test fqdn
+          #       category: NetworkObjectGroup
+          #       object_names:
+          #         - test fqdn  # This references the "test" policy object by name
           appliance:
             vpn_firewall_rules:
               rules:

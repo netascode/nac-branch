@@ -1,0 +1,226 @@
+# The below code does the following:
+#
+# This YAML file defines the following inventory related template:
+#
+# - Small Branch Inventory (small_branch_inventory)
+# - small_branch_inventory template defines 1 Secure Router 
+#   (Security Appliance), 1 Switch Stack with 2 Switches, 
+#    and 2 Access Points
+#
+# Each template defines network-level configuration which is
+# applicable to the inventory - meaning the secure router,
+# switch, and AP devices - within the site.
+#
+# Note that these templates are not related to templates
+# configured within the Cisco (formerly Meraki) dashboard.
+#
+# The below code does the following:
+#
+# hub configuration template.
+#
+# The hub configuration template configures defines the
+# device (security appliance) and configures parameters
+# specific to those devices within the site / network to 
+# which the template is applied.
+#
+# For the current version of Unified Branch - Branch as Code,
+# since only the hub name is require for branch configuration,
+# the hub is imported.  Hence the hub YAML configuration below 
+# has been commented out. 
+#
+meraki:
+  template:
+    networks:
+      #  - name: hub
+      #    devices:
+      #     - name: ${appliance_01_name}
+      #       serial: ${appliance_01_serial}
+      #       tags:
+      #         - test
+      #       lat: ${lat}
+      #       lng: ${lng}
+      #       address: ${address}
+      #       notes: Small Branch Notes Appliance
+      #       appliance:
+      #         uplinks_settings:
+      #           wan1:
+      #             enabled: true
+      #             svis:
+      #               ipv4:
+      #                 assignment_mode: dynamic
+                # wan2:
+                #   enabled: true
+                #   svis:
+                #     ipv4:
+                #       assignment_mode: dynamic
+       #
+       # The below code does the following:
+       #
+       # small_branch_inventory configuration template.
+       #
+       # The small_branch_inventory configuration template configures defines the
+       # devices (security appliance, switch, and access points)
+       # and configures parameters specific to those devices
+       # within the site / network to which the template is applied.
+       #
+       # Note that this repository uses the words appliance, security appliance, 
+       # and secure router to all refer to the MX security appliance.
+       #
+       - name: small_branch_inventory
+         devices:
+          #
+          # The below code does the following:
+          #
+          # Secure router (Appliance) configuration
+          #
+          # Defines the name, serial number, geolocation coordinates
+          # (latitude & longitude), and address variables for the
+          # security appliance within the site to which the template
+          # is applied.
+          #
+          - name: ${appliance_01_name}
+            serial: ${appliance_01_serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Appliance
+          #
+          # The below code does the following:
+          #
+          # The switch configurations
+          #
+          # Defines the name, serial number, geolocation coordinates
+          # (latitude & longitude), and address variables for the
+          # first and second switches within the site to which the template
+          # is applied.
+          #
+          # Hardcodes the ports 1 - 13 of the switches to be trunk
+          # ports allowing specific VLANs.  Rapid Spanning-Tree Protocol
+          # (RTSP) is enabled by default on the trunk ports. Link negotiation
+          # (speed and duplex) is set to auto negotiate by default.
+          #
+          # Hardcodes ports 14 - 24 to be access ports on VLAN 1 with
+          # Voice VLAN 30.  RTSP is enabled by default with
+          # BPDU guard and storm control also enabled for access ports.
+          # Link negotiation (speed and duplex) is set to auto
+          # negotiate.
+          #
+          # Note, you may need to change the port_id_ranges depending 
+          # upon which switch models you choose to deploy within your branch.
+          #
+          - name: ${access_switch_01_name}
+            serial: ${access_switch_01_serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Switch
+            switch:
+              ports:
+              - port_id_ranges:
+                - from: 1
+                  to: 13
+                name: Uplink Trunk Port
+                enabled: true
+                type: trunk
+                tags:
+                  - uplink
+                  - trunk
+                vlan: 1
+                allowed_vlans: 1,10,20,30,50,999
+                link_negotiation: Auto negotiate
+                udld: Alert only
+                storm_control: true
+                rstp: true
+              - port_id_ranges:
+                - from: 14
+                  to: 24  
+                name: Access Port
+                enabled: true
+                type: access
+                tags:
+                  - access
+                vlan: 10
+                voice_vlan: 20
+                link_negotiation: Auto negotiate
+                storm_control: true
+                rstp: true
+                stp_guard: bpdu guard
+          - name: ${access_switch_02_name}
+            serial: ${access_switch_02_serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Switch
+            switch:
+              ports:
+              - port_id_ranges:
+                - from: 1
+                  to: 13
+                name: Uplink Trunk Port
+                enabled: true
+                type: trunk
+                tags:
+                  - uplink
+                  - trunk
+                vlan: 1
+                allowed_vlans: 1,10,20,30,50,999
+                link_negotiation: Auto negotiate
+                udld: Alert only
+                storm_control: true
+                rstp: true
+              - port_id_ranges:
+                - from: 14
+                  to: 24  
+                name: Access Port
+                enabled: true
+                type: access
+                tags:
+                  - access
+                vlan: 10
+                voice_vlan: 20
+                link_negotiation: Auto negotiate
+                storm_control: true
+                rstp: true
+                stp_guard: bpdu guard      
+          # 
+          # The below code does the following:
+          #
+          # First access point configuration
+          #
+          # Defines the name, serial number, geolocation coordinates
+          # (latitude & longitude), and address variables for the
+          # first access point within the site to which the template
+          # is applied.
+          #   
+          - name: ${ap_01_name}
+            serial: ${ap_01_serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Access Point
+          #
+          # The below code does the following:
+          #
+          # Second access point configuration
+          #
+          # Defines the name, serial number, geolocation coordinates
+          # (latitude & longitude), and address variables for the
+          # second access point within the site to which the template
+          # is applied.
+          #            
+          - name: ${ap_02_name}
+            serial: ${ap_02_serial}
+            tags:
+              - test
+            lat: ${lat}
+            lng: ${lng}
+            address: ${address}
+            notes: Small Branch Notes Appliance
