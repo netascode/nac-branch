@@ -1,0 +1,20 @@
+---
+meraki: include('meraki')
+defaults: any(required=False)
+---
+meraki:
+  domains: list(include('domains'), required=False)
+  template: include('template', required=False)
+domains:
+  name: str(min=1, max=128)
+  url: str(min=1, max=255, required=False)
+  organizations: list(include('organizations'))
+template:
+  networks: list(include('networks'), required=False)
+organizations:
+  name: str(min=1, max=127, required=False)
+  networks: list(include('networks'),required=False)
+networks:
+  name: str(min=1, max=127)
+  time_zone: str(min=1, max=127, required=False)
+  tags: list(str(min=1, max=255, required=False), required=False)
