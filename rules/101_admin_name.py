@@ -2,10 +2,11 @@ class Rule:
     id = "101"
     description = "Admin name must always include 'admin' (case-insensitive)"
     severity = "HIGH"
-    paths = ["meraki"]  # optional, ensures rule is considered
+    paths = ["meraki"]  # ensures the rule is considered by the framework
 
     @staticmethod
     def is_valid_admin_name(name):
+        """Check if admin name contains 'admin' (case-insensitive)."""
         return bool(name and "admin" in name.lower())
 
     @classmethod
@@ -22,15 +23,23 @@ class Rule:
 
         for domain in domains:
             domain_name = domain.get("name", "<unnamed domain>")
-            for key, value in domain.items():
-                if isinstance(value, list):
-                    for item in value:
-                        if isinstance(item, dict) and "name" in item:
-                            admin_name = item["name"]
-                            print(f"Checking admin_name={admin_name} in domain={domain_name} key={key}")
-                            if not cls.is_valid_admin_name(admin_name):
-                                results.append(
-                                    f"meraki.domains - Invalid admin name: {admin_name} in domain {domain_name} (key '{key}')"
-                                )
+
+            # Only check the known admin keys
+            for admin_key in ["administrator", "admins"]:
+                admins = domain.get(admin_key, [])
+                if not admins:
+                    continue  # no admins under this key, skip
+                for admin in admins:
+                    admin_name = admin.get("name")
+                    if not admin_name:
+                        results.append(
+                            f"meraki.domains - Admin missing name in domain {domain_name} (key '{admin_key}')"
+                        )
+                    elif not cls.is_valid_admin_name(admin_name):
+                        results.append(
+                            f"meraki.domains - Invalid admin name: {admin_name} in domain {domain_name} (key '{admin_key}', must contain 'admin')"
+                        )
+                    else:
+                        print(f"Checking admin_name={admin_name} in domain={domain_name} key={admin_key}")
 
         return results
