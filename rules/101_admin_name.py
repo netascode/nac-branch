@@ -1,64 +1,36 @@
 class Rule:
     id = "101"
-    description = "Verify all admins start with 'admin'"
+    description = "Admin name must always include 'admin' (case-insensitive)"
     severity = "HIGH"
+    paths = ["meraki"]  # optional, ensures rule is considered
 
-    paths = [
-        "meraki.domains.organizations.admins.name",
-    ]
+    @staticmethod
+    def is_valid_admin_name(name):
+        return bool(name and "admin" in name.lower())
 
     @classmethod
-    def match_path(cls, inventory, full_path, search_path):
+    def match(cls, data, schema=None):
+        print("Rule 110_must_admin.match() called")
         results = []
-        # Safely get domains
-        domains = inventory.get("meraki", {}).get("domains", [])
+
+        meraki = data.get("meraki", {})
+        domains = meraki.get("domains", [])
+
+        if not domains:
+            results.append("meraki.domains - No domains found")
+            return results
+
         for domain in domains:
-            orgs = domain.get("organizations", [])
-            for org in orgs:
-                admins = org.get("admins", [])
-                for admin in admins:
-                    name = admin.get("name")
-                    if not isinstance(name, str) or not name.lower().startswith("admin"):
-                        results.append(f"{full_path} - invalid admin name: {name}")
+            domain_name = domain.get("name", "<unnamed domain>")
+            for key, value in domain.items():
+                if isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict) and "name" in item:
+                            admin_name = item["name"]
+                            print(f"Checking admin_name={admin_name} in domain={domain_name} key={key}")
+                            if not cls.is_valid_admin_name(admin_name):
+                                results.append(
+                                    f"meraki.domains - Invalid admin name: {admin_name} in domain {domain_name} (key '{key}')"
+                                )
+
         return results
-
-    @classmethod
-    def match(cls, inventory):
-        results = []
-        for path in cls.paths:
-            results.extend(cls.match_path(inventory, path, path))
-        return results
-
-
-# ----------------------------
-# Test Example
-# ----------------------------
-inventory = {
-    "meraki": {
-        "domains": [
-            {
-                "name": "domain1",
-                "organizations": [
-                    {
-                        "name": "org1",
-                        "admins": [
-                            {"name": "admin1"},   # OK
-                            {"name": "Admin2"},   # OK (case-insensitive)
-                            {"name": "root1"},    # FAIL
-                            {"name": "userX"},    # FAIL
-                        ]
-                    },
-                    {
-                        "name": "org2",
-                        "admins": [
-                            {"name": "admin3"},   # OK
-                            {"name": "superadmin"} # OK
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-}
-
-print(Rule.match(inventory))
