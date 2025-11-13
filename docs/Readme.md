@@ -71,7 +71,7 @@ When using an MX platform that only supports 1 Gbps RJ45 or SFP connections, a s
 
 The use of SFP (optical) connectivity may also be needed in situations where the MX secure router and the switch are physically separated from each other.  Distances greater than 100 meters, or facilities where only fiber optic cabling exists between wiring closets may result in the use of the SFP ports.  
 
-When using an MX platform which supports 10 Gbps SFP+ (optical) connections, you must ensure the switch model of the swith or switch stack you choose to deploy within the small branch also supports 10 Gbps SFP+ (optical) connections.
+When using an MX platform which supports 10 Gbps SFP+ (optical) connections, you must ensure the switch model of the switch or switch stack you choose to deploy within the small branch also supports 10 Gbps SFP+ (optical) connections.
 
 ### Small Branch Switch / Switch Stack ###
 For this release of Cisco Unified Branch - Branch as Code, a single switch or switch stack consisting of C9300/X/L (-M versions), C9200/L (-M versions), or MS150/MS130 switches provides LAN connectivity to devices within the small branch.  All switches within a single stack should be the same model.
@@ -92,7 +92,7 @@ Note that the switch may initially need to be manually configured via console co
 
 For Cisco Unified Branch - Branch as Code, cloud managed CW9172 or CW9176 APs provided wireless LAN (WLAN) connectivity within the branch.  Physical port media and speeds, as well as PoE requirements for the AP models are shown in the table below. 
 
-**Table 3. WLAN AP Physical Ports and PoE Requirements**
+**Table 2. WLAN AP Physical Ports and PoE Requirements**
 
 ![WLAN AP Ports](images/wlan-ap-ports.png)
 
