@@ -257,8 +257,8 @@ meraki:
               variables:
                 syslog_server: 3.4.5.6
                 syslog_port: 514
-                # netflow_server: 4.5.6.7
-                # netflow_port: 2055
+                netflow_server: 4.5.6.7
+                netflow_port: 2055
                 appliance_01_name: Branch2-appliance-01
                 access_switch_01_name: Branch2-Cat9300-01
                 access_switch_02_name: Branch2-Cat9300-02

@@ -69,17 +69,17 @@ meraki:
           - host: ${syslog_server}
             port: ${syslog_port}
             roles:
-              - Switch event log
+              - Switch Event log
               - Air Marshal events
               - Flows
               - URLs
-              - Wireless event log
-              - Appliance event log
-        # netflow:
-        #   collector_ip: ${netflow_server}
-        #   collector_port: ${netflow_port}
-        #   reporting: true
-        #   eta:  false   
+              - Wireless Event log
+              - Appliance Event log
+        netflow:
+          collector_ip: ${netflow_server}
+          collector_port: ${netflow_port}
+          reporting: true
+          eta:  false   
       # 
       # The below code does the following:
       #
