@@ -160,8 +160,6 @@ meraki:
               name: "Data"
               subnet: ${vlan10_subnet}
               appliance_ip: ${vlan10_appliance_ip}
-              ipv6:
-                enabled: false
               dhcp_handling: "Run a DHCP server"
               # dhcp_handling: "Relay DHCP to another server"
               # dhcp_relay_server_ips:
@@ -172,8 +170,6 @@ meraki:
               name: "Voice"
               subnet: ${vlan20_subnet}
               appliance_ip: ${vlan20_appliance_ip}
-              ipv6:
-                enabled: false
               dhcp_handling: "Run a DHCP server"
               # dhcp_handling: "Relay DHCP to another server"
               # dhcp_relay_server_ips:
@@ -184,8 +180,6 @@ meraki:
               name: "Iot"
               subnet: ${vlan30_subnet}
               appliance_ip: ${vlan30_appliance_ip}
-              ipv6:
-                enabled: false
               dhcp_handling: "Run a DHCP server"
               # dhcp_handling: "Relay DHCP to another server"
               # dhcp_relay_server_ips:
@@ -196,27 +190,37 @@ meraki:
               name: "Guest"
               subnet: ${vlan50_subnet}
               appliance_ip: ${vlan50_appliance_ip}
-              ipv6:
-                enabled: false
               dns_nameservers: opendns
-              dhcp_handling: "Run a DHCP server"
-              dhcp_lease_time: "1 day"
-              dhcp_boot_options: false
-              mandatory_dhcp: true
+              # dhcp_handling: "Run a DHCP server"
+              # dhcp_lease_time: "1 day"
+              # dhcp_boot_options: false
+              mandatory_dhcp: false
+              dhcp_handling: "Relay DHCP to another server"
+              dhcp_relay_server_ips:
+                - ${corp_dhcp_server1}
+                - ${corp_dhcp_server2}
             - vlan_id: 999
               name: "Infra"
               subnet: ${vlan999_subnet}
               appliance_ip: ${vlan999_appliance_ip}
-              ipv6:
-                enabled: false
               dns_nameservers: opendns
               dhcp_handling: "Run a DHCP server"
               dhcp_lease_time: "1 day"
               dhcp_boot_options: false
               mandatory_dhcp: false
-              # fixed_ip_assignments:
-              #  ip: 10.250.1.11
-              #  name: 6c:c3:b2:7e:ae:0a
+              fixed_ip_assignments:
+               - name: "Switch 1 Management IP"
+                 ip: ${fixed_ip_sw1}
+                 mac: ${switch_1_mac}
+               - name: "Switch 2 Management IP"
+                 ip: ${fixed_ip_sw2}
+                 mac: ${switch_2_mac}
+               - name: "AP 1 Management IP"
+                 ip: ${fixed_ip_ap1}
+                 mac: ${ap_1_mac}
+               - name: "AP 2 Management IP"
+                 ip: ${fixed_ip_ap2}
+                 mac: ${ap_2_mac}
       #
       # The below code does the following:
       #
