@@ -198,7 +198,6 @@ meraki:
           rf_profiles:
             - name: Corp wireless rf profile
               band_selection_type: ssid
-              is_indoor_default: true
               min_bitrate_type: band
               per_ssid_settings:
                 - ssid_name: ${guest_wireless_ssid_name}
