@@ -30,6 +30,7 @@ meraki:
         notes: ${network_notes}
         tags:
           - small_branch
+          - ubac
       #
       # The below code does the following:
       # 
