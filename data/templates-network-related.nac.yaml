@@ -1,117 +1,76 @@
-# This template defines comprehensive network configuration templates for Meraki infrastructure.
-# Templates are applied at the network/site level and configure device behaviors across the deployment.
-#
-# Note: These are NetasCode templates for infrastructure-as-code, not Meraki Dashboard templates.
-# Variables use ${variable_name} syntax and sensitive data uses !env for environment variables.
-# 
-#Last updated: 2025-10-20
-#
+
 meraki:
-  template:
+  templates:
     networks:
-      # Template: nw_setup
-      # Purpose: Defines fundamental network configuration including product types and elements
-      # for site creation, such as timezones and descriptions.
-      # 
-      # This template establishes the base network configuration by:
-      # - Enabling specific Meraki product types (appliance, switch, wireless, cellularGateway)
-      # - Setting location-specific time zone for accurate logging and scheduling
-      # - Adding operational notes for site-specific requirements or constraints
-      # - Applying metadata tags for categorization, reporting, and search operations
-      #
-      #
       - name: nw_setup
-        product_types:
-                - appliance
-                - switch
-                - wireless
-                - cellularGateway
-        time_zone: ${time_zone}
-        notes: ${network_notes}
-        tags:
-          - small_branch
-          - ubac
-      #
-      # The below code does the following:
-      # 
-      # Configures network-wide management plane settings for monitoring and access control
-      #
-      # This template establishes management configurations:
-      # - Local and remote status page access for troubleshooting the device directly
-      # - SNMPv3 with user-based authentication for secure monitoring of MIBs
-      # - Centralized syslog collection for compliance and troubleshooting
-      # - Named VLAN support for dynamic RADIUS-based VLAN assignment
-      #
-      # Security Considerations:
-      # - Credentials use !env to reference environment variables (never hardcode)
-      # - SNMPv3 provides encryption and authentication vs SNMPv2 community strings
-      # - Local status page should use strong credentials and the password is a minimum 12 chars
-      #
-      # Integration Requirements:
-      # - Syslog server must be reachable from management VLAN
-      # - SNMP collector must support SNMPv3 with matching credentials, default encryption is DES
-      # - Named VLANs require coordination with RADIUS server configuration
-      #
+        type: model
+        configuration:
+          product_types:
+            - appliance
+            - switch
+            - wireless
+            - cellularGateway
+          time_zone: ${time_zone}
+          notes: ${network_notes}
+      - name: nw_tags
+        type: file
+        file: data/nw_tags.yaml.tftpl
       - name: nw_management
-        settings:
-          local_status_page_enabled: true
-          remote_status_page: true
-          secure_port: false
-          local_status_page_authentication:
-            username: !env local_page_username
-            password: !env local_page_password
-          named_vlans: true
-        snmp:
-          access: users
-          users:
-            - username: !env snmp_username
-              passphrase: !env snmp_passphrase
-        syslog_servers:
-          - host: ${syslog_server}
-            port: ${syslog_port}
-            roles:
-              - Switch Event log
-              - Air Marshal events
-              - Flows
-              - URLs
-              - Wireless Event log
-              - Appliance Event log
-        netflow:
-          collector_ip: ${netflow_server}
-          collector_port: ${netflow_port}
-          reporting: true
-          eta:  false   
-      # 
-      # The below code does the following:
-      #
-      # group_policies template.
-      #
-      # The group_policies template configures the group policies
-      # that are returned by the Radius server through the Filter-Id
-      # attribute during 802.1x authentication for wired and wireless
-      # devices.  Each group policy returns the VLAN ID override 
-      # applicable to the VLAN to which the client is assigned.
-      #
-      # The YAML code below defines three group policies, with the 
-      # policy group name and the VLAN assignment defined as
-      # variables.  Since no other group policy parameters are
-      # configured, they do not appear within the YAML code.  
-      # Please refer to the following URL for a full definition 
-      # of available parameters within group policies:
-      #
-      # https://netascode.cisco.com/docs/data_models/meraki/networks/group_policies/
-      #
-      # Additional group policies with their respective VLAN ID assignments
-      # can be added to the YAML code as needed for additional VLANs.
-      #
+        type: model
+        configuration:
+          settings:
+            local_status_page_enabled: true
+            remote_status_page: true
+            secure_port: false
+            local_status_page_authentication:
+              username: !env local_page_username
+              password: !env local_page_password
+            named_vlans: true
+          snmp:
+            access: users
+            users:
+              - username: !env snmp_username
+                passphrase: !env snmp_passphrase
+          syslog_servers:
+            - host: ${syslog_server}
+              port: ${syslog_port}
+              roles:
+                - Switch Event log
+                - Air Marshal events
+                - Flows
+                - URLs
+                - Wireless Event log
+                - Appliance Event log
+          netflow:
+            collector_ip: ${netflow_server}
+            collector_port: ${netflow_port}
+            reporting: true
+            eta:  false   
       - name: group_policies
-        group_policies:
-          - name: ${data_vlan_group_policy}
-            vlan_tagging:
-              vlan_id: 10
-          - name: ${voice_vlan_group_policy}
-            vlan_tagging:
-              vlan_id: 20
-          - name: ${iot_vlan_group_policy}
-            vlan_tagging:
-              vlan_id: 30
+        type: model
+        configuration:
+          group_policies:
+            - name: ${data_vlan_group_policy}
+              vlan_tagging:
+                vlan_id: 10
+            - name: ${voice_vlan_group_policy}
+              vlan_tagging:
+                vlan_id: 20
+            - name: ${iot_vlan_group_policy}
+              vlan_tagging:
+                vlan_id: 30
+      - name: webhooks
+        type: model
+        configuration:
+          webhooks:
+            payload_templates:
+              - name: ${splunk_template_name}
+                headers:
+                  - name: "Authorization"
+                    template: "Bearer ${splunk_hec_token}"
+                body: '{"sourcetype": "meraki:webhook", "event": {"version": "0.1", "sentAt": "{{sentAt}}", "organizationId": "{{organizationId}}", "organizationName": "{{organizationName}}", "organizationUrl": "{{organizationUrl}}", "networkId": "{{networkId}}", "networkName": "{{networkName}}", "networkUrl": "{{networkUrl}}", "networkTags": {{ networkTags | jsonify }}, "deviceSerial": "{{deviceSerial}}", "deviceMac": "{{deviceMac}}", "deviceName": "{{deviceName}}", "deviceUrl": "{{deviceUrl}}", "deviceTags": {{ deviceTags | jsonify }}, "deviceModel": "{{deviceModel}}", "alertId": "{{alertId}}", "alertType": "{{alertType}}", "alertTypeId": "{{alertTypeId}}", "alertLevel": "{{alertLevel}}", "occurredAt": "{{occurredAt}}", "alertData": {{ alertData | jsonify }} }}'
+            http_servers:
+              - name: ${splunk_server_name}
+                payload_template:
+                  name: ${splunk_template_name}
+                url: ${splunk_webhooks_server_url}

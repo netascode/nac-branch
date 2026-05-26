@@ -1,0 +1,26 @@
+switch:
+  access_policies:
+    - name: "Wired Access Policy"
+      radius_servers:
+%{ for s in radius_servers ~}
+        - host: ${s.host}
+          port: ${s.port}
+          secret: ${s.secret}
+%{ endfor ~}
+      radius_accounting_servers:
+%{ for s in radius_accounting_servers ~}
+        - host: ${s.host}
+          port: ${s.port}
+          secret: ${s.secret}
+%{ endfor ~}
+      radius_accounting: true
+      radius_coa_support: true
+      radius_testing: true
+      radius_group_attribute: ""
+      host_mode: Multi-Auth
+      voice_vlan_clients: true
+      access_policy_type: Hybrid authentication
+      radius:
+        re_authentication_interval: 86400
+      dot1x_control_direction: both
+      url_redirect_walled_garden: false

@@ -1,0 +1,10 @@
+switch:
+  link_aggregations:
+%{ for lag in link_aggregations ~}
+    - switch_ports:
+%{ for sp in lag.switch_ports ~}
+        - device: ${sp.device}
+          port_id: ${sp.port_id}
+%{ endfor ~}
+      link_aggregation_name: "${lag.link_aggregation_name}"
+%{ endfor ~}
