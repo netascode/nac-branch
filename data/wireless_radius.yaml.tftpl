@@ -1,0 +1,16 @@
+wireless:
+  ssids:
+    - name: ${data_wireless_ssid_name}
+      radius:
+        accounting_servers:
+%{ for s in wireless_radius_accounting_servers ~}
+          - host: ${s.host}
+            port: ${s.port}
+            secret: ${s.secret}
+%{ endfor ~}
+        servers:
+%{ for s in wireless_radius_servers ~}
+          - host: ${s.host}
+            port: ${s.port}
+            secret: ${s.secret}
+%{ endfor ~}

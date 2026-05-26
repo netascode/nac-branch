@@ -1,10 +1,12 @@
-# 🌐 Network as Code for Unified Branch – Branch as Code (`nac-branch`)
+# 🌐 Network as Code for Unified Branch – Branch as Code (`nac-branch-terraform`)
 
-This repository delivers the **Network as Code for Unified Branch – Branch as Code** capability (Release 1, November 2025).  
+This repository delivers the **Network as Code for Unified Branch – Branch as Code** capability (Release 2, May 2026).  
 It automates provisioning of cloud-managed branch infrastructure — security appliances, switches, and Wi-Fi access points — using repeatable, version-controlled Terraform artifacts instead of manual dashboard configuration.
 
 All artifacts are aligned with **Cisco Validated Designs (CVDs)** and optimized for **greenfield deployments** (new branch networks configured as VPN spokes).  
 The provided code supports importing pre-configured organizations and hubs.
+
+Release 2 adds **medium branch** support (2 appliances in active-backup / warm spare), **3rd party VPN peers** (including Cisco Secure Access / SSE integration), **adaptive policy**, **IP SLA monitoring**, **Splunk webhook integration**, and a redesigned CI/CD pipeline.
 
 ## 📚 More Information
 
@@ -35,35 +37,44 @@ nac-branch-terraform/
 ├── Changelog.md
 ├── Readme.md
 ├── main.tf
-├── schema.yaml  🔹
+├── Jenkinsfile
+├── .schema.yaml  🔹
 ├── data/
+│   ├── org_global.nac.yaml
+│   ├── pods_variables.nac.yaml
+│   ├── templates-*.nac.yaml
+│   ├── fixed_ip_assignments.yaml.tftpl
+│   ├── switch_access_policy.yaml.tftpl
+│   └── wireless_radius.yaml.tftpl
+├── data-test-templates/
 ├── docs/
-├── tests/        🔹
-├── .rules/       🔹
-└── workspaces/
+├── tests/           🔹
+└── .rules/          🔹
 ```
 **Legend**  
-🔹 - The complete set of schema and tests is available through the **Services as Code** subscription. Custom rules that can be created and adapted for each customer.
+🔹 - The complete set of schema and tests is available through the **Services as Code** subscription. Custom rules can be created and adapted for each customer.
 
 
 **File and folder overview:**
 
 - **Changelog.md** – release notes and change history  
 - **Readme.md** – this document  
-- **main.tf** – primary Terraform configuration defining NAC resources and modules  
-- **schema.yaml** – defines the YAML data model (sections, allowed keys, types, relationships)
-- **data/** – YAML configuration files for [Branch as Code](https://netascode.cisco.com/docs/guides/branch/04_fundamentals-nac-bac/#data)  
-- **docs/** – reference diagrams and design documentation  
-- **tests/** – example automated tests for integration with CI/CD pipelines  
-- **rules/** – custom semantic rule definitions for policy enforcement  
-- **workspaces/** – environment-specific configurations for **branch template resolution**
+- **main.tf** – primary Terraform configuration; defines the NAC module source, YAML data directory, and Terraform Cloud workspace  
+- **Jenkinsfile** – CI/CD pipeline definition (Validate → Plan → Deploy → Test with idempotency checks and Webex notifications)  
+- **.schema.yaml** – defines the YAML data model (sections, allowed keys, types, relationships)
+- **data/** – YAML configuration files and `tftpl` templates for [Branch as Code](https://netascode.cisco.com/docs/guides/branch/04_fundamentals-nac-bac/#data)  
+- **data-test-templates/** – example configurations derived from the schema for testing  
+- **docs/** – reference diagrams, design documentation, and Step-by-Step (SFS) guides for large and medium branches  
+- **tests/** – automated integration tests for CI/CD pipelines (Robot Framework)  
+- **.rules/** – custom semantic validation rules for policy enforcement
 
 **🧩 `data/` Folder Overview**
 
-- **org_global.nac.yaml** – organization-level baseline: login security, policy objects, SNMP, etc.  
-- **pods_variables.nac.yaml** – branch-specific variables (name, hostnames, addressing, VLANs).  
+- **org_global.nac.yaml** – organization-level baseline: login security, policy objects, adaptive policy, 3rd party VPN peers, SNMP, etc.  
+- **pods_variables.nac.yaml** – branch-specific variables (name, hostnames, addressing, VLANs) for small and medium branches.  
   👉 *This is typically the only file you modify when deploying new branches.*  
-- **templates-*.nac.yaml** – modular configuration templates segmented by technology domain. Inline documentation is included. Some templates include predefined values for common use cases but are intended to be modified to reflect the customer’s specific environment. 
+- **templates-*.nac.yaml** – modular configuration templates segmented by technology domain. Inline documentation is included. Some templates include predefined values for common use cases but are intended to be modified to reflect the customer's specific environment.  
+- **\*.yaml.tftpl** – Terraform template files for dynamic configuration (fixed IP assignments, switch access policies, wireless RADIUS servers)
 
 > ⚠️ These are **Network as Code templates**, not Meraki configuration templates. They are **CVD-aligned** and designed to work with the [Network as Code Meraki Terraform](https://registry.terraform.io/modules/netascode/nac-meraki) modules.
 
@@ -73,6 +84,13 @@ nac-branch-terraform/
 
 ![Branch as Code High-Level Deployment Flow](docs/images/steps.png)
 
+The current Jenkins pipeline runs these stages in order:
+
+1. **Validate** (`terraform fmt -check`, model generation, `nac-validate`)
+2. **Plan** (`terraform get -update`, `terraform plan`, plan exports)
+3. **Deploy** (`terraform apply plan.tfplan`)
+4. **Test** (parallel **Integration** + **Idempotency** checks)
+
 
 ### 1. Fork the Repository
 
@@ -81,9 +99,9 @@ Avoid cloning directly from the upstream if you plan to customize.
 
 ```
 # Replace <your-github-org> with your GitHub username or org
-git clone https://github.com/<your-github-org>/nac-branch.git
-cd nac-branch
-git remote add upstream https://github.com/netascode/nac-branch.git
+git clone https://github.com/<your-github-org>/nac-branch-terraform.git
+cd nac-branch-terraform
+git remote add upstream https://github.com/netascode/nac-branch-terraform.git
 git fetch upstream
 ```
 
@@ -98,6 +116,13 @@ export AP=YOUR_AP1_SERIAL
 export AP2=YOUR_AP2_SERIAL
 export Switch1=YOUR_SWITCH1_SERIAL
 export Switch2=YOUR_SWITCH2_SERIAL
+
+# Medium branch devices (if deploying medium branch)
+export Me_Appliance_1=YOUR_ME_APPLIANCE_1_SERIAL
+export Me_Appliance_2=YOUR_ME_APPLIANCE_2_SERIAL
+export Me_Switch_1=YOUR_ME_SWITCH_1_SERIAL
+export Me_Switch_2=YOUR_ME_SWITCH_2_SERIAL
+export Me_AP_1=YOUR_ME_AP_1_SERIAL
 
 # Organization identification
 export org_name="Your Meraki Org Name"
@@ -121,7 +146,17 @@ export local_page_password="CHANGE_ME_LOCAL"
 
 # RADIUS secrets
 export radius_accounting_server1_secret="CHANGE_ME_RADIUS_ACCT"
+export radius_accounting_server2_secret="CHANGE_ME_RADIUS_ACCT2"
 export radius_server1_secret="CHANGE_ME_RADIUS_AUTH"
+export radius_server2_secret="CHANGE_ME_RADIUS_AUTH2"
+export wireless_radius_server1_secret="CHANGE_ME_WIRELESS_RADIUS"
+export wireless_radius_server2_secret="CHANGE_ME_WIRELESS_RADIUS2"
+export wireless_radius_accounting_server1_secret="CHANGE_ME_WIRELESS_RADIUS_ACCT"
+export wireless_radius_accounting_server2_secret="CHANGE_ME_WIRELESS_RADIUS_ACCT2"
+
+# 3rd party VPN / SSE secrets
+export peer1_secret="CHANGE_ME_PEER_SECRET"
+export umbrella_secret="CHANGE_ME_UMBRELLA_SECRET"
 
 # Meraki API key (least privilege recommended)
 export MERAKI_API_KEY="REPLACE_WITH_API_KEY"
@@ -138,20 +173,17 @@ Navigate to the `data/` folder and update:
 
 A sample configuration is provided for reference.
 
-### 4. 🧠 Render Templates
+### 4. 🧠 Initialize and Generate Merged Configuration
 
-Render configuration templates using your defined variables.  
-This step does **not** push any configuration to Meraki — it only builds the merged YAML that stays in memory.
-
-> Note: the `workspaces/` directory is not a Terraform deployment workspace for Meraki resources; it is only used locally to render the merged YAML configuration. 
+The `main.tf` at the repository root defines the NAC module and renders the merged YAML configuration in a single step.  
+No separate `workspaces/` directory is needed — everything runs from the repository root.
 
 ```bash
-cd workspaces
-terraform init
-terraform apply
+terraform init -input=false
+terraform apply -target=module.meraki.module.model -auto-approve -input=false
 ```
 
-✅ Output: `merged_configuration.nac.yaml` generated in `workspaces/`.
+✅ Output: `merged_configuration.nac.yaml` generated in the repository root.
 
 
 ### 5. 🔍 [Optional] Validate Configuration (`nac-validate`)
@@ -168,10 +200,8 @@ pip install nac-validate
 Run validation:
 
 ```bash
-nac-validate --non-strict ./workspaces/merged_configuration.nac.yaml
+nac-validate merged_configuration.nac.yaml
 ```
-
-> The `--non-strict` flag is used here since the sample schema omits certain keys. Remove it when validating against a complete schema.
 
 💡 *VS Code users:* install the [YAML Language Support by Red Hat](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) extension for real-time validation.
 
@@ -183,13 +213,16 @@ nac-validate --non-strict ./workspaces/merged_configuration.nac.yaml
 Generate the Terraform plan to preview intended changes:
 
 ```bash
-cd ..
-terraform init
-terraform plan
+rm -rf .terraform/modules
+terraform get -update
+terraform init -input=false
+terraform plan -out=plan.tfplan -input=false
+terraform show -no-color plan.tfplan > plan.txt
+terraform show -json plan.tfplan | jq > plan.json
 ```
 
-⚠️ The included configuration uses **local state**.  
-For team usage, configure a **remote backend** (e.g., Terraform Cloud, GitLab CI) with state locking to prevent concurrency issues.
+⚠️ The included configuration uses **Terraform Cloud** as the backend.  
+Update the `cloud` block in `main.tf` to match your organization and workspace, or switch to a local backend if preferred.
 
 
 ### 7. 🚀 Apply Configuration
@@ -197,7 +230,7 @@ For team usage, configure a **remote backend** (e.g., Terraform Cloud, GitLab CI
 Apply the configuration to push changes to the Meraki Dashboard:
 
 ```bash
-terraform apply
+terraform apply -input=false -auto-approve plan.tfplan
 ```
 
 
@@ -213,11 +246,21 @@ pip install nac-test
 Run:
 
 ```bash
-nac-test -d workspaces/merged_configuration.nac.yaml -t ./tests/templates -o ./tests/results
+nac-test -d merged_configuration.nac.yaml -t ./tests/templates -o ./tests/results -f ./tests/filters |& tee test_output.txt
 ```
 
 Passing `nac-test` confirms configuration integrity and reproducibility.  
 👉 Learn more about [Configuration Testing.](https://netascode.cisco.com/docs/guides/concepts/testing/)
+
+Run idempotency check after deployment:
+
+```bash
+terraform init -input=false
+terraform plan -input=false -out=idempotency.tfplan -detailed-exitcode
+terraform show -no-color idempotency.tfplan > idempotency_plan.txt
+```
+
+Expected result: exit code `0` (no changes). Exit code `2` means drift/change detected.
 
 ## 💬 Issues & Feedback
 

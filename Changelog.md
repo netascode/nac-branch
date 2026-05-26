@@ -1,3 +1,45 @@
+## 2.0.0
+
+May 2026
+
+### New Features
+
+- **Medium Branch Support**: Added medium site design with 2 appliances in active-backup (warm spare) configuration, including dedicated inventory, variables, and network templates
+- **New Style Templates**: Migrated all data templates to new-style YAML template format with per-feature separation
+- **3rd Party VPN Peers**: Added support for third-party VPN peers (IPsec) at the organization level, including Cisco Secure Access (SSE) integration
+- **IP SLA Monitoring**: Added VPN site-to-site IPsec peers SLA policy configuration for 3rd party VPN health checks
+- **Adaptive Policy**: Added adaptive policy support including policy groups, ACLs, policies, and settings at the organization level
+- **Splunk Webhooks**: Enabled Splunk integration via real-time webhook alerts
+- **Fixed IP Assignments Template**: Moved fixed IP assignments to a dedicated `tftpl` template to handle a variable number of devices
+- **Switch Access Policy Template**: Added switch access policy as a `tftpl` template for RADIUS-based 802.1X configurations
+- **Wireless RADIUS Template**: Added wireless RADIUS server configuration as a `tftpl` template
+- **RADIUS Authentication Servers**: Added organization-level RADIUS authentication server support
+
+
+### Improvements
+
+- **STP Bridge Priority**: Changed switch STP bridge priority to 4096 for all branch sizes
+- **Traffic Shaping**: Updated traffic shaping rules and custom performance classes aligned with CVD
+- **Internet Policies**: Updated SD-WAN internet policies and uplink selection configuration
+- **VPN Firewall Rules**: Synced VPN firewall policy with CVD, added VPN route exclusions
+- **L3/L7 Firewall**: Updated Layer 3, Layer 7, and firewalled services policies aligned with CVD
+- **WAN Uplinks**: Updated WAN uplink configuration and failover settings
+- **Wireless**: Added RF profile assignments to APs, updated SSID configurations
+- **Network Tags**: Added unified branch tag to networks and inventory for tracking
+- **Group Policies**: Updated group policy and named policy object configurations
+- **Schema**: Updated schema to latest nac-meraki version with expanded appliance, switch, and wireless definitions
+- **Jenkins Pipeline**: Redesigned CI/CD pipeline with separate Validate, Plan, Deploy, and Test stages; added artifact archiving; added idempotency testing; added Webex notifications
+- **Module Reference**: Updated to module version 0.9.0
+
+### Breaking Changes
+
+- **Introduced new template structure** - Templates now can be configuration or file based. The schema has changed, updated configs with `type` (can be model if configuration or file if using the tftpl files)
+- **Removed IPv6 from medium branch WAN DHCP template** (following schema and API changes)
+- **Removed static routes** from appliance configuration
+- **Removed old `workspaces/` directory** — Terraform workspace configuration moved to root `main.tf`; the `workspaces/` directory and its `main.tf` are no longer used
+- **Jenkins Pipeline**: Removed references to `/workspaces` directory; pipeline now operates from the repository root
+
+
 ## 1.1.0
 
 January 2026
