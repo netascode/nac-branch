@@ -1,4 +1,4 @@
-# 🌐 Network as Code for Unified Branch – Branch as Code (`nac-branch-terraform`)
+# 🌐 Network as Code for Unified Branch – Branch as Code (`nac-branch`)
 
 This repository delivers the **Network as Code for Unified Branch – Branch as Code** capability (Release 2, May 2026).  
 It automates provisioning of cloud-managed branch infrastructure — security appliances, switches, and Wi-Fi access points — using repeatable, version-controlled Terraform artifacts instead of manual dashboard configuration.
@@ -99,9 +99,9 @@ Avoid cloning directly from the upstream if you plan to customize.
 
 ```
 # Replace <your-github-org> with your GitHub username or org
-git clone https://github.com/<your-github-org>/nac-branch-terraform.git
-cd nac-branch-terraform
-git remote add upstream https://github.com/netascode/nac-branch-terraform.git
+git clone https://github.com/<your-github-org>/nac-branch.git
+cd nac-branch
+git remote add upstream https://github.com/netascode/nac-branch.git
 git fetch upstream
 ```
 
@@ -110,19 +110,36 @@ git fetch upstream
 Export all required environment variables before running Terraform:
 
 ```bash
-# Device serial numbers
-export Appliance=YOUR_APPLIANCE_SERIAL
-export AP=YOUR_AP1_SERIAL
-export AP2=YOUR_AP2_SERIAL
-export Switch1=YOUR_SWITCH1_SERIAL
-export Switch2=YOUR_SWITCH2_SERIAL
+# Small branch device serial numbers
+export small_appliance_01_serial=YOUR_APPLIANCE_SERIAL
+export small_ap_01_serial=YOUR_AP1_SERIAL
+export small_ap_02_serial=YOUR_AP2_SERIAL
+export small_switch_01_serial=YOUR_SWITCH1_SERIAL
+export small_switch_02_serial=YOUR_SWITCH2_SERIAL
 
-# Medium branch devices (if deploying medium branch)
-export Me_Appliance_1=YOUR_ME_APPLIANCE_1_SERIAL
-export Me_Appliance_2=YOUR_ME_APPLIANCE_2_SERIAL
-export Me_Switch_1=YOUR_ME_SWITCH_1_SERIAL
-export Me_Switch_2=YOUR_ME_SWITCH_2_SERIAL
-export Me_AP_1=YOUR_ME_AP_1_SERIAL
+# Medium branch devices 
+export medium_appliance_01_serial=YOUR_MEDIUM_APPLIANCE_01_SERIAL
+export medium_appliance_02_serial=YOUR_MEDIUM_APPLIANCE_02_SERIAL
+export medium_switch_01_serial=YOUR_MEDIUM_SWITCH_01_SERIAL
+export medium_switch_02_serial=YOUR_MEDIUM_SWITCH_02_SERIAL
+export medium_ap_01_serial=YOUR_MEDIUM_AP_01_SERIAL
+export medium_ap_02_serial=YOUR_MEDIUM_AP_02_SERIAL
+
+# Large branch devices
+export large_appliance_01_serial=YOUR_LARGE_APPLIANCE_01_SERIAL
+export large_appliance_02_serial=YOUR_LARGE_APPLIANCE_02_SERIAL
+export large_switch1_serial=YOUR_LARGE_SWITCH_01_SERIAL
+export large_switch2_serial=YOUR_LARGE_SWITCH_02_SERIAL
+export large_switch3_serial=YOUR_LARGE_SWITCH_03_SERIAL
+export large_switch4_serial=YOUR_LARGE_SWITCH_04_SERIAL
+export large_switch5_serial=YOUR_LARGE_SWITCH_05_SERIAL
+export large_switch6_serial=YOUR_LARGE_SWITCH_06_SERIAL
+export large_switch7_serial=YOUR_LARGE_SWITCH_07_SERIAL
+export large_switch8_serial=YOUR_LARGE_SWITCH_08_SERIAL
+export large_switch9_serial=YOUR_LARGE_SWITCH_09_SERIAL
+export large_ap1_serial=YOUR_LARGE_AP_01_SERIAL
+export large_ap2_serial=YOUR_LARGE_AP_02_SERIAL
+export large_ap3_serial=YOUR_LARGE_AP_03_SERIAL
 
 # Organization identification
 export org_name="Your Meraki Org Name"
@@ -154,6 +171,9 @@ export wireless_radius_server2_secret="CHANGE_ME_WIRELESS_RADIUS2"
 export wireless_radius_accounting_server1_secret="CHANGE_ME_WIRELESS_RADIUS_ACCT"
 export wireless_radius_accounting_server2_secret="CHANGE_ME_WIRELESS_RADIUS_ACCT2"
 
+# Webhook/token settings
+export splunk_hec_token="CHANGE_ME_SPLUNK_HEC_TOKEN"
+
 # 3rd party VPN / SSE secrets
 export peer1_secret="CHANGE_ME_PEER_SECRET"
 export umbrella_secret="CHANGE_ME_UMBRELLA_SECRET"
@@ -161,6 +181,8 @@ export umbrella_secret="CHANGE_ME_UMBRELLA_SECRET"
 # Meraki API key (least privilege recommended)
 export MERAKI_API_KEY="REPLACE_WITH_API_KEY"
 ```
+
+Device naming in `data/pods_variables.nac.yaml` follows a consistent style such as `Small-Branch-MX-01`, `Medium-Branch-MX-01`, and `Large-Branch-MX-01`.
 
 💡 *Tip:* Use a `.env` file and source it (`source ./set_env_vars.sh`).  
 Ensure `.env` is excluded via `.gitignore`. You may also integrate a secrets manager.
@@ -176,7 +198,7 @@ A sample configuration is provided for reference.
 ### 4. 🧠 Initialize and Generate Merged Configuration
 
 The `main.tf` at the repository root defines the NAC module and renders the merged YAML configuration in a single step.  
-No separate `workspaces/` directory is needed — everything runs from the repository root.
+No separate `workspaces/` directory is needed (as in previous relese) — everything runs from the repository root.
 
 ```bash
 terraform init -input=false
