@@ -1,0 +1,4 @@
+tags:
+%{ for tag in network_tags ~}
+  - ${tag}
+%{ endfor ~}

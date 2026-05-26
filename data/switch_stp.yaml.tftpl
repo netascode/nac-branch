@@ -1,0 +1,12 @@
+stp:
+  stp_bridge_priority:
+%{ for item in stp_bridge_priority ~}
+    - stp_priority: ${item.stp_priority}
+%{ if length(item.stacks) > 0 ~}
+      stacks:
+%{ for stack in item.stacks ~}
+        - ${stack}
+%{ endfor ~}
+%{ endif ~}
+%{ endfor ~}
+  rstp: true

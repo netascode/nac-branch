@@ -1,231 +1,1060 @@
-# The below code does the following:
-#
-# This YAML file defines the following inventory related template:
-#
-# - Small Branch Inventory (small_branch_inventory)
-# - small_branch_inventory template defines 1 Secure Router 
-#   (Security Appliance), 1 Switch Stack with 2 Switches, 
-#    and 2 Access Points
-#
-# Each template defines network-level configuration which is
-# applicable to the inventory - meaning the secure router,
-# switch, and AP devices - within the site.
-#
-# Note that these templates are not related to templates
-# configured within the Cisco (formerly Meraki) dashboard.
-#
-# The below code does the following:
-#
-# hub configuration template.
-#
-# The hub configuration template configures defines the
-# device (security appliance) and configures parameters
-# specific to those devices within the site / network to 
-# which the template is applied.
-#
-# For the current version of Unified Branch - Branch as Code,
-# since only the hub name is require for branch configuration,
-# the hub is imported.  Hence the hub YAML configuration below 
-# has been commented out. 
-#
 meraki:
-  template:
+  templates:
     networks:
-      #  - name: hub
-      #    devices:
-      #     - name: ${appliance_01_name}
-      #       serial: ${appliance_01_serial}
-      #       tags:
-      #         - small branch
-      #       lat: ${lat}
-      #       lng: ${lng}
-      #       address: ${address}
-      #       notes: Small Branch Notes Appliance
-      #       appliance:
-      #         uplinks_settings:
-      #           wan1:
-      #             enabled: true
-      #             svis:
-      #               ipv4:
-      #                 assignment_mode: dynamic
-                # wan2:
-                #   enabled: true
-                #   svis:
-                #     ipv4:
-                #       assignment_mode: dynamic
-       #
-       # The below code does the following:
-       #
-       # small_branch_inventory configuration template.
-       #
-       # The small_branch_inventory configuration template configures defines the
-       # devices (security appliance, switch, and access points)
-       # and configures parameters specific to those devices
-       # within the site / network to which the template is applied.
-       #
-       # Note that this repository uses the words appliance, security appliance, 
-       # and secure router to all refer to the MX security appliance.
-       #
        - name: small_branch_inventory
-         devices:
-          #
-          # The below code does the following:
-          #
-          # Secure router (Appliance) configuration
-          #
-          # Defines the name, serial number, geolocation coordinates
-          # (latitude & longitude), and address variables for the
-          # security appliance within the site to which the template
-          # is applied.
-          #
-          - name: ${appliance_01_name}
-            serial: ${appliance_01_serial}
-            tags:
-              - small branch
-              - ubac
-            lat: ${lat}
-            lng: ${lng}
-            address: ${address}
-            notes: Small Branch Notes Appliance
-          #
-          # The below code does the following:
-          #
-          # The switch configurations
-          #
-          # Defines the name, serial number, geolocation coordinates
-          # (latitude & longitude), and address variables for the
-          # first and second switches within the site to which the template
-          # is applied.
-          #
-          # Hardcodes the ports 1 - 13 of the switches to be trunk
-          # ports allowing specific VLANs.  Rapid Spanning-Tree Protocol
-          # (RTSP) is enabled by default on the trunk ports. Link negotiation
-          # (speed and duplex) is set to auto negotiate by default.
-          #
-          # Hardcodes ports 14 - 24 to be access ports on VLAN 1 with
-          # Voice VLAN 30.  RTSP is enabled by default with
-          # BPDU guard and storm control also enabled for access ports.
-          # Link negotiation (speed and duplex) is set to auto
-          # negotiate.
-          #
-          # Note, you may need to change the port_id_ranges depending 
-          # upon which switch models you choose to deploy within your branch.
-          #
-          - name: ${access_switch_01_name}
-            serial: ${access_switch_01_serial}
-            tags:
-              - small branch
-              - ubac
-            lat: ${lat}
-            lng: ${lng}
-            address: ${address}
-            notes: Small Branch Notes Switch
-            switch:
-              ports:
-              - port_id_ranges:
-                - from: 1
-                  to: 13
-                name: Uplink Trunk Port
-                enabled: true
-                type: trunk
-                tags:
-                  - uplink
-                  - trunk
-                vlan: 1
-                allowed_vlans: 1,10,20,30,50,999
-                link_negotiation: Auto negotiate
-                udld: Alert only
-                storm_control: true
-                rstp: true
-              - port_id_ranges:
-                - from: 14
-                  to: 24  
-                name: Access Port
-                enabled: true
-                type: access
-                tags:
-                  - access
-                vlan: 10
-                voice_vlan: 20
-                link_negotiation: Auto negotiate
-                storm_control: true
-                rstp: true
-                stp_guard: bpdu guard
-          - name: ${access_switch_02_name}
-            serial: ${access_switch_02_serial}
-            tags:
-              - small_branch
-              - ubac
-            lat: ${lat}
-            lng: ${lng}
-            address: ${address}
-            notes: Small Branch Notes Switch
-            switch:
-              ports:
-              - port_id_ranges:
-                - from: 1
-                  to: 13
-                name: Uplink Trunk Port
-                enabled: true
-                type: trunk
-                tags:
-                  - uplink
-                  - trunk
-                vlan: 1
-                allowed_vlans: 1,10,20,30,50,999
-                link_negotiation: Auto negotiate
-                udld: Alert only
-                storm_control: true
-                rstp: true
-              - port_id_ranges:
-                - from: 14
-                  to: 24  
-                name: Access Port
-                enabled: true
-                type: access
-                tags:
-                  - access
-                vlan: 10
-                voice_vlan: 20
-                link_negotiation: Auto negotiate
-                storm_control: true
-                rstp: true
-                stp_guard: bpdu guard      
-          # 
-          # The below code does the following:
-          #
-          # First access point configuration
-          #
-          # Defines the name, serial number, geolocation coordinates
-          # (latitude & longitude), and address variables for the
-          # first access point within the site to which the template
-          # is applied.
-          #   
-          - name: ${ap_01_name}
-            serial: ${ap_01_serial}
-            tags:
-              - small_branch
-              - ubac
-            lat: ${lat}
-            lng: ${lng}
-            address: ${address}
-            notes: Small Branch Notes Access Point
-          #
-          # The below code does the following:
-          #
-          # Second access point configuration
-          #
-          # Defines the name, serial number, geolocation coordinates
-          # (latitude & longitude), and address variables for the
-          # second access point within the site to which the template
-          # is applied.
-          #            
-          - name: ${ap_02_name}
-            serial: ${ap_02_serial}
-            tags:
-              - small_branch
-              - ubac
-            lat: ${lat}
-            lng: ${lng}
-            address: ${address}
-            notes: Small Branch Notes Appliance
+         type: model
+         configuration:
+          devices:
+            - name: ${appliance_01_name}
+              serial: ${appliance_01_serial}
+              tags:
+                - ubac
+                - UBAC-S
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Small Branch Secure Router
+            - name: ${access_switch_01_name}
+              serial: ${access_switch_01_serial}
+              tags:
+                - ubac
+                - UBAC-S
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Small Branch Notes Switch 1
+              switch:
+                ports:
+                - port_id_ranges:
+                  - from: 1
+                    to: 2
+                  name: Uplink Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 1
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 3
+                    to: 8
+                  name: Reserved for Infrastructure
+                  enabled: false
+                  type: access
+                  tags:
+                    - access
+                  vlan: 1
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true
+                  stp_guard: bpdu guard
+                - port_id_ranges:
+                  - from: 9
+                    to: 12
+                  name: AP Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 999
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 13
+                    to: 24
+                  name: Access Port
+                  enabled: true
+                  type: access
+                  tags:
+                    - access
+                  vlan: 10
+                  voice_vlan: 20
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true
+                  stp_guard: bpdu guard
+            - name: ${access_switch_02_name}
+              serial: ${access_switch_02_serial}
+              tags:
+                - ubac
+                - UBAC-S
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Small Branch Notes Switch 2
+              switch:
+                ports:
+                - port_id_ranges:
+                  - from: 1
+                    to: 2
+                  name: Uplink Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 1
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 3
+                    to: 8
+                  name: Reserved for Infrastructure
+                  enabled: false
+                  type: access
+                  tags:
+                    - access
+                  vlan: 1
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true
+                  stp_guard: bpdu guard
+                - port_id_ranges:
+                  - from: 9
+                    to: 12
+                  name: AP Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 999
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 13
+                    to: 24
+                  name: Access Port
+                  enabled: true
+                  type: access
+                  tags:
+                    - access
+                  vlan: 10
+                  voice_vlan: 20
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true
+                  stp_guard: bpdu guard
+            - name: ${ap_01_name}
+              serial: ${ap_01_serial}
+              tags:
+                - ubac
+                - UBAC-S
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Small Branch Notes Access Point 1
+              wireless:
+                radio_settings:
+                  rf_profile_name: Corp wireless rf profile
+            - name: ${ap_02_name}
+              serial: ${ap_02_serial}
+              tags:
+                - ubac
+                - UBAC-S
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Small Branch Notes Access Point 2
+              wireless:
+                radio_settings:
+                  rf_profile_name: Corp wireless rf profile
+       - name: medium_branch_inventory
+         type: model
+         configuration:
+          devices:
+            - name: ${appliance_01_name}
+              serial: ${appliance_01_serial}
+              tags:
+                - medium_branch
+                - ubac
+                - UBAC-M
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Medium Branch Primary MX
+            - name: ${appliance_02_name}
+              serial: ${appliance_02_serial}
+              tags:
+                - medium_branch
+                - ubac
+                - UBAC-M
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Medium Branch Secondary MX
+            - name: ${access_switch_01_name}
+              serial: ${access_switch_01_serial}
+              tags:
+                - unified_branch
+                - ubac
+                - UBAC-M
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Medium Branch Notes Switch
+              switch:
+                ports:
+                - port_id_ranges:
+                  - from: 1
+                    to: 2
+                  name: Uplink Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 1
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 3
+                    to: 5
+                  name: WAN Passthrough Port
+                  enabled: true
+                  type: access
+                  tags:
+                    - access
+                  vlan: 901
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true                    
+                  stp_guard: bpdu guard
+                - port_id_ranges:
+                  - from: 6
+                    to: 8
+                  name: Reserved for Infrastructure
+                  enabled: false
+                  type: access
+                  tags:
+                    - access
+                  vlan: 1
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true                    
+                  stp_guard: bpdu guard
+                - port_id_ranges:
+                  - from: 9
+                    to: 12
+                  name: AP Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 1
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 13
+                    to: 24  
+                  name: Access Port
+                  enabled: true
+                  type: access
+                  tags:
+                    - access
+                  vlan: 10
+                  voice_vlan: 20
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true
+                  stp_guard: bpdu guard
+            - name: ${access_switch_02_name}
+              serial: ${access_switch_02_serial}
+              tags:
+                - test
+                - ubac
+                - UBAC-M
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Medium Branch Switch
+              switch:
+                ports:
+                - port_id_ranges:
+                  - from: 1
+                    to: 2
+                  name: Uplink Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 1
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 3
+                    to: 5
+                  name: WAN Passthrough Port
+                  enabled: true
+                  type: access
+                  tags:
+                    - access
+                  vlan: 902
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true                    
+                  stp_guard: bpdu guard
+                - port_id_ranges:
+                  - from: 6
+                    to: 8
+                  name: Reserved for Infrastructure
+                  enabled: false
+                  type: access
+                  tags:
+                    - access
+                  vlan: 1
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true                    
+                  stp_guard: bpdu guard
+                - port_id_ranges:
+                  - from: 9
+                    to: 12
+                  name: AP Trunk Port
+                  enabled: true
+                  type: trunk
+                  tags:
+                    - uplink
+                    - trunk
+                  vlan: 1
+                  allowed_vlans: 1,10,20,30,40,50,999
+                  link_negotiation: Auto negotiate
+                  udld: Alert only
+                  storm_control: true
+                  rstp: true
+                  # peer_sgt_capable: ${sgt_pass}
+                  # adaptive_policy_group_name: Infrastructure
+                - port_id_ranges:
+                  - from: 13
+                    to: 24  
+                  name: Access Port
+                  enabled: true
+                  type: access
+                  tags:
+                    - access
+                  vlan: 10
+                  voice_vlan: 20
+                  link_negotiation: Auto negotiate
+                  storm_control: true
+                  rstp: true
+                  stp_guard: bpdu guard
+            #
+            # Option 2:
+            #
+            # - name: ${access_switch_01_name}
+            #   serial: ${access_switch_01_serial}
+            #   tags:
+            #     - test
+            #     - ubac
+            #     - UBAC-M
+            #   lat: ${lat}
+            #   lng: ${lng}
+            #   address: ${address}
+            #   notes: Medium Branch Notes Switch
+            #   switch:
+            #     ports:
+            #     - port_id_ranges:
+            #       - from: 1
+            #         to: 2
+            #       name: Uplink Trunk Port
+            #       enabled: true
+            #       type: trunk
+            #       tags:
+            #         - uplink
+            #         - trunk
+            #       vlan: 1
+            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       link_negotiation: Auto negotiate
+            #       udld: Alert only
+            #       storm_control: true
+            #       rstp: true
+            #       # peer_sgt_capable: ${sgt_pass}
+            #       # adaptive_policy_group_name: Infrastructure
+            #     - port_id_ranges:
+            #       - from: 3
+            #         to: 8
+            #       name: Reserved for Infrastructure
+            #       enabled: false
+            #       type: access
+            #       tags:
+            #         - access
+            #       vlan: 1
+            #       link_negotiation: Auto negotiate
+            #       storm_control: true
+            #       rstp: true                    
+            #       stp_guard: bpdu guard
+            #     - port_id_ranges:
+            #       - from: 9
+            #         to: 12
+            #       name: AP Trunk Port
+            #       enabled: true
+            #       type: trunk
+            #       tags:
+            #         - uplink
+            #         - trunk
+            #       vlan: 1
+            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       link_negotiation: Auto negotiate
+            #       udld: Alert only
+            #       storm_control: true
+            #       rstp: true
+            #       # peer_sgt_capable: ${sgt_pass}
+            #       # adaptive_policy_group_name: Infrastructure
+            #     - port_id_ranges:
+            #       - from: 13
+            #         to: 24
+            #       name: Access Port
+            #       enabled: true
+            #       type: access
+            #       tags:
+            #         - access
+            #       vlan: 10
+            #       voice_vlan: 20
+            #       link_negotiation: Auto negotiate
+            #       storm_control: true
+            #       rstp: true
+            #       stp_guard: bpdu guard
+            # - name: ${access_switch_02_name}
+            #   serial: ${access_switch_02_serial}
+            #   tags:
+            #     - test
+            #     - ubac
+            #     - UBAC-M
+            #   lat: ${lat}
+            #   lng: ${lng}
+            #   address: ${address}
+            #   notes: Medium Branch Notes Switch
+            #   switch:
+            #     ports:
+            #     - port_id_ranges:
+            #       - from: 1
+            #         to: 2
+            #       name: Uplink Trunk Port
+            #       enabled: true
+            #       type: trunk
+            #       tags:
+            #         - uplink
+            #         - trunk
+            #       vlan: 1
+            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       link_negotiation: Auto negotiate
+            #       udld: Alert only
+            #       storm_control: true
+            #       rstp: true
+            #       # peer_sgt_capable: ${sgt_pass}
+            #       # adaptive_policy_group_name: Infrastructure
+            #     - port_id_ranges:
+            #       - from: 3
+            #         to: 8
+            #       name: Reserved for Infrastructure
+            #       enabled: false
+            #       type: access
+            #       tags:
+            #         - access
+            #       vlan: 1
+            #       link_negotiation: Auto negotiate
+            #       storm_control: true
+            #       rstp: true                    
+            #       stp_guard: bpdu guard
+            #     - port_id_ranges:
+            #       - from: 9
+            #         to: 12
+            #       name: AP Trunk Port
+            #       enabled: true
+            #       type: trunk
+            #       tags:
+            #         - uplink
+            #         - trunk
+            #       vlan: 1
+            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       link_negotiation: Auto negotiate
+            #       udld: Alert only
+            #       storm_control: true
+            #       rstp: true
+            #       # peer_sgt_capable: ${sgt_pass}
+            #       # adaptive_policy_group_name: Infrastructure
+            #     - port_id_ranges:
+            #       - from: 13
+            #         to: 24
+            #       name: Access Port
+            #       enabled: true
+            #       type: access
+            #       tags:
+            #         - access
+            #       vlan: 10
+            #       voice_vlan: 20
+            #       link_negotiation: Auto negotiate
+            #       storm_control: true
+            #       rstp: true
+            #       stp_guard: bpdu guard
+            #
+            - name: ${ap_01_name}
+              serial: ${ap_01_serial}
+              tags:
+                - test
+                - ubac
+                - UBAC-M
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Medium Branch Access Point
+              wireless:
+                radio_settings:
+                  rf_profile_name: Corp wireless rf profile   
+            # - name: ${ap_02_name}
+            #   serial: ${ap_02_serial}
+            #   tags:
+            #     - test
+            #     - ubac
+            #     - UBAC-M
+            #   lat: ${lat}
+            #   lng: ${lng}
+            #   address: ${address}
+            #   notes: Medium Branch Notes Access Point
+            #  wireless:
+            #     radio_settings:
+            #       rf_profile_name: Corp wireless rf profile
+            # 
+       - name: large_branch_inventory
+         type: model
+         configuration:
+          devices:
+            - name: ${appliance_01_name}
+              serial: ${appliance_01_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Large Branch Primary Router Notes
+            - name: ${appliance_02_name}
+              serial: ${appliance_02_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Large Branch Secondary Router Notes
+            - name: ${dist_switch_01_name}
+              serial: ${dist_switch_01_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Distribution Switch 01 Notes
+              switch:
+                ports:
+                  - port_id_ranges:
+                    - from: 1
+                      to: 2
+                    name: WAN Router Uplink Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 1
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 3
+                        to: 5
+                    name: WAN Passthrough Port
+                    enabled: true
+                    type: access
+                    tags:
+                      - access
+                    vlan: 901
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+                  - port_id_ranges:
+                      - from: 6
+                        to: 8
+                    name: Reserved for WAN Infrastructure
+                    enabled: false
+                    type: access
+                    tags:
+                      - access
+                    vlan: 1
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+                  - port_id_ranges:
+                      - from: 9
+                        to: 10
+                    name: Switch Uplink Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 1
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 11
+                        to: 24
+                    name: Reserved for Switch Uplink Trunk Ports
+                    enabled: false
+                    type: access
+                    tags:
+                      - access
+                    vlan: 1
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+            - name: ${dist_switch_02_name}
+              serial: ${dist_switch_02_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Distribution Switch 02 Notes
+              switch:
+                ports:
+                  - port_id_ranges:
+                      - from: 1
+                        to: 2
+                    name: WAN Router Uplink Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 1
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 3
+                        to: 5
+                    name: WAN Passthrough Port
+                    enabled: true
+                    type: access
+                    tags:
+                      - access
+                    vlan: 902
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+                  - port_id_ranges:
+                      - from: 6
+                        to: 8
+                    name: Reserved for WAN Infrastructure
+                    enabled: false
+                    type: access
+                    tags:
+                      - access
+                    vlan: 1
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+                  - port_id_ranges:
+                      - from: 9
+                        to: 10
+                    name: Switch Uplink Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 1
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 11
+                        to: 24
+                    name: Reserved for Switch Uplink Trunk Ports
+                    enabled: false
+                    type: access
+                    tags:
+                      - access
+                    vlan: 1
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+            #
+            #     Option 2: 
+            #
+            #  - name: ${dist_switch_01_name}
+            #    serial: ${dist_switch_01_serial}
+            #     tags:
+            #       - ubac
+            #       - UBAC-L
+            #     lat: ${lat}
+            #     lng: ${lng}
+            #     address: ${address}
+            #     notes: Distribution Switch 01 Notes
+            #     switch:
+            #       ports:
+            #        - port_id_ranges:
+            #           - from: 1
+            #             to: 2
+            #          name: WAN Router Uplink Trunk Port
+            #          enabled: true
+            #          type: trunk
+            #          tags:
+            #            - uplink
+            #            - trunk
+            #          vlan: 1
+            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          link_negotiation: Auto negotiate
+            #          udld: Alert only
+            #          storm_control: true
+            #          rstp: true
+            #          # peer_sgt_capable: $(sgt_pass)
+            #          # adaptive_policy_group_name: Infrastructure
+            #        - port_id_ranges:
+            #           - from: 3
+            #             to: 8
+            #          name: Reserved for WAN Infrastructure
+            #          enabled: false
+            #          type: access
+            #          tags:
+            #            - access
+            #          vlan: 1
+            #          link_negotiation: Auto negotiate
+            #          storm_control: true
+            #          rstp: true                    
+            #          stp_guard: bpdu guard
+            #        - port_id_ranges:
+            #           - from: 9
+            #             to: 10
+            #          name: Switch Uplink Trunk Port
+            #          enabled: true
+            #          type: trunk
+            #          tags:
+            #            - uplink
+            #            - trunk
+            #          vlan: 1
+            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          link_negotiation: Auto negotiate
+            #          udld: Alert only
+            #          storm_control: true
+            #          rstp: true
+            #          # peer_sgt_capable: $(sgt_pass)
+            #          # adaptive_policy_group_name: Infrastructure
+            #        - port_id_ranges:
+            #           - from: 11
+            #             to: 24
+            #          name: Reserved for Switch Uplink Trunk Ports
+            #          enabled: false
+            #          type: access
+            #          tags:
+            #            - access
+            #          vlan: 1
+            #          link_negotiation: Auto negotiate
+            #          storm_control: true
+            #          rstp: true                    
+            #          stp_guard: bpdu guard
+            #  - name: ${dist_switch_02_name}
+            #    serial: ${dist_switch_02_serial}
+            #     tags:
+            #       - ubac
+            #     lat: ${lat}
+            #     lng: ${lng}
+            #     address: ${address}
+            #     notes: Distribution Switch 02 Notes
+            #     switch:
+            #       ports:
+            #        - port_id_ranges:
+            #           - from: 1
+            #             to: 2
+            #          name: WAN Router Uplink Trunk Port
+            #          enabled: true
+            #          type: trunk
+            #          tags:
+            #            - uplink
+            #            - trunk
+            #          vlan: 1
+            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          link_negotiation: Auto negotiate
+            #          udld: Alert only
+            #          storm_control: true
+            #          rstp: true
+            #          # peer_sgt_capable: $(sgt_pass)
+            #          # adaptive_policy_group_name: Infrastructure
+            #        - port_id_ranges:
+            #           - from: 3
+            #             to: 8
+            #          name: Reserved for WAN Infrastructure
+            #          enabled: false
+            #          type: access
+            #          tags:
+            #            - access
+            #          vlan: 1
+            #          link_negotiation: Auto negotiate
+            #          storm_control: true
+            #          rstp: true                    
+            #          stp_guard: bpdu guard
+            #        - port_id_ranges:
+            #           - from: 9
+            #             to: 10
+            #          name: Switch Uplink Trunk Port
+            #          enabled: true
+            #          type: trunk
+            #          tags:
+            #            - uplink
+            #            - trunk
+            #          vlan: 1
+            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          link_negotiation: Auto negotiate
+            #          udld: Alert only
+            #          storm_control: true
+            #          rstp: true
+            #          # peer_sgt_capable: $(sgt_pass)
+            #          # adaptive_policy_group_name: Infrastructure
+            #        - port_id_ranges:
+            #           - from: 11
+            #             to: 24
+            #          name: Reserved for Switch Uplink Trunk Ports
+            #          enabled: false
+            #          type: access
+            #          tags:
+            #            - access
+            #          vlan: 1
+            #          link_negotiation: Auto negotiate
+            #          storm_control: true
+            #          rstp: true                    
+            #          stp_guard: bpdu guard
+            #
+            - name: ${access_switch_01_name}
+              serial: ${access_switch_01_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Large Branch Access Switch 01 Notes
+              switch:
+                ports:
+                  - port_id_ranges:
+                      - from: 1
+                        to: 2
+                    name: Uplink Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 1
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 3
+                        to: 4
+                    name: Reserved for Switch Uplink Trunk Ports
+                    enabled: false
+                    type: access
+                    tags:
+                      - access
+                    vlan: 1
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+                  - port_id_ranges:
+                      - from: 5
+                        to: 12
+                    name: AP Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 999
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 13
+                        to: 24
+                    name: Access Port
+                    enabled: true
+                    type: access
+                    tags:
+                      - access
+                    vlan: 10
+                    voice_vlan: 20
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true
+                    stp_guard: bpdu guard
+            - name: ${access_switch_02_name}
+              serial: ${access_switch_02_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Large Branch Access Switch 02 Notes
+              switch:
+                ports:
+                  - port_id_ranges:
+                      - from: 1
+                        to: 2
+                    name: Uplink Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 1
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 3
+                        to: 4
+                    name: Reserved for Switch Uplink Trunk Ports
+                    enabled: false
+                    type: access
+                    tags:
+                      - access
+                    vlan: 1
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true                    
+                    stp_guard: bpdu guard
+                  - port_id_ranges:
+                      - from: 5
+                        to: 12
+                    name: AP Trunk Port
+                    enabled: true
+                    type: trunk
+                    tags:
+                      - uplink
+                      - trunk
+                    vlan: 999
+                    allowed_vlans: 1,10,20,30,40,50,999
+                    link_negotiation: Auto negotiate
+                    udld: Alert only
+                    storm_control: true
+                    rstp: true
+                    # peer_sgt_capable: $(sgt_pass)
+                    # adaptive_policy_group_name: Infrastructure
+                  - port_id_ranges:
+                      - from: 13
+                        to: 24
+                    name: Access Port
+                    enabled: true
+                    type: access
+                    tags:
+                      - access
+                    vlan: 10
+                    voice_vlan: 20
+                    link_negotiation: Auto negotiate
+                    storm_control: true
+                    rstp: true
+                    stp_guard: bpdu guard
+            - name: ${ap_01_name}
+              serial: ${ap_01_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Large Branch AP 01 Notes
+              wireless:
+                radio_settings:
+                  rf_profile_name: Corp wireless rf profile
+            - name: ${ap_02_name}
+              serial: ${ap_02_serial}
+              tags:
+                - ubac
+                - UBAC-L
+              lat: ${lat}
+              lng: ${lng}
+              address: ${address}
+              notes: Large Branch AP 02 Notes
+              wireless:
+                radio_settings:
+                  rf_profile_name: Corp wireless rf profile

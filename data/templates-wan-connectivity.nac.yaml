@@ -13,11 +13,13 @@
 # ===========================================================================
 #
 # meraki:
-#   template:
+#   templates:
 #     networks:
 #       - name: appl_comonitoring
-#         appliance:
-#           connectivity_monitoring_destinations:
-#                   - ip: "1.1.1.1"
-#                     description: Cloudflare DNS
-#                     default: true
+#         type: model
+#         configuration:
+#           appliance:
+#             connectivity_monitoring_destinations:
+#                    - ip: "1.1.1.1"
+#                      description: Cloudflare DNS
+#                      default: true

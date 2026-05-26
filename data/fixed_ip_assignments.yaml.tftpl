@@ -1,0 +1,9 @@
+appliance:
+  vlans:
+    - vlan_id: 999
+      fixed_ip_assignments:
+%{ for entry in fixed_ip_assignments ~}
+        - name: ${entry.name}
+          ip: ${entry.ip}
+          mac: ${entry.mac}
+%{ endfor ~}
