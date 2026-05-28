@@ -4,7 +4,7 @@ May 2026
 
 ### New Features
 
-- **Medium Branch Support**: Added medium site design with 2 appliances in active-backup (warm spare) configuration, including dedicated inventory, variables, and network templates
+- **Medium and Large Branch Support**: Added medium  and large site design with 2 appliances in active-backup (warm spare) configuration, including dedicated inventory, variables, and network templates
 - **New Style Templates**: Migrated all data templates to new-style YAML template format with per-feature separation
 - **3rd Party VPN Peers**: Added support for third-party VPN peers (IPsec) at the organization level, including Cisco Secure Access (SSE) integration
 - **IP SLA Monitoring**: Added VPN site-to-site IPsec peers SLA policy configuration for 3rd party VPN health checks
