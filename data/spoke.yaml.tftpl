@@ -1,0 +1,21 @@
+appliance:
+  vpn_site_to_site_vpn:
+    mode: spoke
+    hubs:
+%{ for hub in hubs ~}
+      - hub_network_name: ${hub.name}
+        use_default_route: ${hub.default_route}
+%{ endfor ~}
+    subnets:
+      - local_subnet: ${vlan10_subnet}
+        use_vpn: true
+      - local_subnet: ${vlan20_subnet}
+        use_vpn: true
+      - local_subnet: ${vlan30_subnet}
+        use_vpn: true
+      - local_subnet: ${vlan40_subnet}
+        use_vpn: true
+      - local_subnet: ${vlan50_subnet}
+        use_vpn: false
+      - local_subnet: ${vlan999_subnet}
+        use_vpn: true

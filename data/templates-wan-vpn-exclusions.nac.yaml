@@ -1,0 +1,21 @@
+meraki:
+  templates:
+    networks:
+      - name: app_vpn_exclusions
+        type: model
+        configuration:
+          appliance:
+            traffic_shaping:
+                  vpn_exclusions:
+                    major_applications:
+                      - meraki:vpnExclusions/application/1
+                      - meraki:vpnExclusions/application/6
+                    custom:
+                      - protocol: udp
+                        destination: 64.62.142.12/32
+                      - protocol: any
+                        destination: 158.115.128.0/19
+                      - protocol: any
+                        destination: 209.206.48.0/20
+                      - protocol: any
+                        destination: 216.157.128.0/20

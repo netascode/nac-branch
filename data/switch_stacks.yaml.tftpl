@@ -1,0 +1,8 @@
+switch_stacks:
+%{ for stack in stacks ~}
+- name: ${stack.name}
+  devices:
+%{ for device in stack.devices ~}
+    - ${device}
+%{ endfor ~}
+%{ endfor ~}
