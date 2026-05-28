@@ -12,9 +12,9 @@
 # and add appl_comonitoring template to your pods_variables.nac.yaml file to apply to desired network.
 # ===========================================================================
 #
-# meraki:
-#   templates:
-#     networks:
+meraki:
+  templates:
+    networks:
 #       - name: appl_comonitoring
 #         type: model
 #         configuration:
