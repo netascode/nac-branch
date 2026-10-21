@@ -88,7 +88,7 @@ Note that the link aggregation configuration only applies to the large branch de
 The **switch** configuration template includes switch heirachy and setup, QoS, and network policies for the small, medium, and large branch designs including the following:
 
 Switch Settings:
-- Management VLAN 999 for out-of-band management (migrates from VLAN 1 after onboarding)
+- Management VLAN 511 for out-of-band management (migrates from VLAN 1 after onboarding)
 - Uplink client sampling for traffic analytics
 - Jumbo frame support with MTU configuration configured as a variable
 - IGMP snooping for multicast optimization

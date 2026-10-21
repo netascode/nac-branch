@@ -156,7 +156,7 @@ The following are the variables defined within each template in the `data/` fold
  - **vlan10_subnet**: String - IPv4 address with CIDR of VLAN 10 (Data)
  - **vlan20_subnet**: String - IPv4 address with CIDR of VLAN 20 (Voice)
  - **vlan30_subnet**: String - IPv4 address with CIDR of VLAN 30 (IoT)
- - **vlan999_subnet**: String - IPv4 address with CIDR of VLAN 999 (Infra)
+ - **vlan511_subnet**: String - IPv4 address with CIDR of VLAN 511 (Infra)
 
  From **app_spoke** template:
  *Renders `data/spoke.yaml.tftpl`.*
@@ -166,7 +166,7 @@ The following are the variables defined within each template in the `data/` fold
  - **vlan30_subnet**: String - IPv4 address with CIDR of VLAN 30 (IoT)
  - **vlan40_subnet**: String - IPv4 address with CIDR of VLAN 40 (PCI)
  - **vlan50_subnet**: String - IPv4 address with CIDR of VLAN 50 (Guest)
- - **vlan999_subnet**: String - IPv4 address with CIDR of VLAN 999 (Infra)
+ - **vlan511_subnet**: String - IPv4 address with CIDR of VLAN 511 (Infra)
 
  From **app_ports** template:
  - None
@@ -182,8 +182,8 @@ The following are the variables defined within each template in the `data/` fold
  - **vlan40_appliance_ip**: String - IPv4 address of Secure router for VLAN 40 (PCI)
  - **vlan50_subnet**: String - IPv4 address with CIDR of VLAN 50 (Guest)
  - **vlan50_appliance_ip**: String - IPv4 address of Secure router for VLAN 50 (Guest)
- - **vlan999_subnet**: String - IPv4 address with CIDR of VLAN 999 (Infra)
- - **vlan999_appliance_ip**: String - IPv4 address of Secure router for VLAN 999 (Infra)
+ - **vlan511_subnet**: String - IPv4 address with CIDR of VLAN 511 (Infra)
+ - **vlan511_appliance_ip**: String - IPv4 address of Secure router for VLAN 511 (Infra)
  - **corp_dhcp_server1**: String - IPv4 address of remote DHCP Server 1
  - **corp_dhcp_server2**: String - IPv4 address of remote DHCP Server 2
  - **dns_server_1**: String - IPv4 address of primary DNS server
@@ -191,7 +191,7 @@ The following are the variables defined within each template in the `data/` fold
 
  From **app_fixed_ip_assignments** template:
  *Renders `data/fixed_ip_assignments.yaml.tftpl`.*
- - **fixed_ip_assignments**: List of objects (each with `name`, `ip`, `mac`) - Reserved IPs on VLAN 999 (Infra) for switches/APs
+ - **fixed_ip_assignments**: List of objects (each with `name`, `ip`, `mac`) - Reserved IPs on VLAN 511 (Infra) for switches/APs
 
  From **app_warm_spare** template:
  - **virtual_ip1**: String - IPv4 address shared by first WAN interface in warm spare configuration

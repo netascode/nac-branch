@@ -26,7 +26,7 @@ The template defines the following variables:
 
 ## 📋 app_hub Configuration Template
 
-The **app_hub** template configures the network to which the template is applied as a hub and advertises the VLAN 10 (Data), VLAN 20 (Voice), VLAN 30 (Iot), VLAN 40 (PCI), and VLAN 999 (Infra) subnets across the VPN to the cloud.  Note, this template may be unused as the hub name is imported in the current release.
+The **app_hub** template configures the network to which the template is applied as a hub and advertises the VLAN 10 (Data), VLAN 20 (Voice), VLAN 30 (Iot), VLAN 40 (PCI), and VLAN 511 (Infra) subnets across the VPN to the cloud.  Note, this template may be unused as the hub name is imported in the current release.
 
 The template defines the following variables:
 
@@ -34,7 +34,7 @@ The template defines the following variables:
   - **vlan20_subnet**: String - CIDR for the VLAN 20 (Voice) subnet
   - **vlan30_subnet**: String - CIDR for the VLAN 30 (IoT) subnet
   - **vlan40_subnet**: String - CIDR for the VLAN 40 (PCI) subnet
-  - **vlan999_subnet**: String - CIDR for the VLAN 999 (Infra) subnet
+  - **vlan511_subnet**: String - CIDR for the VLAN 511 (Infra) subnet
 
 Values must be assigned to these variables when the template is assigned to a network within the **pods_variables.nac.yaml** file.
 
@@ -51,9 +51,9 @@ The template defines the following variables:
   - **vlan30_subnet**: String - CIDR for the VLAN 30 (IoT) subnet
   - **vlan40_subnet**: String - CIDR for the VLAN 40 (PCI) subnet
   - **vlan50_subnet**: String - CIDR for the VLAN 50 (Guest) subnet
-  - **vlan999_subnet**: String - CIDR for the VLAN 999 (Infra) subnet
+  - **vlan511_subnet**: String - CIDR for the VLAN 511 (Infra) subnet
 
-Advertises the VLAN 10 (Data), VLAN 20 (Voice), VLAN 30 (IoT), VLAN 40 (PCI), and VLAN 999 (infra) subnets across the VPN to the cloud. VLAN 50 (Guest) is not advertised across the VPN. The default VLAN (VLAN 1) is automatically configured by the secure router and does not appear within the YAML.
+Advertises the VLAN 10 (Data), VLAN 20 (Voice), VLAN 30 (IoT), VLAN 40 (PCI), and VLAN 511 (infra) subnets across the VPN to the cloud. VLAN 50 (Guest) is not advertised across the VPN. The default VLAN (VLAN 1) is automatically configured by the secure router and does not appear within the YAML.
 
 Note that for Unified Branch Phase 2, the **use_default_route** paramater for the hub has been changed from true to a variable called **hub_default_route**. This is to accomodate SSE / Cisco Secure Access Cloud integration at the branch.  When SSE / Cisco Secure Access Cloud integration is enabled, the default route for all Internet bound traffic that does not have a specific exclusion will be sent to the Cisco Secure Access Cloud data centers.  Therefore, the **use_default_route** parameter must be set to **false** when enabling SSE / Cisco Secure Access Cloud integration.  Otherwise, the **use_default_route** parameter must be set to **true** as was done for Unified Branch Phase 1.
 
@@ -69,7 +69,7 @@ The template defines the following variables:
 
 The **app_ports** template configures and enables LAN ports 5, 6, 13, & 14 as trunks to the branch switch. The ports shown in the configuration within the YAML file are specific to the MX85 secure router. Use either ports 5 - 6 (RJ-45) or ports 13 & 14 (SFP) for redundant connectivity. For MX95/105 secure routers the SFP LAN ports are ports 9 & 10. If you are using an MX67 with two WAN ports, the LAN port range is ports 3 - 5. If you are using an MX68 the LAN port range is ports 3 - 12, with ports 11 & 12 supporting POE+. Depending upon the secure router model you are deploying, you will need to change the port_id_ranges you wish to enable and configure as trunks.
 
-Allows VLANs 1, 10, 20, 30, 40, 50, and 999. Native VLAN 1 on the trunk serves to allow devices downstream of the secure router to initially get IP addresses and communicate with the Meraki cloud. Upon receiving their configurations, devices downstream of the secure router are configured with VLAN 999 (infra) as their manangement VLAN. VLANs 10, 20, 30, 40, and 50 correspond to Data, Voice, IoT, PCI, and Guest VLANs.
+Allows VLANs 1, 10, 20, 30, 40, 50, and 511. Native VLAN 1 on the trunk serves to allow devices downstream of the secure router to initially get IP addresses and communicate with the Meraki cloud. Upon receiving their configurations, devices downstream of the secure router are configured with VLAN 511 (infra) as their manangement VLAN. VLANs 10, 20, 30, 40, and 50 correspond to Data, Voice, IoT, PCI, and Guest VLANs.
 
 Set unused LAN ports to be shut down on the secure routers. For the MX85 secure router shown in the example, this corresponds to ports 7 - 12 along with either 5, 6 or 13, 14 depending on whether you use (RJ-45) or (SFP) connections between the secure router and the switch / switch stack.
 
@@ -90,28 +90,28 @@ The template defines the following variables:
   - **vlan40_appliance_ip**: String - IP address of the secure router interface for VLAN 40
   - **vlan50_subnet**: String - CIDR for the VLAN 50 (Guest) subnet
   - **vlan50_appliance_ip**: String - IP address of the secure router interface for VLAN 50
-  - **vlan999_subnet**: String - CIDR for the VLAN 999 (Infra) subnet
-  - **vlan999_appliance_ip** - IP address of the secure router interface for VLAN 999
+  - **vlan511_subnet**: String - CIDR for the VLAN 511 (Infra) subnet
+  - **vlan511_appliance_ip** - IP address of the secure router interface for VLAN 511
   - **corp_dhcp_server1**: String - IP address of first corporate DHCP server
   - **corp_dhcp_server2**: String - IP address of second corporate DHCP server
   - **dns_server_1**: String - IP address of first corporate DNS server
   - **dns_server_2**: String - IP address of second corporate DNS server
 
-The **app_vlans** template hardcodes the configuration for 6 VLANs - VLAN 10 (Data), VLAN 20 (Voice), VLAN 30 (IoT), VLAN 40 (PCI), VLAN 50 (Guest), and VLAN 999 (infra). For each VLAN, the IPv4 subnet and address of the security appliance are defined as variables. The VLAN names are hardcoded. IPv6 is commented out for each VLAN, as it is not supported with branch designs with dual routers for Unified Branch Phase 2.
+The **app_vlans** template hardcodes the configuration for 6 VLANs - VLAN 10 (Data), VLAN 20 (Voice), VLAN 30 (IoT), VLAN 40 (PCI), VLAN 50 (Guest), and VLAN 511 (infra). For each VLAN, the IPv4 subnet and address of the security appliance are defined as variables. The VLAN names are hardcoded. IPv6 is commented out for each VLAN, as it is not supported with branch designs with dual routers for Unified Branch Phase 2.
 
 For VLANs 10 (Data), 20 (Voice), 30 (IoT), and 40 (PCI) the configuration specifies relaying DHCP back to centralized corporate DHCP servers, configured as variables. 
 
-For VLANs 1 (Default), 50 (Guest), and 999 (Infra), separate DHCP server instances are configured within each VLAN to assign IP addresses to client devices for the VLAN, with the following example configuration:
+For VLANs 1 (Default), 50 (Guest), and 511 (Infra), separate DHCP server instances are configured within each VLAN to assign IP addresses to client devices for the VLAN, with the following example configuration:
 
 Mandatory IP address assignment for VLAN 50 (Guest)
 
-DNS server specified as openDNS for VLAN 50. User defined DNS servers for VLAN 999 (Infra)
+DNS server specified as openDNS for VLAN 50. User defined DNS servers for VLAN 511 (Infra)
 
-DHCP lease time of 1 day for VLANs 50 and 999.  No DHCP boot options specified.
+DHCP lease time of 1 day for VLANs 50 and 511.  No DHCP boot options specified.
 
 ## 📋 app_fixed_ip_assignment Configuration Template
 
-The **app_fixed_ip_assignments** template references the **fixed_ip_assignments.yaml.tftpl** file which holds the actual configuration for the fixed IP assignments configuration.  The **fixed_ip_assignments** template configures a variable number of management IP address assignments on the Infra VLAN (VLAN 999) for switch and AP devices downstream of the secure routers within the branch network to which the template is applied.
+The **app_fixed_ip_assignments** template references the **fixed_ip_assignments.yaml.tftpl** file which holds the actual configuration for the fixed IP assignments configuration.  The **fixed_ip_assignments** template configures a variable number of management IP address assignments on the Infra VLAN (VLAN 511) for switch and AP devices downstream of the secure routers within the branch network to which the template is applied.
 
 The template defines the following variables:
 
@@ -120,7 +120,7 @@ Under **fixed_ip_assignments**:
 - **ip**: Integer - Radius Server port
 - **mac**: String - Radius Server secret
 
-Fixed IP address assignments for VLAN 999 corresponding to the management interfaces of the switches and APs. This is to ensure network devices have a consistent IP address for sourcing syslog, NetFlow, snmp, Radius, etc. For each switch and AP in the network, ensure there is an entry which includes the name, IP address, and MAC address of the device.
+Fixed IP address assignments for VLAN 511 corresponding to the management interfaces of the switches and APs. This is to ensure network devices have a consistent IP address for sourcing syslog, NetFlow, snmp, Radius, etc. For each switch and AP in the network, ensure there is an entry which includes the name, IP address, and MAC address of the device.
 
 
 ## 📋 warm_spare Configuration Template
@@ -160,9 +160,9 @@ The outbound Layer 3 firewall rules section configures network-wide outbound fir
 
 - The "Guest Access" rule denies all access from the Guest VLAN (VLAN 50) to the Default (VLAN 1), Data, Voice, IoT, PCI, and Infra VLANs within the branch.  From a policy object and policy object group perspective, this rule denies traffic from the **Guest Subnet** policy object to the **Default Subnet**, **Data Subnet**, **Voice Subnet**, **IoT Subnet**, **PCI Subnet**, and **Infra Subnet** policy objects.
 
-- The "Infra Access" rule denies all access from the Infra VLAN (VLAN 999) to the Default (VLAN 1), Data, Voice, IoT, PCI, and Guest VLANs within the branch.  From a policy object and policy object group perspective, this rule denies traffic from the **Infra Subnet** policy object to the **Default Subnet**, **Data Subnet**, **Voice Subnet**, **IoT Subnet**, **PCI Subnet**, and **Guest Subnet** policy objects.
+- The "Infra Access" rule denies all access from the Infra VLAN (VLAN 511) to the Default (VLAN 1), Data, Voice, IoT, PCI, and Guest VLANs within the branch.  From a policy object and policy object group perspective, this rule denies traffic from the **Infra Subnet** policy object to the **Default Subnet**, **Data Subnet**, **Voice Subnet**, **IoT Subnet**, **PCI Subnet**, and **Guest Subnet** policy objects.
 
-- The "Allow DIA" rule allows direct Internet access for all devices on the default VLAN (VLAN 1), the Infra VLAN (VLAN 999), the Data VLAN (VLAN 10), and Guest VLAN (VLAN 50).  From a policy object and policy object group perspective, this rule allows traffic from the **INFRA Subnet**, **Data Subnet**, **Guest Subnet**, and  **Default_Subnet** to any destination. Since this is a stateful rule, the return traffic is allowed through as well.
+- The "Allow DIA" rule allows direct Internet access for all devices on the default VLAN (VLAN 1), the Infra VLAN (VLAN 511), the Data VLAN (VLAN 10), and Guest VLAN (VLAN 50).  From a policy object and policy object group perspective, this rule allows traffic from the **INFRA Subnet**, **Data Subnet**, **Guest Subnet**, and  **Default_Subnet** to any destination. Since this is a stateful rule, the return traffic is allowed through as well.
   
 - The "Deny All" rule denies all other connectivity. 
   

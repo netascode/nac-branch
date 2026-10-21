@@ -50,7 +50,7 @@ The configuration within the **policy_objects** section creates 11 policy object
 
 - **Voice Subnet** corresponds to the IP subnet range of VLAN 20 (Voice) across all branches within the Unified Branch CVD.    This is hardcoded to a value of "10.20.0.0/16" in the file.  Change this to the IP address range representing the Voice VLANs within your deployment.
 
-- **INFRA Subnet** corresponds to the IP subnet range of VLAN 999 (Infra) across all branches within the Unified Branch CVD.   This is hardcoded to a value of "10.250.0.0/16" in the file.  Change this to the IP address range representing the Infra VLANs within your deployment.
+- **INFRA Subnet** corresponds to the IP subnet range of VLAN 511 (Infra) across all branches within the Unified Branch CVD.   This is hardcoded to a value of "10.250.0.0/16" in the file.  Change this to the IP address range representing the Infra VLANs within your deployment.
 
 - **IoT Subnet** corresponds to the IP subnet range of VLAN 30 (IoT) across all branches within the Unified Branch CVD.  This is hardcoded to a value of "10.30.0.0/16" in the file.  Change this to the IP address range representing the IoT VLANs within your deployment.
 

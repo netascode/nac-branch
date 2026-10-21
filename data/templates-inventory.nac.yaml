@@ -35,7 +35,7 @@ meraki:
                     - uplink
                     - trunk
                   vlan: 1
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -64,8 +64,8 @@ meraki:
                   tags:
                     - uplink
                     - trunk
-                  vlan: 999
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  vlan: 511
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -107,7 +107,7 @@ meraki:
                     - uplink
                     - trunk
                   vlan: 1
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -136,8 +136,8 @@ meraki:
                   tags:
                     - uplink
                     - trunk
-                  vlan: 999
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  vlan: 511
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -228,7 +228,7 @@ meraki:
                     - uplink
                     - trunk
                   vlan: 1
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -271,7 +271,7 @@ meraki:
                     - uplink
                     - trunk
                   vlan: 1
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -314,7 +314,7 @@ meraki:
                     - uplink
                     - trunk
                   vlan: 1
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -357,7 +357,7 @@ meraki:
                     - uplink
                     - trunk
                   vlan: 1
-                  allowed_vlans: 1,10,20,30,40,50,999
+                  allowed_vlans: 1,10,20,30,40,50,511
                   link_negotiation: Auto negotiate
                   udld: Alert only
                   storm_control: true
@@ -403,7 +403,7 @@ meraki:
             #         - uplink
             #         - trunk
             #       vlan: 1
-            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       allowed_vlans: 1,10,20,30,40,50,511
             #       link_negotiation: Auto negotiate
             #       udld: Alert only
             #       storm_control: true
@@ -433,7 +433,7 @@ meraki:
             #         - uplink
             #         - trunk
             #       vlan: 1
-            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       allowed_vlans: 1,10,20,30,40,50,511
             #       link_negotiation: Auto negotiate
             #       udld: Alert only
             #       storm_control: true
@@ -476,7 +476,7 @@ meraki:
             #         - uplink
             #         - trunk
             #       vlan: 1
-            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       allowed_vlans: 1,10,20,30,40,50,511
             #       link_negotiation: Auto negotiate
             #       udld: Alert only
             #       storm_control: true
@@ -506,7 +506,7 @@ meraki:
             #         - uplink
             #         - trunk
             #       vlan: 1
-            #       allowed_vlans: 1,10,20,30,40,50,999
+            #       allowed_vlans: 1,10,20,30,40,50,511
             #       link_negotiation: Auto negotiate
             #       udld: Alert only
             #       storm_control: true
@@ -598,7 +598,7 @@ meraki:
                       - uplink
                       - trunk
                     vlan: 1
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
@@ -641,7 +641,7 @@ meraki:
                       - uplink
                       - trunk
                     vlan: 1
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
@@ -682,7 +682,7 @@ meraki:
                       - uplink
                       - trunk
                     vlan: 1
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
@@ -725,7 +725,7 @@ meraki:
                       - uplink
                       - trunk
                     vlan: 1
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
@@ -769,7 +769,7 @@ meraki:
             #            - uplink
             #            - trunk
             #          vlan: 1
-            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          allowed_vlans: 1,10,20,30,40,50,511
             #          link_negotiation: Auto negotiate
             #          udld: Alert only
             #          storm_control: true
@@ -799,7 +799,7 @@ meraki:
             #            - uplink
             #            - trunk
             #          vlan: 1
-            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          allowed_vlans: 1,10,20,30,40,50,511
             #          link_negotiation: Auto negotiate
             #          udld: Alert only
             #          storm_control: true
@@ -839,7 +839,7 @@ meraki:
             #            - uplink
             #            - trunk
             #          vlan: 1
-            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          allowed_vlans: 1,10,20,30,40,50,511
             #          link_negotiation: Auto negotiate
             #          udld: Alert only
             #          storm_control: true
@@ -869,7 +869,7 @@ meraki:
             #            - uplink
             #            - trunk
             #          vlan: 1
-            #          allowed_vlans: 1,10,20,30,40,50,999
+            #          allowed_vlans: 1,10,20,30,40,50,511
             #          link_negotiation: Auto negotiate
             #          udld: Alert only
             #          storm_control: true
@@ -911,7 +911,7 @@ meraki:
                       - uplink
                       - trunk
                     vlan: 1
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
@@ -940,8 +940,8 @@ meraki:
                     tags:
                       - uplink
                       - trunk
-                    vlan: 999
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    vlan: 511
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
@@ -983,7 +983,7 @@ meraki:
                       - uplink
                       - trunk
                     vlan: 1
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
@@ -1012,8 +1012,8 @@ meraki:
                     tags:
                       - uplink
                       - trunk
-                    vlan: 999
-                    allowed_vlans: 1,10,20,30,40,50,999
+                    vlan: 511
+                    allowed_vlans: 1,10,20,30,40,50,511
                     link_negotiation: Auto negotiate
                     udld: Alert only
                     storm_control: true
