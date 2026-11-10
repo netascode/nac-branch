@@ -1,3 +1,19 @@
+## 2.1.0
+
+November 2026
+
+### Improvements
+
+- **Infra VLAN changed from 999 to 511**: The Infra (management) VLAN now uses VLAN 511 to align with the Cisco Validated Design (CVD) and Cisco Workflows automation, and to support switch platforms limited to 512 active VLANs. VLAN 1 remains the onboarding VLAN, and the Infra VLAN keeps its existing purpose and routing behavior. Subnet and appliance IP values are unchanged.
+  - Updated appliance VLAN, switch management VLAN, trunk allowed VLANs and native VLAN, VPN subnet references, and fixed IP assignments
+  - Updated Device Onboarding Flow and help documentation to reflect VLAN 511
+
+### Breaking Changes
+
+- **Infra VLAN ID is now 511 (was 999)**: Existing deployments will have the Infra VLAN re-numbered on the MX and in switch management and trunk settings. Plan a maintenance window and make sure VLAN 511 is routed and allowed on upstream devices before applying
+- **Variables renamed**: `vlan999_subnet` is now `vlan511_subnet` and `vlan999_appliance_ip` is now `vlan511_appliance_ip`. Update any custom `pods_variables` or downstream references
+- **External configuration**: Update anything outside this repo that references VLAN 999 (DHCP relay or reservations, core and distribution switches, firewall rules)
+
 ## 2.0.0
 
 May 2026
