@@ -77,8 +77,8 @@ meraki:
                 vlan40_appliance_ip: 10.2.40.1
                 vlan50_subnet: 10.2.50.0/24
                 vlan50_appliance_ip: 10.2.50.1
-                vlan999_appliance_ip: 10.2.255.1
-                vlan999_subnet: 10.2.255.0/24
+                vlan511_appliance_ip: 10.2.255.1
+                vlan511_subnet: 10.2.255.0/24
                 dns_server_1: 8.8.8.8
                 dns_server_2: 8.8.4.4
                 hubs:
@@ -225,8 +225,8 @@ meraki:
                 vlan40_appliance_ip: 10.1.40.1
                 vlan50_subnet: 10.1.50.0/24
                 vlan50_appliance_ip: 10.1.50.1
-                vlan999_appliance_ip: 10.1.255.1
-                vlan999_subnet: 10.1.255.0/24
+                vlan511_appliance_ip: 10.1.255.1
+                vlan511_subnet: 10.1.255.0/24
                 dns_server_1: 8.8.8.8
                 dns_server_2: 8.8.4.4
                 hubs:
@@ -493,8 +493,8 @@ meraki:
                 vlan40_appliance_ip: 10.1.40.1
                 vlan50_subnet: 10.1.50.0/24
                 vlan50_appliance_ip: 10.1.50.1
-                vlan999_appliance_ip: 10.1.255.1
-                vlan999_subnet: 10.1.255.0/24
+                vlan511_appliance_ip: 10.1.255.1
+                vlan511_subnet: 10.1.255.0/24
                 dns_server_1: 8.8.8.8
                 dns_server_2: 8.8.4.4
                 hubs:

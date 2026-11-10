@@ -18,7 +18,7 @@ meraki:
         configuration:
           switch:
             settings:
-              vlan: 999
+              vlan: 511
               use_combined_power: false
               uplink_client_sampling: true
               mac_blocklist: false

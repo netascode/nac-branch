@@ -27,7 +27,7 @@ meraki:
                         use_vpn: true
                       - local_subnet: ${vlan40_subnet}
                         use_vpn: true
-                      - local_subnet: ${vlan999_subnet}
+                      - local_subnet: ${vlan511_subnet}
                         use_vpn: true
       - name: app_spoke
         type: file
@@ -44,7 +44,7 @@ meraki:
                     to: 14
                 enabled: true
                 type: trunk
-                allowed_vlans: "1,10,20,30,40,50,999"
+                allowed_vlans: "1,10,20,30,40,50,511"
                 vlan: 1
               - port_id_ranges:
                   - from: 7
@@ -111,10 +111,10 @@ meraki:
                     dhcp_lease_time: "1 day"
                     dhcp_boot_options: false
                     mandatory_dhcp: true
-                  - vlan_id: 999
+                  - vlan_id: 511
                     name: "Infra"
-                    subnet: ${vlan999_subnet}
-                    appliance_ip: ${vlan999_appliance_ip}
+                    subnet: ${vlan511_subnet}
+                    appliance_ip: ${vlan511_appliance_ip}
                     # ipv6:
                     #   enabled: false
                     dns_nameservers: "${dns_server_1}\n${dns_server_2}"

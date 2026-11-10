@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains the Meraki device initial onboarding process and demonstrates best practice VLAN design, specifically covering the migration from VLAN 1 (onboard) to VLAN 999 (management) and the integration with Auto VPN for centralized DHCP services. This applies to all Meraki devices including switches (MS), access points (MR), cameras (MV), and sensors (MT).
+This document explains the Meraki device initial onboarding process and demonstrates best practice VLAN design, specifically covering the migration from VLAN 1 (onboard) to VLAN 511 (management) and the integration with Auto VPN for centralized DHCP services. This applies to all Meraki devices including switches (MS), access points (MR), cameras (MV), and sensors (MT).
 
 ## Example VLAN Structure and Purpose
 
@@ -13,7 +13,7 @@ This document explains the Meraki device initial onboarding process and demonstr
 | 20 | Voice | Corporate Voice traffic | Local MX or Central |
 | 30 | IOT | IoT device traffic | Local MX or Central |
 | 50 | Guest | Guest network traffic | Local MX |
-| 999 | MGMT | Management traffic after configuration pull | Local MX or Central DHCP via Auto VPN |
+| 511 | MGMT | Management traffic after configuration pull | Local MX or Central DHCP via Auto VPN |
 
 ## Initial Device Onboarding Process
 
@@ -33,24 +33,24 @@ This document explains the Meraki device initial onboarding process and demonstr
 3. **Configuration Download**
    - Device pulls its specific configuration from Dashboard assuming it has been claim and assigned to a network
    - Device-specific configurations, VLAN assignments, and management settings downloaded
-   - Management VLAN setting retrieved (configured as VLAN 999)
+   - Management VLAN setting retrieved (configured as VLAN 511)
 
-### Phase 2: Management VLAN Migration (VLAN 1 → VLAN 999)
+### Phase 2: Management VLAN Migration (VLAN 1 → VLAN 511)
 
 1. **Management VLAN Activation**
-   - Device applies new configuration with management VLAN set to VLAN 999
-   - Device initiates DHCP discovery on VLAN 999
-   - VLAN 999 traffic routes through Auto VPN to central DHCP server
+   - Device applies new configuration with management VLAN set to VLAN 511
+   - Device initiates DHCP discovery on VLAN 511
+   - VLAN 511 traffic routes through Auto VPN to central DHCP server
 
 2. **IP Address Assignment**
    - Central DHCP server (in DC) assigns management IP to device
    - DHCP reservation based on device MAC address
-   - Device maintains connectivity to Dashboard via VLAN 999. Note although DHCP address is obtained from central DHCP server, the route to dashboard can either be via the Auto-VPN or via local breakout of the MX internet interface.
+   - Device maintains connectivity to Dashboard via VLAN 511. Note although DHCP address is obtained from central DHCP server, the route to dashboard can either be via the Auto-VPN or via local breakout of the MX internet interface.
 
 3. **Operational State**
-   - Device management now operates exclusively on VLAN 999
+   - Device management now operates exclusively on VLAN 511
    - VLAN 1 DHCP services can be disabled if not required until new device onboarding
-   - All Dashboard communication occurs via VLAN 999 management interface
+   - All Dashboard communication occurs via VLAN 511 management interface
 
 ## Device-Specific Management VLAN Configuration
 
@@ -130,18 +130,18 @@ This document explains the Meraki device initial onboarding process and demonstr
    ```
    MX Spoke Configuration:
    - Auto VPN enabled as Spoke
-   - VLAN 999 routing to Hub via VPN
-   - No local DHCP for VLAN 999
-   - DHCP relay enabled for VLAN 999 to Central DHCP Server
-   - Route propagation enabled for VLAN 999
-   - Either VLAN 999 uses Auto VPN or local breakout of the MX internet interface to reach the Central DHCP Server
+   - VLAN 511 routing to Hub via VPN
+   - No local DHCP for VLAN 511
+   - DHCP relay enabled for VLAN 511 to Central DHCP Server
+   - Route propagation enabled for VLAN 511
+   - Either VLAN 511 uses Auto VPN or local breakout of the MX internet interface to reach the Central DHCP Server
    ```
 
 ### DHCP Reservation Strategy
 
 1. **Central DHCP Server Setup**
    - Windows DHCP or applicable IPAM solution in data center
-   - VLAN 999 scope (e.g., 10.2.0.0/24)
+   - VLAN 511 scope (e.g., 10.2.0.0/24)
    - Reservations based on device MAC addresses
    - Optional dhcp assignment based on client identifier
    - DHCP options for DNS, NTP, and management services
@@ -181,8 +181,8 @@ This document explains the Meraki device initial onboarding process and demonstr
    ```
    Network Settings:
    - Create network
-   - Configure VLAN 999 as management VLAN for all device types
-   - Set device templates with VLAN 999 management (switches, APs)
+   - Configure VLAN 511 as management VLAN for all device types
+   - Set device templates with VLAN 511 management (switches, APs)
    - Configure network-wide management VLAN for cameras and sensors
    - Configure Auto VPN settings
    ```
@@ -191,17 +191,17 @@ This document explains the Meraki device initial onboarding process and demonstr
    ```
    MX Security Appliance:
    - VLAN 1: 192.168.128.0/24 ( default onboarding)
-   - VLAN 999: Routed via Auto VPN to DC
+   - VLAN 511: Routed via Auto VPN to DC
    - DHCP enabled on VLAN 1
-   - DHCP relay enabled for VLAN 999 to Central DHCP Server
+   - DHCP relay enabled for VLAN 511 to Central DHCP Server
    - Auto VPN enabled as Spoke with Hub site pre-configured
-   - Route All VLAN 999 traffic via VPN tunnel or optionally only management services via VPN tunnel, with dashboard connectivity via local breakout of the MX internet interface
+   - Route All VLAN 511 traffic via VPN tunnel or optionally only management services via VPN tunnel, with dashboard connectivity via local breakout of the MX internet interface
    ```
 
 3. **Central DHCP Server Configuration**
    ```
    Central DHCP Server:
-   - VLAN 999 scope (e.g., 10.2.0.0/24)
+   - VLAN 511 scope (e.g., 10.2.0.0/24)
    - Reservations based on device MAC addresses
    - Optional dhcp assignment based on client identifier
    - DHCP options for DNS, NTP, and management services
@@ -218,7 +218,7 @@ This document explains the Meraki device initial onboarding process and demonstr
 
 2. **Configuration Application**
    - Device automatically pulls configuration
-   - Monitor management IP assignment on VLAN 999
+   - Monitor management IP assignment on VLAN 511
    - Verify Auto VPN tunnel connectivity
    - Confirm central DHCP reservation
 
@@ -251,7 +251,7 @@ This document explains the Meraki device initial onboarding process and demonstr
    - Ensure Dashboard access isn't blocked by an upstream firewall
 
 2. **Management VLAN Issues**
-   - Verify VLAN 999 is properly configured in Dashboard for specific device type
+   - Verify VLAN 511 is properly configured in Dashboard for specific device type
    - Check Auto VPN tunnel status
    - Validate central DHCP server accessibility
    - Confirm device-specific management VLAN settings are applied
@@ -264,14 +264,14 @@ This document explains the Meraki device initial onboarding process and demonstr
    - Validate MX licensing and organization membership
 
 2. **DHCP Relay Issues**
-   - Ensure VLAN 999 routes properly via VPN
+   - Ensure VLAN 511 routes properly via VPN
    - Check DHCP relay configuration on hub MX
    - Validate DHCP server is responding to remote subnets
 
 ## Security Considerations
 
 ### Management VLAN Isolation
-- VLAN 999 should be isolated from user traffic
+- VLAN 511 should be isolated from user traffic
 - Implement access control lists limiting management access
 - Use dedicated management subnet with controlled routing
 
@@ -285,7 +285,7 @@ Please note that VRF is not currently supported on the MX and as such the manage
 
 ## Summary
 
-The Meraki device onboarding flow leveraging VLAN 1 for initial connectivity and VLAN 999 for management provides a robust, scalable approach to comprehensive network infrastructure management. This design pattern works consistently across all dashboard supporteddevice types - switches (MS/Catalyst), access points (MR/Catalyst), cameras (MV), and sensors (MT) - and combined with Auto VPN and central DHCP services, enables zero-touch deployment while maintaining centralized control and security.
+The Meraki device onboarding flow leveraging VLAN 1 for initial connectivity and VLAN 511 for management provides a robust, scalable approach to comprehensive network infrastructure management. This design pattern works consistently across all dashboard supporteddevice types - switches (MS/Catalyst), access points (MR/Catalyst), cameras (MV), and sensors (MT) - and combined with Auto VPN and central DHCP services, enables zero-touch deployment while maintaining centralized control and security.
 
 The key benefits of this approach include:
 - **Unified Deployment**: All  devices (switches, APs, cameras, sensors) follow the same onboarding pattern
